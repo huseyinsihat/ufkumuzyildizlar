@@ -1,9 +1,10 @@
 export const TEAM = {
   project: 'Ufkumuz Yıldızlar',
-  home: 'Projemiz',
+  home: 'Proje Etkinlikleri',
   teamName: 'Minik Dahiler',
   event: 'TEKNOFEST 2026',
   category: 'Astronomi, Uzay Bilimleri ve Havacılık',
+  advisor: { name: 'Hüseyin SIHAT', role: 'Takım Danışmanı' },
   members: [
     { name: 'Hadiye Tombuloğlu', role: 'Takım Kaptanı' },
     { name: 'Reyyan Aksen', role: 'Takım Üyesi' },

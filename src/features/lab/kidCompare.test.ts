@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { insightFor } from '../../content/insights'
+import { FACT_STAGES, FACTS, insightFor } from '../../content/insights'
 import { kidCompare } from './kidCompare'
 
 describe('insightFor', () => {
@@ -9,6 +9,16 @@ describe('insightFor', () => {
 
   it('picks a day-night fact for Earth alone', () => {
     expect(insightFor(['earth']).id).toBe('day-night')
+  })
+})
+
+describe('FACTS', () => {
+  it('has three stages and go-to targets', () => {
+    expect(new Set(FACTS.map((item) => item.stage)).size).toBe(3)
+    expect(FACTS.length).toBeGreaterThanOrEqual(30)
+    expect(FACT_STAGES.map((item) => item.id).sort().join()).toBe('earth,planets,stars')
+    expect(FACTS.every((item) => item.bodyId || item.wonderId)).toBe(true)
+    expect(FACTS.every((item) => item.title && item.text)).toBe(true)
   })
 })
 

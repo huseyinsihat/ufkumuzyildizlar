@@ -13,6 +13,7 @@ interface UiState {
   demoStep: number
   leftOpen: boolean
   planetDrawerOpen: boolean
+  starDrawerOpen: boolean
   setIntroVisible: (visible: boolean) => void
   setAppMode: (mode: AppMode) => void
   setActivePanel: (panel: AppPanel) => void
@@ -24,6 +25,7 @@ interface UiState {
   stopDemo: () => void
   setLeftOpen: (open: boolean) => void
   setPlanetDrawerOpen: (open: boolean) => void
+  setStarDrawerOpen: (open: boolean) => void
 }
 
 export const useUiStore = create<UiState>((set, get) => ({
@@ -34,14 +36,15 @@ export const useUiStore = create<UiState>((set, get) => ({
   use2dFallback: false,
   demoActive: false,
   demoStep: 0,
-  leftOpen: false,
+  leftOpen: true,
   planetDrawerOpen: false,
+  starDrawerOpen: false,
   setIntroVisible: (visible) => set({ introVisible: visible }),
   setAppMode: (mode) => set({ appMode: mode }),
-  setActivePanel: (panel) => set({ activePanel: panel }),
+  setActivePanel: (panel) => set({ activePanel: panel, planetDrawerOpen: false, starDrawerOpen: false }),
   togglePanel: (panel) => {
     const current = get().activePanel
-    set({ activePanel: current === panel ? 'none' : panel })
+    set({ activePanel: current === panel ? 'none' : panel, planetDrawerOpen: false, starDrawerOpen: false })
   },
   setWebglSupported: (supported) => set({ webglSupported: supported }),
   setUse2dFallback: (use2d) => set({ use2dFallback: use2d }),
@@ -49,5 +52,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   nextDemoStep: () => set({ demoStep: get().demoStep + 1 }),
   stopDemo: () => set({ demoActive: false, demoStep: 0 }),
   setLeftOpen: (open) => set({ leftOpen: open }),
-  setPlanetDrawerOpen: (open) => set({ planetDrawerOpen: open }),
+  setPlanetDrawerOpen: (open) =>
+    set({ planetDrawerOpen: open, starDrawerOpen: open ? false : get().starDrawerOpen, activePanel: open ? 'none' : get().activePanel }),
+  setStarDrawerOpen: (open) =>
+    set({ starDrawerOpen: open, planetDrawerOpen: open ? false : get().planetDrawerOpen, activePanel: open ? 'none' : get().activePanel }),
 }))

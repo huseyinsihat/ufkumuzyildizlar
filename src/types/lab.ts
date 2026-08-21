@@ -12,6 +12,7 @@ export type LabActivityId =
   | 'arrange-orbits'
   | 'moon-phases'
   | 'stars-or-earth'
+  | 'star-names'
   | 'space-mission'
   | 'light-travel'
   | 'seasons-tilt'

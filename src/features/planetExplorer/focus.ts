@@ -8,7 +8,7 @@ import type { BodyId } from '../../types/planet'
 export function focusBody(id: BodyId): void {
   useSimulationStore.getState().selectBody(id)
   useEducationStore.getState().notifySelection(id)
-  useUiStore.getState().setActivePanel('info')
+  useUiStore.getState().setActivePanel('none')
   getScene()?.focusBody(id)
 }
 

@@ -58,6 +58,10 @@ function applyActivityScene(id: LabActivityId): void {
     scene?.focusBody('earth')
     if (id === 'day-night') {
       sim.setCityPinsVisible(true)
+      sim.setFreezeRevolution(true)
+      sim.setFreezeRotation(false)
+      sim.setTimeScale(TIME_PRESETS.find((item) => item.id === 'day')?.scale ?? 86_400)
+      sim.setPlaying(true)
       scene?.focusEarthSurface()
     }
   }
@@ -73,6 +77,10 @@ function applyActivityScene(id: LabActivityId): void {
     sim.setSkyCamera(true)
     scene?.enterSkyView()
   }
+  if (id === 'star-names') {
+    sim.setSkyCamera(false)
+    scene?.focusWonder('sirius')
+  }
   if (id === 'light-travel') {
     sim.setShowOrbits(true)
     scene?.focusOverview()
@@ -84,7 +92,7 @@ function applyActivityScene(id: LabActivityId): void {
   }
   if (id === 'closest-hottest') {
     sim.selectBody('venus')
-    scene?.setHeatCompare(true)
+    scene?.focusOverview()
   }
   if (id === 'comet-tail') {
     sim.setShowOrbits(true)

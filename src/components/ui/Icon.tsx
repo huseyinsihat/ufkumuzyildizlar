@@ -77,6 +77,13 @@ const ICONS: Record<string, ReactNode> = {
       <path d="M15 13.5c2.2.2 3.8 1.8 4.3 4.5" />
     </>
   ),
+  book: (
+    <>
+      <path d="M4 6.5c1.6-.8 3.4-.8 5 0v12c-1.6-.8-3.4-.8-5 0z" />
+      <path d="M20 6.5c-1.6-.8-3.4-.8-5 0v12c1.6-.8 3.4-.8 5 0z" />
+      <path d="M12 6.5v12" />
+    </>
+  ),
 }
 
 export type IconName = keyof typeof ICONS

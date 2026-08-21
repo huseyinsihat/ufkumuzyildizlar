@@ -1,91 +1,67 @@
-import { useState } from 'react'
-import { BODIES } from '../../astronomy/planetData'
-import { CONSTELLATIONS } from '../../content/constellations'
-import { focusBody, lookAtSolarSystem } from '../../features/planetExplorer/focus'
-import { getScene } from '../../scene/sceneApi'
-import { useEducationStore } from '../../store/educationStore'
+import { getBody } from '../../astronomy/planetData'
+import { findWonder } from '../../content/skyWonders'
+import { formatDays, formatHours, formatNumberTr } from '../../utils/formatting'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
 
-export function LeftNav() {
-  const showOrbits = useSimulationStore((s) => s.showOrbits)
-  const setShowOrbits = useSimulationStore((s) => s.setShowOrbits)
-  const showConstellations = useSimulationStore((s) => s.showConstellations)
-  const setShowConstellations = useSimulationStore((s) => s.setShowConstellations)
-  const selected = useSimulationStore((s) => s.selectedBodyId)
-  const togglePanel = useUiStore((s) => s.togglePanel)
-  const notifyOrbits = useEducationStore((s) => s.notifyOrbitsVisible)
-  const open = useUiStore((s) => s.leftOpen)
-  const [constellationId, setConstellationId] = useState<string | null>(null)
-  const constellation = CONSTELLATIONS.find((item) => item.id === constellationId)
+export function InspectRail() {
+  const leftOpen = useUiStore((s) => s.leftOpen)
+  const bodyId = useSimulationStore((s) => s.selectedBodyId)
+  const wonderId = useSimulationStore((s) => s.selectedWonderId)
+
+  if (!leftOpen) return null
+
+  const body = bodyId ? getBody(bodyId) : null
+  const wonder = findWonder(wonderId)
+  if (!body && !wonder) return null
 
   return (
-    <nav className={`left-nav ${open ? 'is-open' : ''}`} aria-label="Keşif menüsü">
-      <button type="button" className="nav-btn" onClick={lookAtSolarSystem} aria-label="Güneş Sistemine bak">
-        Güneş Sistemi
-      </button>
-      <p className="nav-label">Gezegenler</p>
-      <ul className="planet-list">
-        {BODIES.filter((body) => body.id !== 'moon').map((body) => (
-          <li key={body.id}>
-            <button
-              type="button"
-              className={selected === body.id ? 'is-active' : ''}
-              onClick={() => focusBody(body.id)}
-              aria-label={`${body.name} gezegenine git`}
-            >
-              {body.name}
+    <aside className="inspect-rail" aria-label="Seçim">
+      {body ? (
+        <div className="inspect-card">
+          <header className="panel-head">
+            <div>
+              <p className="eyebrow">
+                <i className="body-swatch" style={{ background: body.color }} aria-hidden="true" />
+                {body.englishName}
+              </p>
+              <h2>{body.name}</h2>
+            </div>
+            <button type="button" className="icon-btn" onClick={() => useSimulationStore.getState().selectBody(null)} aria-label="Kapat">
+              ×
             </button>
-          </li>
-        ))}
-      </ul>
-      <button
-        type="button"
-        className="nav-btn"
-        aria-pressed={showOrbits}
-        onClick={() => {
-          const next = !showOrbits
-          setShowOrbits(next)
-          notifyOrbits(next, selected)
-        }}
-      >
-        {showOrbits ? 'Yörüngeleri gizle' : 'Yörüngeleri göster'}
-      </button>
-      <button
-        type="button"
-        className="nav-btn"
-        aria-pressed={showConstellations}
-        onClick={() => setShowConstellations(!showConstellations)}
-      >
-        {showConstellations ? 'Takımyıldızları gizle' : 'Takımyıldızları göster'}
-      </button>
-      {showConstellations ? (
-        <ul className="planet-list">
-          {CONSTELLATIONS.map((item) => (
-            <li key={item.id}>
-              <button
-                type="button"
-                className={constellationId === item.id ? 'is-active' : ''}
-                onClick={() => {
-                  setConstellationId(item.id)
-                  getScene()?.selectConstellation(item.id)
-                }}
-                aria-label={item.name}
-              >
-                {item.name}
-              </button>
-            </li>
-          ))}
-        </ul>
+          </header>
+          <p>{body.facts[0] ?? body.description}</p>
+          <div className="strip-stats">
+            <div>
+              <span>Gün</span>
+              <strong>{formatHours(body.rotationPeriodHours)}</strong>
+            </div>
+            <div>
+              <span>Yıl</span>
+              <strong>{body.orbitalPeriodDays > 0 ? formatDays(body.orbitalPeriodDays) : '—'}</strong>
+            </div>
+            <div>
+              <span>Uydu</span>
+              <strong>{formatNumberTr(body.moons)}</strong>
+            </div>
+          </div>
+        </div>
       ) : null}
-      {constellation && showConstellations ? (
-        <p className="muted">
-          {constellation.name}: {constellation.description}
-        </p>
+      {!body && wonder ? (
+        <div className="inspect-card">
+          <header className="panel-head">
+            <div>
+              <p className="eyebrow">{wonder.tag}</p>
+              <h2>{wonder.name}</h2>
+            </div>
+            <button type="button" className="icon-btn" onClick={() => useSimulationStore.getState().selectWonder(null)} aria-label="Kapat">
+              ×
+            </button>
+          </header>
+          <p>{wonder.fact}</p>
+        </div>
       ) : null}
-      <button type="button" className="nav-btn" onClick={() => togglePanel('missions')}>
-        Görevler
-      </button>
-    </nav>
+    </aside>
   )
 }

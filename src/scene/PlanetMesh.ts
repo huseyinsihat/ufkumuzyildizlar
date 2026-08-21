@@ -132,6 +132,10 @@ export class PlanetMesh {
       material.map?.dispose()
       material.map = set.map
     }
+    if (set.normalMap) {
+      material.normalMap = set.normalMap
+      material.normalScale.set(1.15, 1.15)
+    }
     if (set.roughnessMap) {
       material.roughnessMap = set.roughnessMap
       material.roughness = 0.92
@@ -232,6 +236,7 @@ export class PlanetMesh {
       material.map?.dispose()
       material.roughnessMap?.dispose()
       material.emissiveMap?.dispose()
+      material.normalMap?.dispose()
       material.dispose()
     }
     this.axis.geometry.dispose()

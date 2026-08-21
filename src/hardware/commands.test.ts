@@ -15,10 +15,13 @@ describe('parseHardwareLine', () => {
     expect(parseHardwareLine('F:now')).toEqual({ kind: 'now' })
     expect(parseHardwareLine('F:overview')).toEqual({ kind: 'overview' })
     expect(parseHardwareLine('F:orbits')).toEqual({ kind: 'orbits' })
+    expect(parseHardwareLine('F:axes')).toEqual({ kind: 'axes' })
+    expect(parseHardwareLine('S:sirius')).toEqual({ kind: 'star', id: 'sirius' })
   })
 
   it('ignores empty and unknown lines', () => {
     expect(parseHardwareLine('')).toBeNull()
     expect(parseHardwareLine('F:dance')).toBeNull()
+    expect(parseHardwareLine('hello world!!!')).toBeNull()
   })
 })

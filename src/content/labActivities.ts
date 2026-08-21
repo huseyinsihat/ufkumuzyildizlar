@@ -24,8 +24,8 @@ export const LAB_ACTIVITIES: LabActivity[] = [
   {
     id: 'who-faster',
     room: 'motion',
-    title: 'Kim neden hızlı?',
-    question: 'Hangisi Güneş çevresindeki turunu daha önce tamamlar?',
+    title: 'Yıl yarışı',
+    question: 'Merkür mi Dünya mı Güneş çevresinde önce tur atar?',
     choices: [
       { id: 'mercury', label: 'Merkür' },
       { id: 'earth', label: 'Dünya' },
@@ -35,13 +35,14 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     resultTitle: 'Merkür turunu önce bitirdi',
     explain:
       'Merkür Güneş’e daha yakındır ve yörüngesi daha kısadır. Güneş’ten uzaklaştıkça gezegenler daha hızlı gitmez; genelde bir turları daha uzun sürer.',
+    featured: true,
     uses3d: true,
   },
   {
     id: 'spin-vs-orbit',
     room: 'motion',
     title: 'Dönüyor mu, dolanıyor mu?',
-    question: 'Gece-gündüz için Dünya’nın kendi etrafında dönmesi mi, Güneş etrafında dolanması mı gerekir?',
+    question: 'Gece-gündüz için Dünya’nın dönmesi mi, Güneş etrafında dolanması mı gerekir?',
     choices: [
       { id: 'spin', label: 'Kendi etrafında dönmesi' },
       { id: 'orbit', label: 'Güneş etrafında dolanması' },
@@ -50,22 +51,18 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     simulateLabel: 'Anahtarları dene',
     resultTitle: 'Dönme ≠ dolanma',
     explain:
-      'Dönme, Dünya’nın kendi ekseni etrafındaki turudur: gece ve gündüzü yapar. Dolanma, Güneş etrafındaki turudur: bir yılı yapar. İkisi farklı hareketlerdir.',
+      'Dönme gece ve gündüzü yapar. Dolanma bir yılı yapar.',
     uses3d: true,
   },
   {
     id: 'day-night',
     room: 'earth',
-    title: 'Gece–gündüz makinesi',
-    question: 'Dünya dönerken hangi şehirler gündüz, hangileri gece olur?',
-    choices: [
-      { id: 'spin', label: 'Kendi etrafında dönmesi gerekir' },
-      { id: 'orbit', label: 'Güneş etrafında dolanması gerekir' },
-    ],
-    simulateLabel: '24 saati hızlandır',
+    title: 'Gece–gündüz Makinesi',
+    question: 'Dünya dönerken İstanbul ve Diyarbakır aynı anda mı geceye girer?',
+    simulateLabel: 'Gördüm',
     resultTitle: 'Gece ve gündüz dönmeden doğar',
     explain:
-      'Güneş bir tarafı aydınlatır. Dünya döndükçe İzmir’den Van’a Türk şehirleri neredeyse birlikte gündüze ve geceye girer. New York veya Tokyo gibi uzak şehirler yok; bu yüzden saat farkı küçüktür. Dolanmak gerekmez.',
+      'Güneş bir tarafı aydınlatır. Dünya döndükçe İstanbul ve Diyarbakır neredeyse birlikte gündüze ve geceye girer; ikisi de aynı ülkede, saat farkı küçüktür. Dolanmak gerekmez.',
     uses3d: true,
   },
   {
@@ -86,18 +83,18 @@ export const LAB_ACTIVITIES: LabActivity[] = [
   {
     id: 'drop-ball',
     room: 'gravity',
-    title: 'Aynı topu bırak',
-    question: 'Aynı top hangi gezegende daha hızlı düşer?',
+    title: 'Kim önce düşer?',
+    question: 'Aynı top Ay’da, Dünya’da ve Jüpiter’de hangisinde önce yere varır?',
     choices: [
       { id: 'moon', label: 'Ay' },
       { id: 'earth', label: 'Dünya' },
-      { id: 'mars', label: 'Mars' },
       { id: 'jupiter', label: 'Jüpiter' },
     ],
     simulateLabel: 'Topları bırak',
     resultTitle: 'Jüpiter’de top daha çabuk düşer',
     explain:
       'Yerçekimi büyüdükçe ivme büyür. Jüpiter’de g en büyüktür, bu yüzden top yere daha çabuk varır. Ay’da ise yavaş düşer.',
+    featured: true,
     uses3d: false,
   },
   {
@@ -120,7 +117,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     id: 'real-scale',
     room: 'scale',
     title: 'Güneş Sistemi neden bu kadar büyük?',
-    question: 'Neden astronomi modellerinde gezegenler gerçek boyutlarından daha büyük gösterilebilir?',
+    question: 'Neden modellerde gezegenler gerçektekinden büyük gösterilir?',
     choices: [
       { id: 'wrong', label: 'Çünkü gerçekte de öyle büyükler' },
       { id: 'model', label: 'Yoksa gezegenler görünmez olurdu' },
@@ -136,10 +133,11 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'build',
     title: 'Gezegenleri kendin diz',
     question: 'Güneş’e uzaklık sırasına göre yörüngeleri doğru dizebilir misin?',
-    simulateLabel: 'Simülasyonu başlat',
+    simulateLabel: '3B’ye bak',
     resultTitle: 'Yörünge sırası hazır',
     explain:
-      'Merkür en içte, sonra Venüs, Dünya, Mars, Jüpiter, Satürn, Uranüs, Neptün gelir. Sıra Güneş’e olan gerçek uzaklığı izler.',
+      'Sıra: Merkür → Venüs → Dünya → Mars → Jüpiter → Satürn → Uranüs → Neptün. Sıra Güneş’e olan gerçek uzaklığı izler.',
+    featured: true,
     uses3d: false,
   },
   {
@@ -155,13 +153,14 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     resultTitle: 'Dolunay: Güneş–Dünya–Ay hizası',
     explain:
       'Ay kendi ışığını üretmez; Güneş ışığını yansıtır. Şekli değişmez, Dünya’dan gördüğümüz aydınlık dilim değişir. Dolunayda Ay, Dünya’nın Güneş’e göre arkasındadır; her dolunayda tutulma olmaz çünkü Ay’ın yörüngesi biraz eğiktir.',
+    featured: true,
     uses3d: true,
   },
   {
     id: 'stars-or-earth',
     room: 'sky',
     title: 'Yıldızlar gerçekten hareket ediyor mu?',
-    question: 'Gece gökyüzünde yıldızlar kayıyor gibi durur. Yıldızlar mı hareket ediyor, Dünya mı?',
+    question: 'Yıldızlar mı kayıyor, Dünya mı dönüyor?',
     choices: [
       { id: 'stars', label: 'Yıldızlar hareket ediyor' },
       { id: 'earth', label: 'Dünya dönüyor' },
@@ -169,14 +168,24 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     simulateLabel: 'Gökyüzünü hızlandır',
     resultTitle: 'Dünya dönünce gökyüzü kayıyor gibi görünür',
     explain:
-      'Yıldızlar bir gecede yer değiştirmez. Dünya kendi ekseni etrafında döndüğü için gökyüzü bize hareket ediyor gibi gelir.',
+      'Yıldızlar bir gecede yer değiştirmez. Dünya döndüğü için gökyüzü kayıyor gibi görünür.',
+    uses3d: true,
+  },
+  {
+    id: 'star-names',
+    room: 'sky',
+    title: 'Yıldızı tanı',
+    question: 'Bu yıldız hangisi?',
+    simulateLabel: 'Yıldıza bak',
+    resultTitle: 'Gökyüzünü tanıdın',
+    explain: 'Her yıldızın adı ve rengi farklıdır. Tıklayınca kamera o yıldıza gider.',
     uses3d: true,
   },
   {
     id: 'space-mission',
     room: 'sky',
     title: 'Uzay görevi',
-    question: 'Öğrendiklerini bir keşif görevinde birleştir.',
+    question: 'Öğrendiklerini bir keşifte birleştir.',
     simulateLabel: 'Göreve başla',
     resultTitle: 'Keşif tamam',
     explain: 'Mars’ın yılı daha uzun, Ay’ın yerçekimi daha zayıf, dolunay bir hizadır. Bunları simülasyonda gördün.',
@@ -186,7 +195,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     id: 'light-travel',
     room: 'scale',
     title: 'Işık ne zaman gelir?',
-    question: 'Güneş ışığı Dünya’ya anında mı ulaşır?',
+    question: 'Güneş ışığı Dünya’ya anında mı gelir?',
     simulateLabel: 'Işığı gönder',
     resultTitle: 'Işık yolculuğu bitti',
     explain:
@@ -209,8 +218,8 @@ export const LAB_ACTIVITIES: LabActivity[] = [
   {
     id: 'closest-hottest',
     room: 'scale',
-    title: 'En yakın en sıcak mı?',
-    question: 'Güneş’e en yakın gezegen en sıcak gezegen midir?',
+    title: 'En sıcak kim?',
+    question: 'Merkür, Venüs ve Dünya’dan hangisinin yüzeyi en sıcaktır?',
     simulateLabel: 'Battaniyeyi dene',
     resultTitle: 'Venüs, Merkür’den sıcaktır',
     explain:
@@ -222,7 +231,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     id: 'comet-tail',
     room: 'sky',
     title: 'Kuyruk arkada mı kalır?',
-    question: 'Kuyruklu yıldızın kuyruğu her zaman arkasında mıdır?',
+    question: 'Kuyruk her zaman hareketin arkasında mıdır?',
     simulateLabel: 'Kuyrukluyu sürükle',
     resultTitle: 'Kuyruk Güneş’ten kaçar',
     explain:
@@ -234,7 +243,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     id: 'mercury-long-day',
     room: 'motion',
     title: 'Merkür’ün günü neden uzun?',
-    question: 'Güneş’e yakın olan Merkür’de bir gün kısa mıdır?',
+    question: 'Merkür’de bir gün kısa mıdır?',
     simulateLabel: '1 yılı izle',
     resultTitle: 'Yıl bitti, gün bitmedi',
     explain:
@@ -255,3 +264,33 @@ export function activitiesInRoom(room: LabRoomId): LabActivity[] {
 }
 
 export const FEATURED_ACTIVITIES = LAB_ACTIVITIES.filter((item) => item.featured)
+
+export const CHALLENGE_IDS = ['arrange-orbits', 'moon-phases', 'closest-hottest', 'drop-ball', 'who-faster'] as const
+
+export type ChallengeId = (typeof CHALLENGE_IDS)[number]
+
+export const CHALLENGE_BLURB: Record<ChallengeId, string> = {
+  'arrange-orbits': 'Güneşi ortaya koy, 8 halkaya diz.',
+  'moon-phases': 'Ay’ı Dünya’nın gece tarafına sürükle.',
+  'closest-hottest': 'Merkür, Venüs, Dünya — en sıcak kim?',
+  'drop-ball': 'Ay, Dünya, Jüpiter — kim önce düşer?',
+  'who-faster': 'Merkür mi Dünya mı önce tur atar?',
+}
+
+export const CHALLENGE_VERB: Record<ChallengeId, string> = {
+  'arrange-orbits': 'Diz',
+  'moon-phases': 'Sürükle',
+  'closest-hottest': 'Seç',
+  'drop-ball': 'Seç',
+  'who-faster': 'Seç',
+}
+
+export const CHALLENGE_ICON: Record<ChallengeId, 'planet' | 'orbit' | 'thermo' | 'weight'> = {
+  'arrange-orbits': 'planet',
+  'moon-phases': 'orbit',
+  'closest-hottest': 'thermo',
+  'drop-ball': 'weight',
+  'who-faster': 'orbit',
+}
+
+export const CHALLENGE_ACTIVITIES = CHALLENGE_IDS.map((id) => getActivity(id))

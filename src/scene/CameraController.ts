@@ -9,9 +9,13 @@ export class CameraController {
   private toPos = new Vector3()
   private fromTarget = new Vector3()
   private toTarget = new Vector3()
+  private followPos = new Vector3()
+  private followDelta = new Vector3()
   private elapsed = 0
   private duration = 1.15
   private animating = false
+  private followEnabled = false
+  private willFollow = false
 
   constructor(canvas: HTMLCanvasElement) {
     this.camera = new PerspectiveCamera(48, 1, 0.1, 800)
@@ -31,7 +35,7 @@ export class CameraController {
     this.controls.target.set(0, 0, 0)
   }
 
-  focusOn(worldPosition: Vector3, radius: number): void {
+  focusOn(worldPosition: Vector3, radius: number, follow = false): void {
     this.fromPos.copy(this.camera.position)
     this.fromTarget.copy(this.controls.target)
     this.toTarget.copy(worldPosition)
@@ -39,6 +43,8 @@ export class CameraController {
     this.toPos.set(worldPosition.x + offset, worldPosition.y + offset * 0.45, worldPosition.z + offset)
     this.elapsed = 0
     this.animating = true
+    this.willFollow = follow
+    this.followEnabled = false
     this.controls.enabled = false
   }
 
@@ -49,6 +55,8 @@ export class CameraController {
     this.toTarget.set(0, 0, 0)
     this.elapsed = 0
     this.animating = true
+    this.willFollow = false
+    this.followEnabled = false
     this.controls.enabled = false
   }
 
@@ -60,6 +68,8 @@ export class CameraController {
     this.toPos.set(worldPosition.x + offset * 0.2, worldPosition.y + offset * 0.15, worldPosition.z + offset)
     this.elapsed = 0
     this.animating = true
+    this.willFollow = true
+    this.followEnabled = false
     this.controls.enabled = false
   }
 
@@ -70,7 +80,26 @@ export class CameraController {
     this.toTarget.set(40, 18, 120)
     this.elapsed = 0
     this.animating = true
+    this.willFollow = false
+    this.followEnabled = false
     this.controls.enabled = false
+  }
+
+  stopFollow(): void {
+    this.willFollow = false
+    this.followEnabled = false
+  }
+
+  track(worldPosition: Vector3): void {
+    if (this.animating) {
+      this.followPos.copy(worldPosition)
+      return
+    }
+    if (!this.followEnabled) return
+    this.followDelta.copy(worldPosition).sub(this.followPos)
+    this.camera.position.add(this.followDelta)
+    this.controls.target.add(this.followDelta)
+    this.followPos.copy(worldPosition)
   }
 
   setFar(far: number): void {
@@ -91,6 +120,7 @@ export class CameraController {
       if (t >= 1) {
         this.animating = false
         this.controls.enabled = true
+        this.followEnabled = this.willFollow
       }
     }
     this.controls.update()

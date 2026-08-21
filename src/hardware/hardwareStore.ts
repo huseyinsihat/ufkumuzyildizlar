@@ -35,6 +35,7 @@ async function readLoop(): Promise<void> {
       }
     }
   } catch {
+    closed = true
     useHardwareStore.setState({ status: 'error', message: 'Bağlantı koptu. USB kablosunu kontrol et.' })
   } finally {
     reader.releaseLock()
@@ -52,13 +53,26 @@ export const useHardwareStore = create<HardwareState>((set) => ({
       return
     }
     try {
+      closed = true
+      try {
+        await reader?.cancel()
+      } catch {
+        /* already closed */
+      }
+      try {
+        await port?.close()
+      } catch {
+        /* already closed */
+      }
+      port = null
+      reader = null
       port = await navigator.serial.requestPort()
       await port.open({ baudRate: 115200 })
       closed = false
       set({ status: 'connected', message: 'DeneyapKart bağlı.', lastLine: '' })
       void readLoop()
     } catch {
-      set({ status: 'error', message: 'Kart seçilmedi veya port açılamadı.' })
+      set({ status: 'error', message: 'Kart seçilmedi veya port açılamadı. Yeniden bağla.' })
     }
   },
   disconnect: async () => {

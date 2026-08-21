@@ -37,9 +37,11 @@ import { LabelLayer, type LabelOccluder } from './LabelLayer'
 import { loadBodyTextures } from './loadBodyTextures'
 import { addLighting } from './Lighting'
 import { LightPulse } from './LightPulse'
+import { NotableStars } from './NotableStars'
 import { OrbitRenderer } from './OrbitRenderer'
 import { PlanetMesh } from './PlanetMesh'
 import { registerScene } from './sceneApi'
+import { SkyRocks } from './SkyRocks'
 import { createStarField } from './StarField'
 import { SunMesh } from './SunMesh'
 import type { BodyId } from '../types/planet'
@@ -86,6 +88,8 @@ export class SolarSystemScene {
   private lightPulse = new LightPulse()
   private heatAura = new HeatAura()
   private comet = new CometMesh()
+  private notableStars = new NotableStars()
+  private skyRocks = new SkyRocks()
 
   constructor(canvas: HTMLCanvasElement, host: HTMLElement) {
     this.canvas = canvas
@@ -130,6 +134,8 @@ export class SolarSystemScene {
     this.scene.add(this.lightPulse.group)
     this.scene.add(this.heatAura.group)
     this.scene.add(this.comet.group)
+    this.scene.add(this.notableStars.group)
+    this.scene.add(this.skyRocks.group)
 
     for (const body of BODIES) {
       if (body.id === 'sun') {
@@ -161,7 +167,12 @@ export class SolarSystemScene {
         this.orbits.rebuild(state.scaleMode)
         this.camera.setMaxDistance(state.scaleMode === 'trueScale' ? 420 : 280)
         this.camera.setFar(state.scaleMode === 'trueScale' ? 1600 : 800)
-        this.camera.focusOverview(state.scaleMode === 'trueScale')
+        const keep = state.selectedBodyId
+        if (keep && keep !== 'sun') {
+          this.focusBody(keep)
+        } else {
+          this.camera.focusOverview(state.scaleMode === 'trueScale')
+        }
       }
       this.orbits.setVisible(state.showOrbits)
       this.constellations.setVisible(state.showConstellations)
@@ -215,16 +226,18 @@ export class SolarSystemScene {
 
   focusBody(id: BodyId): void {
     if (id === 'sun') {
-      this.camera.focusOn(new Vector3(0, 0, 0), visualRadius('sun', this.scaleMode))
+      this.camera.stopFollow()
+      this.camera.focusOn(new Vector3(0, 0, 0), visualRadius('sun', this.scaleMode), false)
       return
     }
     const planet = this.planets.get(id)
     if (!planet) return
     planet.group.getWorldPosition(this.world)
-    this.camera.focusOn(this.world.clone(), visualRadius(id, this.scaleMode))
+    this.camera.focusOn(this.world.clone(), visualRadius(id, this.scaleMode), true)
   }
 
   focusOverview(): void {
+    this.camera.stopFollow()
     this.camera.focusOverview(this.scaleMode === 'trueScale')
   }
 
@@ -395,16 +408,32 @@ export class SolarSystemScene {
 
     this.updateBodies(date, dtSim, sim.freezeRotation, sim.freezeRevolution, sim.moonDragEnabled)
     this.asteroids.update(dtSim / 86_400)
+    this.skyRocks.update(dt, dtSim / 86_400)
+    this.notableStars.update(dt)
+    const followId = sim.selectedBodyId
+    if (followId && followId !== 'sun') {
+      const followed = this.planets.get(followId)
+      if (followed) {
+        followed.group.getWorldPosition(this.world)
+        this.camera.track(this.world)
+      }
+    } else {
+      this.camera.stopFollow()
+    }
     if (sim.skyCamera) {
       this.starRoot.rotation.y += dtSim * (Math.PI * 2) / (23.934 * 3600)
     }
     this.camera.update(dt)
+    const hideLabels = this.labelOverlay()
     this.labels.updateScales(
       this.camera.camera,
-      this.labelOverlay(),
+      hideLabels || !sim.showLabels,
       this.collectOccluders(),
       sim.selectedBodyId,
     )
+    this.notableStars.setLabelsVisible(!hideLabels && sim.showLabels)
+    this.skyRocks.setLabelsVisible(!hideLabels && sim.showLabels)
+    this.cityPins.setLabelsVisible(!hideLabels && sim.showLabels)
     this.lightPulse.update(dt)
     const mercury = this.planets.get('mercury')
     const venus = this.planets.get('venus')
@@ -536,7 +565,19 @@ export class SolarSystemScene {
       moon.group.position.y - ey,
       moon.group.position.z - ez,
     ).normalize()
-    return Math.acos(Math.min(1, Math.max(-1, toSun.dot(toMoon)))) * RAD2DEG
+    return ((Math.atan2(toSun.x * toMoon.z - toSun.z * toMoon.x, toSun.dot(toMoon)) * RAD2DEG) % 360 + 360) % 360
+  }
+
+  focusWonder(id: string): void {
+    const target =
+      this.notableStars.meshes.find((mesh) => mesh.userData.wonderId === id) ??
+      this.skyRocks.meshes.find((mesh) => mesh.userData.wonderId === id)
+    if (!target) return
+    useSimulationStore.getState().selectWonder(id)
+    this.camera.stopFollow()
+    const pos = new Vector3()
+    target.getWorldPosition(pos)
+    this.camera.focusOn(pos, 6, false)
   }
 
   private onPointerDown = (event: PointerEvent): void => {
@@ -565,6 +606,15 @@ export class SolarSystemScene {
       }
     }
     this.raycaster.setFromCamera(this.pointer, this.camera.camera)
+    const skyHits = this.raycaster.intersectObjects([...this.notableStars.meshes, ...this.skyRocks.meshes], false)
+    const wonderId = skyHits[0]?.object.userData.wonderId as string | undefined
+    if (wonderId) {
+      useSimulationStore.getState().selectWonder(wonderId)
+      this.camera.stopFollow()
+      const target = skyHits[0]?.object
+      if (target) this.camera.focusOn(target.position.clone(), 6, false)
+      return
+    }
     const meshes: Mesh[] = [this.sun.mesh]
     for (const planet of this.planets.values()) meshes.push(planet.mesh)
     const hits = this.raycaster.intersectObjects(meshes, false)
@@ -665,6 +715,8 @@ export class SolarSystemScene {
     this.lightPulse.dispose()
     this.heatAura.dispose()
     this.comet.dispose()
+    this.notableStars.dispose()
+    this.skyRocks.dispose()
     for (const planet of this.planets.values()) planet.dispose()
     this.orbits.dispose()
     this.asteroids.dispose()

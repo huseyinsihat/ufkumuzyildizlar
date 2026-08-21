@@ -3,11 +3,12 @@ import { CanvasHost } from './components/3d/CanvasHost'
 import { SolarSystem2D } from './components/3d/SolarSystem2D'
 import { WebGLFallback } from './components/3d/WebGLFallback'
 import { ComparePanel } from './components/education/ComparePanel'
+import { FactsPanel } from './components/education/FactsPanel'
 import { DemoTour } from './components/education/DemoTour'
 import { ActivityBody } from './components/lab/ActivityBody'
 import { ActivityShell } from './components/lab/ActivityShell'
 import { LabHome } from './components/lab/LabHome'
-import { PlanetStrip } from './components/planets/PlanetStrip'
+import { InspectRail } from './components/ui/LeftNav'
 import { CompactTimeBar } from './components/ui/ExploreDock'
 import { IntroScreen } from './components/ui/IntroScreen'
 import { ExploreDock } from './components/ui/PlanetDrawer'
@@ -26,7 +27,6 @@ export default function App() {
   const webgl = useUiStore((s) => s.webglSupported)
   const use2d = useUiStore((s) => s.use2dFallback)
   const demo = useUiStore((s) => s.demoActive)
-  const selected = useSimulationStore((s) => s.selectedBodyId)
   const scaleMode = useSimulationStore((s) => s.scaleMode)
   const labOpen = useLabStore((s) => s.labOpen)
   const activityId = useLabStore((s) => s.activityId)
@@ -64,7 +64,7 @@ export default function App() {
       {explore && scaleMode === 'trueScale' ? (
         <p className="scale-banner">Gezegenler gerçek boyutta — uzay çok boş.</p>
       ) : null}
-      {explore && selected && panel === 'none' ? <PlanetStrip /> : null}
+      {explore ? <InspectRail /> : null}
       {showLabHome ? <LabHome /> : null}
       {showActivity ? (
         <ActivityShell>
@@ -72,6 +72,7 @@ export default function App() {
         </ActivityShell>
       ) : null}
       {panel === 'compare' ? <ComparePanel /> : null}
+      {panel === 'facts' ? <FactsPanel /> : null}
       {panel === 'settings' ? <SettingsPanel /> : null}
       {panel === 'team' ? <TeamPanel /> : null}
       {demo ? <DemoTour /> : null}

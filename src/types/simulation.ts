@@ -10,6 +10,7 @@ export type AppPanel =
   | 'compare'
   | 'settings'
   | 'team'
+  | 'facts'
   | 'scale'
   | 'missions'
   | 'quiz'

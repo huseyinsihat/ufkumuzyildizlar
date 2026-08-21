@@ -13,12 +13,28 @@ const PINS = [
   ['D7', 'Uranüs'],
   ['D8', 'Neptün'],
   ['D9', 'Oynat / Duraklat'],
-  ['D10', '1 gün'],
-  ['D11', '1 yıl'],
+  ['D10', '1 Gün'],
+  ['D11', '1 Yıl'],
   ['D12', 'Şu an'],
   ['D13', 'Genel bakış'],
   ['D14', 'Yörünge'],
 ]
+
+function Badge({ name, role }: { name: string; role: string }) {
+  return (
+    <li>
+      <span className="team-initial" aria-hidden="true">
+        {name
+          .split(' ')
+          .map((part) => part[0])
+          .slice(0, 2)
+          .join('')}
+      </span>
+      <strong>{name}</strong>
+      <span>{role}</span>
+    </li>
+  )
+}
 
 export function TeamPanel() {
   const close = () => useUiStore.getState().setActivePanel('none')
@@ -41,26 +57,24 @@ export function TeamPanel() {
           ×
         </button>
       </header>
-      <p className="team-lead">{TEAM.category}</p>
-      <ul className="team-list">
+      <div className="advisor-banner">
+        <span className="team-initial" aria-hidden="true">
+          HS
+        </span>
+        <div>
+          <strong>{TEAM.advisor.name}</strong>
+          <span>{TEAM.advisor.role}</span>
+        </div>
+      </div>
+      <ul className="team-badges">
         {TEAM.members.map((member) => (
-          <li key={member.name}>
-            <span className="team-initial" aria-hidden="true">
-              {member.name.slice(0, 1)}
-            </span>
-            <div>
-              <strong>{member.name}</strong>
-              <span>{member.role}</span>
-            </div>
-          </li>
+          <Badge key={member.name} name={member.name} role={member.role} />
         ))}
       </ul>
 
-      <section className="hardware-block" aria-label="DeneyapKart Bağlantı Bilgileri">
-        <h3>DeneyapKart Bağlantı Bilgileri</h3>
-        <p className="muted">
-          Kart takılı değilken sahne aynı çalışır. Takınca tuşlar menüdeki işlerin aynısını yapar.
-        </p>
+      <section className="hardware-block" aria-label="DeneyapKart">
+        <h3>DeneyapKart</h3>
+        <p className="muted">Kart yokken sahne aynı çalışır. Takınca tuşlar menüdeki işlerin aynısını yapar.</p>
         {status === 'unsupported' ? (
           <p className="muted">USB için Chrome veya Edge kullan.</p>
         ) : (
@@ -71,7 +85,7 @@ export function TeamPanel() {
               </button>
             ) : (
               <button type="button" className="btn primary" onClick={() => void connect()}>
-                DeneyapKart bağla
+                {status === 'error' ? 'Yeniden bağla' : 'DeneyapKart bağla'}
               </button>
             )}
             <span className="muted">{status === 'connected' ? 'Bağlı' : 'Bağlı değil'}</span>
@@ -79,24 +93,26 @@ export function TeamPanel() {
         )}
         {message ? <p className="muted">{message}</p> : null}
         {lastLine ? <p className="muted">Son tuş: {lastLine}</p> : null}
-        <p className="muted">USB seri, 115200 baud. Tuşun bir ucu pine, diğer ucu GND. Kod: firmware/deneyapkart/ufkumuz.ino</p>
-        <p className="muted">Komutlar: P:earth · F:play · F:day · F:year · F:now · F:overview · F:orbits (Ay/Plüton: P:moon, P:pluto)</p>
-        <table className="pin-table">
-          <thead>
-            <tr>
-              <th>Pin</th>
-              <th>Tuş</th>
-            </tr>
-          </thead>
-          <tbody>
-            {PINS.map(([pin, label]) => (
-              <tr key={pin}>
-                <td>{pin}</td>
-                <td>{label}</td>
+        <details>
+          <summary>Pin tablosu</summary>
+          <p className="muted">USB seri, 115200 baud. Tuşun bir ucu pine, diğer ucu GND.</p>
+          <table className="pin-table">
+            <thead>
+              <tr>
+                <th>Pin</th>
+                <th>Tuş</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {PINS.map(([pin, label]) => (
+                <tr key={pin}>
+                  <td>{pin}</td>
+                  <td>{label}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </details>
       </section>
     </aside>
   )

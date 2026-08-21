@@ -26,13 +26,13 @@ export function ActivityShell({ children }: { children: ReactNode }) {
             <i className={index >= 1 ? 'is-on' : ''} />
             <i className={index >= 2 ? 'is-on' : ''} />
             <i className={index >= 3 ? 'is-on' : ''} />
-            <span>{index === 1 ? '1 İzle' : index === 2 ? '2 Ne oldu?' : '3 Nedeni'}</span>
+            <span>{index === 1 ? '1 Tahmin' : index === 2 ? '2 İzle' : '3 Neden'}</span>
           </p>
         </div>
         <button
           type="button"
           className="icon-btn"
-          aria-label="Projeye dön"
+          aria-label="Kataloga dön"
           onClick={() => {
             reset()
             setActivityNone()
@@ -69,7 +69,7 @@ export function ActivityShell({ children }: { children: ReactNode }) {
                 setActivityNone()
               }}
             >
-              Projeye dön
+              Etkinliklere dön
             </button>
             <button type="button" className="btn" onClick={() => setStep('result')}>
               Sonuca dön

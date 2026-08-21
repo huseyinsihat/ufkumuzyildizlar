@@ -1,4 +1,4 @@
-import { CanvasTexture, SRGBColorSpace, Texture, TextureLoader } from 'three'
+import { CanvasTexture, NoColorSpace, SRGBColorSpace, Texture, TextureLoader } from 'three'
 import type { BodyId } from '../types/planet'
 
 export interface BodyTextureSet {
@@ -6,6 +6,7 @@ export interface BodyTextureSet {
   roughnessMap?: Texture
   emissiveMap?: Texture
   clouds?: Texture
+  normalMap?: Texture
 }
 
 const COLOR_FILES: Partial<Record<BodyId, string>> = {
@@ -87,6 +88,11 @@ export async function loadBodyTextures(): Promise<Map<BodyId, BodyTextureSet>> {
         }
         if (night) set.emissiveMap = night
         if (clouds) set.clouds = clouds
+      }
+      const normal = await loadFile(loader, `${id}_normal.jpg`)
+      if (normal) {
+        normal.colorSpace = NoColorSpace
+        set.normalMap = normal
       }
       result.set(id, set)
     }),

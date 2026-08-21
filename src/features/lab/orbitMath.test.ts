@@ -15,6 +15,8 @@ describe('orbitMath', () => {
 
   it('detects full moon near 180 degrees', () => {
     expect(isFullMoon(180)).toBe(true)
+    expect(isFullMoon(350)).toBe(false)
+    expect(moonPhaseName(185)).toBe('Dolunay')
     expect(isFullMoon(10)).toBe(false)
     expect(moonPhaseName(180)).toBe('Dolunay')
   })

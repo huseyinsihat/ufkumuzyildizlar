@@ -27,7 +27,7 @@ export function IntroScreen() {
             }}
           >
             <Icon name="sun" />
-            <strong>Projeyi aç</strong>
+            <strong>{TEAM.home}</strong>
             <span>{TEAM.teamName}’in projesi</span>
           </button>
           <button
