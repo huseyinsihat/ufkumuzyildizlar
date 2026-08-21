@@ -15,6 +15,7 @@ import type { PlanetDefinition } from '../types/planet'
 import type { ScaleMode } from '../types/simulation'
 import { visualRadius } from '../astronomy/visualScale'
 import { createBodyTexture } from './proceduralTextures'
+import type { BodyTextureSet } from './loadBodyTextures'
 import { RingMesh } from './RingMesh'
 
 const HIGH_GEO = new SphereGeometry(1, 64, 48)
@@ -28,8 +29,11 @@ export class PlanetMesh {
   readonly glow: Mesh
   readonly axis: Line
   private northCap: Mesh | null = null
+  private atmosphere: Mesh | null = null
+  private clouds: Mesh | null = null
   private rings: RingMesh | null = null
   private spin = 0
+  private cloudSpin = 0
   private lod: 'high' | 'low' = 'high'
 
   constructor(body: PlanetDefinition) {
@@ -41,11 +45,12 @@ export class PlanetMesh {
     this.tiltGroup.rotation.z = body.axialTiltDeg * DEG2RAD
     this.group.add(this.tiltGroup)
 
-    const texture = createBodyTexture(body.id, body.color, 512)
+    const texture = createBodyTexture(body.id, body.color, body.id === 'earth' || body.id === 'jupiter' ? 768 : 512)
+    const gas = body.category === 'gasGiant' || body.category === 'iceGiant'
     const material = new MeshStandardMaterial({
       map: texture,
-      roughness: body.category === 'gasGiant' || body.category === 'iceGiant' ? 0.72 : 0.86,
-      metalness: 0.02,
+      roughness: body.id === 'earth' ? 0.46 : body.id === 'venus' ? 0.34 : body.id === 'moon' || body.id === 'mercury' ? 0.97 : gas ? 0.52 : 0.84,
+      metalness: body.id === 'earth' ? 0.08 : 0.02,
       emissive: '#000000',
       emissiveIntensity: 0,
     })
@@ -77,6 +82,22 @@ export class PlanetMesh {
     this.axis.raycast = () => {}
     this.tiltGroup.add(this.axis)
 
+    if (body.id === 'earth' || body.id === 'venus') {
+      this.atmosphere = new Mesh(
+        HIGH_GEO,
+        new MeshBasicMaterial({
+          color: body.id === 'earth' ? '#6ec8ff' : '#f0c27a',
+          transparent: true,
+          opacity: body.id === 'earth' ? 0.16 : 0.22,
+          blending: AdditiveBlending,
+          depthWrite: false,
+        }),
+      )
+      this.atmosphere.scale.setScalar(1.045)
+      this.atmosphere.raycast = () => {}
+      this.tiltGroup.add(this.atmosphere)
+    }
+
     if (body.id === 'earth') {
       this.northCap = new Mesh(
         new SphereGeometry(0.38, 16, 12),
@@ -104,10 +125,49 @@ export class PlanetMesh {
     this.applyScale('educational')
   }
 
+  applyMaps(set: BodyTextureSet): void {
+    const material = this.mesh.material
+    if (!(material instanceof MeshStandardMaterial)) return
+    if (set.map) {
+      material.map?.dispose()
+      material.map = set.map
+    }
+    if (set.roughnessMap) {
+      material.roughnessMap = set.roughnessMap
+      material.roughness = 0.92
+    } else if (this.body.id === 'earth') {
+      material.roughness = 0.42
+    }
+    if (set.emissiveMap && this.body.id === 'earth') {
+      material.emissiveMap = set.emissiveMap
+      material.emissive.set('#ffc27a')
+      material.emissiveIntensity = 0.55
+    }
+    if (set.clouds && this.body.id === 'earth' && !this.clouds) {
+      this.clouds = new Mesh(
+        HIGH_GEO,
+        new MeshStandardMaterial({
+          map: set.clouds,
+          transparent: true,
+          opacity: 0.44,
+          depthWrite: false,
+          roughness: 1,
+          metalness: 0,
+        }),
+      )
+      this.clouds.scale.setScalar(this.mesh.scale.x * 1.018)
+      this.clouds.raycast = () => {}
+      this.tiltGroup.add(this.clouds)
+    }
+    material.needsUpdate = true
+  }
+
   applyScale(mode: ScaleMode): void {
     const radius = Math.max(visualRadius(this.body.id, mode), 0.012)
     this.mesh.scale.setScalar(radius)
     this.glow.scale.setScalar(radius * 1.14)
+    this.atmosphere?.scale.setScalar(radius * 1.045)
+    this.clouds?.scale.setScalar(radius * 1.018)
     this.axis.scale.setScalar(radius)
     this.northCap?.position.set(0, radius * 1.02, 0)
     this.northCap?.scale.setScalar(radius)
@@ -159,6 +219,10 @@ export class PlanetMesh {
     const sign = this.body.rotationPeriodHours < 0 ? -1 : 1
     this.spin += sign * ((Math.PI * 2) / period) * dtSimSeconds
     this.mesh.rotation.y = this.spin
+    if (this.clouds) {
+      this.cloudSpin += sign * ((Math.PI * 2) / period) * dtSimSeconds * 1.12
+      this.clouds.rotation.y = this.cloudSpin
+    }
     this.rings?.update(dtSimSeconds)
   }
 
@@ -166,6 +230,8 @@ export class PlanetMesh {
     const material = this.mesh.material
     if (material instanceof MeshStandardMaterial) {
       material.map?.dispose()
+      material.roughnessMap?.dispose()
+      material.emissiveMap?.dispose()
       material.dispose()
     }
     this.axis.geometry.dispose()
@@ -174,6 +240,17 @@ export class PlanetMesh {
     const glowMat = this.glow.material
     if (!Array.isArray(glowMat)) glowMat.dispose()
     this.rings?.dispose()
+    if (this.clouds) {
+      const cloudMat = this.clouds.material
+      if (cloudMat instanceof MeshStandardMaterial) {
+        cloudMat.map?.dispose()
+        cloudMat.dispose()
+      }
+    }
+    if (this.atmosphere) {
+      const atmMat = this.atmosphere.material
+      if (!Array.isArray(atmMat)) atmMat.dispose()
+    }
     if (this.northCap) {
       this.northCap.geometry.dispose()
       const capMat = this.northCap.material

@@ -33,7 +33,8 @@ import { CityPins } from './CityPins'
 import { CometMesh } from './CometMesh'
 import { ConstellationLayer } from './ConstellationLayer'
 import { HeatAura } from './HeatAura'
-import { LabelLayer } from './LabelLayer'
+import { LabelLayer, type LabelOccluder } from './LabelLayer'
+import { loadBodyTextures } from './loadBodyTextures'
 import { addLighting } from './Lighting'
 import { LightPulse } from './LightPulse'
 import { OrbitRenderer } from './OrbitRenderer'
@@ -72,6 +73,8 @@ export class SolarSystemScene {
   private canvas: HTMLCanvasElement
   private host: HTMLElement
   private scaleMode: ScaleMode = 'educational'
+  private labelsReadyAt = 0
+  private occluders: LabelOccluder[] = []
   private engine: TimeEngine
   private watchKind: 'none' | 'year' | 'race' | 'mercury-year' | 'mercury-day' = 'none'
   private lonPrev = new Map<BodyId, number>()
@@ -98,7 +101,7 @@ export class SolarSystemScene {
     this.renderer.setClearColor(new Color('#030712'), 1)
     this.renderer.setPixelRatio(capPixelRatio(window.devicePixelRatio || 1))
     this.renderer.outputColorSpace = SRGBColorSpace
-    this.renderer.toneMappingExposure = 1.05
+    this.renderer.toneMappingExposure = 1.18
 
     this.scene = new Scene()
     this.camera = new CameraController(canvas)
@@ -156,8 +159,9 @@ export class SolarSystemScene {
       if (state.scaleMode !== prev.scaleMode) {
         this.scaleMode = state.scaleMode
         this.orbits.rebuild(state.scaleMode)
-        this.camera.setMaxDistance(state.scaleMode === 'proportional' ? 420 : 280)
-        this.camera.setFar(state.scaleMode === 'proportional' ? 1600 : 800)
+        this.camera.setMaxDistance(state.scaleMode === 'trueScale' ? 420 : 280)
+        this.camera.setFar(state.scaleMode === 'trueScale' ? 1600 : 800)
+        this.camera.focusOverview(state.scaleMode === 'trueScale')
       }
       this.orbits.setVisible(state.showOrbits)
       this.constellations.setVisible(state.showConstellations)
@@ -186,6 +190,15 @@ export class SolarSystemScene {
 
     this.resize()
     registerScene(this)
+    void loadBodyTextures().then((maps) => {
+      for (const [id, set] of maps) {
+        if (id === 'sun') {
+          if (set.map) this.sun.applyMap(set.map)
+          continue
+        }
+        this.planets.get(id)?.applyMaps(set)
+      }
+    })
   }
 
   start(): void {
@@ -212,7 +225,7 @@ export class SolarSystemScene {
   }
 
   focusOverview(): void {
-    this.camera.focusOverview()
+    this.camera.focusOverview(this.scaleMode === 'trueScale')
   }
 
   focusEarthSurface(): void {
@@ -298,7 +311,7 @@ export class SolarSystemScene {
     }
     this.clearWow()
     this.comet.setEnabled(true)
-    this.camera.focusOverview()
+    this.camera.focusOverview(this.scaleMode === 'trueScale')
   }
 
   startMercuryWatch(kind: 'mercury-year' | 'mercury-day'): void {
@@ -335,7 +348,36 @@ export class SolarSystemScene {
   private labelOverlay(): boolean {
     const ui = useUiStore.getState()
     const lab = useLabStore.getState()
-    return ui.introVisible || Boolean(lab.labOpen && !lab.activityId)
+    const blocked = ui.introVisible || Boolean(lab.labOpen && !lab.activityId)
+    if (blocked) {
+      this.labelsReadyAt = performance.now() + 400
+      return true
+    }
+    return performance.now() < this.labelsReadyAt
+  }
+
+  private collectOccluders(): LabelOccluder[] {
+    this.occluders.length = 0
+    this.occluders.push({
+      id: 'sun',
+      x: 0,
+      y: 0,
+      z: 0,
+      radius: visualRadius('sun', this.scaleMode),
+    })
+    for (const id of ['jupiter', 'saturn', 'earth'] as const) {
+      const planet = this.planets.get(id)
+      if (!planet) continue
+      planet.group.getWorldPosition(this.world)
+      this.occluders.push({
+        id,
+        x: this.world.x,
+        y: this.world.y,
+        z: this.world.z,
+        radius: visualRadius(id, this.scaleMode),
+      })
+    }
+    return this.occluders
   }
 
   private seedLongitude(id: BodyId): void {
@@ -357,7 +399,12 @@ export class SolarSystemScene {
       this.starRoot.rotation.y += dtSim * (Math.PI * 2) / (23.934 * 3600)
     }
     this.camera.update(dt)
-    this.labels.updateScales(this.camera.camera, this.labelOverlay())
+    this.labels.updateScales(
+      this.camera.camera,
+      this.labelOverlay(),
+      this.collectOccluders(),
+      sim.selectedBodyId,
+    )
     this.lightPulse.update(dt)
     const mercury = this.planets.get('mercury')
     const venus = this.planets.get('venus')

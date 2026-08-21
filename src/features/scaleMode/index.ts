@@ -1,1 +1,1 @@
-export { scaleExplanation } from '../../astronomy/visualScale'
+export { scaleExplanation, normalizeScaleMode, isTrueScale } from '../../astronomy/visualScale'

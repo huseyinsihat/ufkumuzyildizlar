@@ -65,7 +65,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     simulateLabel: '24 saati hızlandır',
     resultTitle: 'Gece ve gündüz dönmeden doğar',
     explain:
-      'Güneş bir tarafı aydınlatır. Dünya kendi ekseni etrafında döndükçe şehirler sırayla aydınlığa ve karanlığa girer. Bunun için Güneş etrafında dolanmak gerekmez.',
+      'Güneş bir tarafı aydınlatır. Dünya döndükçe İzmir’den Van’a Türk şehirleri neredeyse birlikte gündüze ve geceye girer. New York veya Tokyo gibi uzak şehirler yok; bu yüzden saat farkı küçüktür. Dolanmak gerekmez.',
     uses3d: true,
   },
   {

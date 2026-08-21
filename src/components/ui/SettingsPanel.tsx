@@ -6,8 +6,7 @@ import type { ScaleMode } from '../../types/simulation'
 
 const MODES: { id: ScaleMode; label: string }[] = [
   { id: 'educational', label: 'Eğitimsel görünüm' },
-  { id: 'proportional', label: 'Oransal görünüm' },
-  { id: 'astronomical', label: 'Astronomik görünüm' },
+  { id: 'trueScale', label: 'Gerçek ölçek' },
 ]
 
 export function SettingsPanel() {

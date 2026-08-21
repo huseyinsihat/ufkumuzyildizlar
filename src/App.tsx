@@ -27,6 +27,7 @@ export default function App() {
   const use2d = useUiStore((s) => s.use2dFallback)
   const demo = useUiStore((s) => s.demoActive)
   const selected = useSimulationStore((s) => s.selectedBodyId)
+  const scaleMode = useSimulationStore((s) => s.scaleMode)
   const labOpen = useLabStore((s) => s.labOpen)
   const activityId = useLabStore((s) => s.activityId)
   const setWebgl = useUiStore((s) => s.setWebglSupported)
@@ -60,6 +61,9 @@ export default function App() {
       <TopBar />
       {explore ? <ExploreDock /> : null}
       {explore ? <CompactTimeBar /> : null}
+      {explore && scaleMode === 'trueScale' ? (
+        <p className="scale-banner">Gezegenler gerçek boyutta — uzay çok boş.</p>
+      ) : null}
       {explore && selected && panel === 'none' ? <PlanetStrip /> : null}
       {showLabHome ? <LabHome /> : null}
       {showActivity ? (

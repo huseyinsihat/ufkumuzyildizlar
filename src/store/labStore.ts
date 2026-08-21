@@ -159,7 +159,7 @@ export const useLabStore = create<LabState>((set, get) => ({
     sim.setMoonDragEnabled(false)
     sim.setShowAxes(false)
     sim.setScaleMode('educational')
-    sim.setTimeScale(TIME_PRESETS[5]?.scale ?? 86_400)
+    sim.setTimeScale(TIME_PRESETS.find((item) => item.id === 'day')?.scale ?? 86_400)
     sim.setPlaying(true)
     getScene()?.clearWatches()
     getScene()?.focusOverview()

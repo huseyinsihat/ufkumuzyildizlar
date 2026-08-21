@@ -130,7 +130,7 @@ export function DayNightLab() {
   const setStep = useLabStore((s) => s.setStep)
   return (
     <div>
-      <p className="muted">Ankara, İstanbul, Londra, New York ve Tokyo pinlerini izle.</p>
+      <p className="muted">İzmir, İstanbul, Ankara, Şanlıurfa, Diyarbakır ve Van pinlerini izle. Aynı ülkede oldukları için geceye neredeyse birlikte girerler.</p>
       <button
         type="button"
         className="btn primary"
@@ -195,6 +195,7 @@ export function DropBallLab() {
   const setStep = useLabStore((s) => s.setStep)
   return (
     <div>
+      <p className="muted">Aynı yükseklikten bırakılan gerçekçi top; Ay’da yavaş, Dünya’da orta, Jüpiter’de hızla düşer. Jüpiter’de katı yer yoktur.</p>
       <PhysicsCanvas mode="drop" running={run} />
       <div className="row-actions">
         <button
@@ -265,9 +266,9 @@ export function RealScaleLab() {
       </button>
       <button
         type="button"
-        className={`big-toggle ${mode === 'proportional' ? 'is-on' : ''}`}
+        className={`big-toggle ${mode === 'trueScale' ? 'is-on' : ''}`}
         onClick={() => {
-          useSimulationStore.getState().setScaleMode('proportional')
+          useSimulationStore.getState().setScaleMode('trueScale')
           getScene()?.focusOverview()
         }}
       >

@@ -1,7 +1,7 @@
 import { DAY_MS, TROPICAL_YEAR_DAYS } from './astronomyConstants'
 
 export const TIME_PRESETS = [
-  { id: '1', label: '1×', scale: 1 },
+  { id: '1', label: '1 sn/sn', scale: 1 },
   { id: '10', label: '10×', scale: 10 },
   { id: '100', label: '100×', scale: 100 },
   { id: '1000', label: '1.000×', scale: 1_000 },

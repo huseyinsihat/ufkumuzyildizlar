@@ -14,6 +14,7 @@ export class SunMesh {
   readonly group: Group
   readonly mesh: Mesh
   private glow: Mesh
+  private corona: Mesh
   private spin = 0
   private readonly rotationPeriodHours: number
 
@@ -23,12 +24,12 @@ export class SunMesh {
     this.group.name = 'sun'
 
     const geometry = new SphereGeometry(1, 64, 48)
-    const map = texture ?? createBodyTexture('sun', '#F7C14A', 256)
+    const map = texture ?? createBodyTexture('sun', '#F7C14A', 512)
     const material = new MeshStandardMaterial({
       map,
       emissive: '#ffb347',
       emissiveMap: map,
-      emissiveIntensity: 1.35,
+      emissiveIntensity: 1.85,
       roughness: 1,
       metalness: 0,
     })
@@ -42,7 +43,7 @@ export class SunMesh {
       new MeshBasicMaterial({
         color: '#ffcc66',
         transparent: true,
-        opacity: 0.18,
+        opacity: 0.22,
         blending: AdditiveBlending,
         depthWrite: false,
       }),
@@ -50,11 +51,36 @@ export class SunMesh {
     this.glow.scale.setScalar(EDU_RADIUS.sun * 1.28)
     this.glow.raycast = () => {}
     this.group.add(this.glow)
+
+    this.corona = new Mesh(
+      new SphereGeometry(1, 32, 24),
+      new MeshBasicMaterial({
+        color: '#ffe29a',
+        transparent: true,
+        opacity: 0.1,
+        blending: AdditiveBlending,
+        depthWrite: false,
+      }),
+    )
+    this.corona.scale.setScalar(EDU_RADIUS.sun * 1.62)
+    this.corona.raycast = () => {}
+    this.group.add(this.corona)
   }
 
   setVisualRadius(radius: number): void {
-    this.mesh.scale.setScalar(Math.max(radius, 0.08))
-    this.glow.scale.setScalar(Math.max(radius, 0.08) * 1.28)
+    const next = Math.max(radius, 0.08)
+    this.mesh.scale.setScalar(next)
+    this.glow.scale.setScalar(next * 1.28)
+    this.corona.scale.setScalar(next * 1.62)
+  }
+
+  applyMap(texture: Texture): void {
+    const material = this.mesh.material
+    if (!(material instanceof MeshStandardMaterial)) return
+    material.map?.dispose()
+    material.map = texture
+    material.emissiveMap = texture
+    material.needsUpdate = true
   }
 
   update(dtSimSeconds: number): void {
@@ -72,5 +98,9 @@ export class SunMesh {
     const glowMat = this.glow.material
     if (Array.isArray(glowMat)) glowMat.forEach((item) => item.dispose())
     else glowMat.dispose()
+    this.corona.geometry.dispose()
+    const coronaMat = this.corona.material
+    if (Array.isArray(coronaMat)) coronaMat.forEach((item) => item.dispose())
+    else coronaMat.dispose()
   }
 }

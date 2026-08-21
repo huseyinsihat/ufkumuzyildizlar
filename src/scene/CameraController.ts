@@ -42,10 +42,10 @@ export class CameraController {
     this.controls.enabled = false
   }
 
-  focusOverview(): void {
+  focusOverview(trueScale = false): void {
     this.fromPos.copy(this.camera.position)
     this.fromTarget.copy(this.controls.target)
-    this.toPos.set(0, 48, 118)
+    this.toPos.set(0, trueScale ? 72 : 48, trueScale ? 210 : 118)
     this.toTarget.set(0, 0, 0)
     this.elapsed = 0
     this.animating = true

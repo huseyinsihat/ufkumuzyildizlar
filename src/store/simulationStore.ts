@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { BodyId } from '../types/planet'
 import type { ScaleMode } from '../types/simulation'
 import { TimeEngine } from '../astronomy/timeEngine'
+import { normalizeScaleMode } from '../astronomy/visualScale'
 
 const engine = new TimeEngine()
 
@@ -84,7 +85,7 @@ export const useSimulationStore = create<SimulationState>((set) => ({
     engine.direction = direction
     set({ direction })
   },
-  setScaleMode: (mode) => set({ scaleMode: mode }),
+  setScaleMode: (mode) => set({ scaleMode: normalizeScaleMode(mode) }),
   setShowOrbits: (show) => set({ showOrbits: show }),
   setShowConstellations: (show) => set({ showConstellations: show }),
   setShowAxes: (show) => set({ showAxes: show }),

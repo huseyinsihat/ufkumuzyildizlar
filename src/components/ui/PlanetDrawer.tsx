@@ -35,13 +35,18 @@ export function ExploreDock() {
           <Icon name="planet" />
           Gezegenler
         </button>
-        <button type="button" className="btn" onClick={lookAtSolarSystem}>
+        <button type="button" className="btn icon-only" onClick={lookAtSolarSystem} aria-label="Güneş Sistemine bak" title="Güneş Sistemine bak">
           <Icon name="sun" />
-          Güneş Sistemi
         </button>
-        <button type="button" className="btn" aria-pressed={showOrbits} onClick={() => setShowOrbits(!showOrbits)}>
+        <button
+          type="button"
+          className={`btn icon-only ${showOrbits ? 'is-on' : ''}`}
+          aria-label={showOrbits ? 'Yörüngeleri gizle' : 'Yörüngeleri aç'}
+          title={showOrbits ? 'Yörüngeleri gizle' : 'Yörüngeleri aç'}
+          aria-pressed={showOrbits}
+          onClick={() => setShowOrbits(!showOrbits)}
+        >
           <Icon name="orbit" />
-          {showOrbits ? 'Yörünge açık' : 'Yörünge'}
         </button>
         <button type="button" className="btn" onClick={() => setPanel('compare')}>
           <Icon name="compare" />

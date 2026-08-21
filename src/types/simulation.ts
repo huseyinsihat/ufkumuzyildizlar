@@ -1,6 +1,6 @@
 import type { BodyId } from './planet'
 
-export type ScaleMode = 'educational' | 'proportional' | 'astronomical'
+export type ScaleMode = 'educational' | 'trueScale'
 
 export type AppPanel =
   | 'none'

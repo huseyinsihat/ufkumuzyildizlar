@@ -25,8 +25,17 @@ const EDU_ORBIT_SPAN = 88
 const LOG_AU_MIN = Math.log(0.387)
 const LOG_AU_MAX = Math.log(39.5)
 
-/** Scene units per AU in proportional mode (planets become tiny). */
-export const PROPORTIONAL_AU_UNITS = 7
+/** Scene units per AU in true-scale mode (planets become tiny). */
+export const TRUE_SCALE_AU_UNITS = 7
+
+export function normalizeScaleMode(mode: string): ScaleMode {
+  if (mode === 'trueScale' || mode === 'proportional' || mode === 'astronomical') return 'trueScale'
+  return 'educational'
+}
+
+export function isTrueScale(mode: ScaleMode): boolean {
+  return mode === 'trueScale'
+}
 
 export function educationalOrbitRadius(au: number): number {
   const clamped = Math.max(au, 1e-6)
@@ -36,8 +45,8 @@ export function educationalOrbitRadius(au: number): number {
 
 export function visualRadius(bodyId: BodyId, mode: ScaleMode): number {
   const body = getBody(bodyId)
-  if (mode === 'proportional') {
-    return (body.radiusKm / 149_597_870.7) * PROPORTIONAL_AU_UNITS
+  if (isTrueScale(mode)) {
+    return (body.radiusKm / 149_597_870.7) * TRUE_SCALE_AU_UNITS
   }
   return EDU_RADIUS[bodyId]
 }
@@ -47,8 +56,8 @@ export function visualMoonOrbitRadius(): number {
 }
 
 export function compressDistance(distanceAu: number, mode: ScaleMode): number {
-  if (mode === 'proportional') {
-    return distanceAu * PROPORTIONAL_AU_UNITS
+  if (isTrueScale(mode)) {
+    return distanceAu * TRUE_SCALE_AU_UNITS
   }
   return educationalOrbitRadius(distanceAu)
 }
@@ -69,11 +78,8 @@ export function auToScene(au: Vec3, mode: ScaleMode): Vec3 {
 }
 
 export function scaleExplanation(mode: ScaleMode): string {
-  if (mode === 'educational') {
-    return 'Eğitimsel görünümde gezegenler görünür büyüklüktedir. Sıra ve göreli uzaklık korunur; gerçek çap-mesafe oranı kullanılmaz. Aksi halde Dünya bir nokta olurdu.'
+  if (isTrueScale(mode)) {
+    return 'Gerçek ölçekte çaplar ve mesafeler gerçek oranlara yaklaşır. Gezegenler neredeyse kaybolur; uzayın ne kadar boş olduğunu bu yüzden anlarız.'
   }
-  if (mode === 'proportional') {
-    return 'Oransal görünümde çaplar ve mesafeler gerçek oranlara yaklaşır. Gezegenler neredeyse kaybolur; uzayın ne kadar boş olduğunu bu yüzden anlarız.'
-  }
-  return 'Astronomik görünümde konumlar gerçek ephemeris verisine dayanır. Görsel boyut ayrı tutulur; böylece gezegenler hem doğru yerde hem de görünür kalır.'
+  return 'Eğitimsel görünümde gezegenler görünür büyüklüktedir. Sıra ve göreli uzaklık korunur; gerçek çap-mesafe oranı kullanılmaz. Aksi halde Dünya bir nokta olurdu.'
 }

@@ -80,13 +80,21 @@ button {
 .planet-label,
 .city-label {
   color: #f4fbff;
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 600;
   letter-spacing: 0.02em;
   text-shadow: 0 0 8px #030712;
   white-space: nowrap;
   pointer-events: none;
-  opacity: 1;
-  transition: opacity 0.18s linear;
+}
+
+.planet-label.is-hidden,
+.city-label.is-hidden {
+  visibility: hidden;
+}
+
+.city-label {
+  font-size: 13px;
 }
 
 .planet-label.is-selected {
@@ -175,6 +183,23 @@ button {
   flex-shrink: 0;
 }
 
+.dock-buttons .btn.icon-only {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  justify-content: center;
+}
+
+.dock-buttons .btn.icon-only .ui-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.dock-buttons .btn.icon-only.is-on {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 1px var(--cyan);
+}
+
 .planet-drawer {
   position: absolute;
   left: 0;
@@ -217,10 +242,69 @@ button {
   transform: translateX(-50%);
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
-  padding: 8px 10px;
-  border-radius: 14px;
+  padding: 8px 10px 8px 12px;
+  border-radius: 999px;
+}
+
+.time-compact .btn,
+.time-compact .chip {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: 999px;
+}
+
+.time-compact .time-readout {
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 11.5rem;
+}
+
+.time-segments {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(4, 10, 24, 0.55);
+}
+
+.time-segments button {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.time-segments button + button {
+  border-left: 1px solid var(--line);
+}
+
+.time-segments button.is-active {
+  background: var(--cyan-dim);
+  color: var(--cyan);
+}
+
+.scale-banner {
+  position: absolute;
+  left: 50%;
+  top: 54px;
+  bottom: auto;
+  transform: translateX(-50%);
+  z-index: 5;
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff8e1;
+  background: rgba(6, 12, 28, 0.88);
+  border: 1px solid var(--line);
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 .hud-sheet,
@@ -562,7 +646,7 @@ button {
 
 .physics-canvas {
   width: 100%;
-  height: 160px;
+  height: 200px;
   border-radius: 10px;
   margin: 8px 0;
 }
@@ -662,6 +746,31 @@ select {
   color: #fff8e1;
   font-size: 13px;
   font-weight: 700;
+}
+
+.hardware-block {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.hardware-block h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.pin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.pin-table th,
+.pin-table td {
+  text-align: left;
+  padding: 4px 6px;
+  border-bottom: 1px solid rgba(94, 234, 212, 0.16);
 }
 
 @media (max-width: 900px) {
