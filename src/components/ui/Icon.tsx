@@ -84,6 +84,31 @@ const ICONS: Record<string, ReactNode> = {
       <path d="M12 6.5v12" />
     </>
   ),
+  replay: (
+    <>
+      <path d="M7 7.5A6.5 6.5 0 1 1 5.6 12" />
+      <path d="M7 4.2v3.6H3.4" />
+    </>
+  ),
+  back: (
+    <>
+      <path d="M15 6 9 12l6 6" />
+      <path d="M9 12h10" />
+    </>
+  ),
+  check: (
+    <>
+      <path d="M5.5 12.5 10 17l8.5-9" />
+    </>
+  ),
+  reset: (
+    <>
+      <path d="M5 10V6.5H8.5" />
+      <path d="M19 14v3.5H15.5" />
+      <path d="M6.2 8.2A6.5 6.5 0 0 1 18 9.4" />
+      <path d="M17.8 15.8A6.5 6.5 0 0 1 6 14.6" />
+    </>
+  ),
 }
 
 export type IconName = keyof typeof ICONS

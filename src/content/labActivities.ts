@@ -144,7 +144,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     id: 'moon-phases',
     room: 'build',
     title: 'Dolunay’ı sen oluştur',
-    question: 'Ay gerçekten şekil mi değiştiriyor? Ay’ı dolunay olacak yere sürükle.',
+    question: 'Dolunay için Ay’ı nereye sürüklemelisin?',
     choices: [
       { id: 'shape', label: 'Evet, Ay’ın şekli değişiyor' },
       { id: 'light', label: 'Hayır, görünen aydınlık kısım değişiyor' },
@@ -152,7 +152,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     simulateLabel: 'Ay’ı sürükle',
     resultTitle: 'Dolunay: Güneş–Dünya–Ay hizası',
     explain:
-      'Ay kendi ışığını üretmez; Güneş ışığını yansıtır. Şekli değişmez, Dünya’dan gördüğümüz aydınlık dilim değişir. Dolunayda Ay, Dünya’nın Güneş’e göre arkasındadır; her dolunayda tutulma olmaz çünkü Ay’ın yörüngesi biraz eğiktir.',
+      'Ay kendi ışığını üretmez; Güneş ışığını yansıtır. Şekli değişmez. Dolunayda Ay, Dünya’nın Güneş’e göre arkasındadır.',
     featured: true,
     uses3d: true,
   },
@@ -220,7 +220,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'scale',
     title: 'En sıcak kim?',
     question: 'Merkür, Venüs ve Dünya’dan hangisinin yüzeyi en sıcaktır?',
-    simulateLabel: 'Battaniyeyi dene',
+    simulateLabel: 'Atmosferi dene',
     resultTitle: 'Venüs, Merkür’den sıcaktır',
     explain:
       'Merkür Güneş’e en yakındır. Ama Venüs’ün kalın atmosferi ısıyı tutar. En sıcak yüzey Venüs’tedir.',

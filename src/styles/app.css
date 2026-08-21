@@ -438,15 +438,15 @@ button {
   position: absolute;
   left: 50%;
   right: auto;
-  bottom: 12px;
+  bottom: 16px;
   top: auto;
   transform: translateX(-50%);
-  width: min(420px, calc(100% - 24px));
-  max-width: min(420px, calc(100% - 24px));
-  max-height: 36vh;
+  width: min(560px, calc(100% - 32px));
+  max-width: min(560px, calc(100% - 32px));
+  max-height: 42vh;
   margin: 0;
   overflow: auto;
-  padding: 14px 16px;
+  padding: 16px 18px 18px;
   border-radius: 16px;
 }
 
@@ -558,13 +558,54 @@ button {
   margin: 0 0 6px;
 }
 
-.step-dots {
+.step-track {
   display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.step-track li {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+}
+
+.step-track li.is-on {
+  color: #fff8e1;
+  border-color: var(--amber);
+  background: rgba(251, 191, 36, 0.2);
+}
+
+.step-track li.is-done {
+  color: var(--cyan);
+  border-color: var(--cyan);
+}
+
+.activity-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.activity-hud .question {
+  margin: 8px 0 10px;
+  font-size: 15px;
+}
+
+.activity-hud .btn {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: 12px;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .step-dots i {
@@ -606,8 +647,8 @@ button {
   top: 72px;
   bottom: auto;
   z-index: 5;
-  width: min(220px, calc(100% - 24px));
-  max-height: 40vh;
+  width: min(280px, calc(100% - 24px));
+  max-height: min(62vh, calc(100% - 160px));
   overflow: auto;
   pointer-events: none;
 }
@@ -643,16 +684,61 @@ button {
 }
 
 .inspect-card h2 {
-  font-size: 18px;
+  font-size: 20px;
 }
 
-.inspect-card p {
-  margin: 0 0 8px;
+.inspect-lead {
+  margin: 0 0 10px;
   font-size: 13px;
+  line-height: 1.45;
 }
 
-.inspect-card .strip-stats {
-  grid-template-columns: 1fr;
+.inspect-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 10px;
+  margin: 0 0 10px;
+}
+
+.inspect-stats span {
+  color: var(--muted);
+  display: block;
+  font-size: 11px;
+}
+
+.inspect-stats strong {
+  display: block;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.inspect-atmo {
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.inspect-atmo span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+
+.inspect-facts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inspect-facts li {
+  font-size: 12px;
+  line-height: 1.4;
+  padding-left: 10px;
+  border-left: 2px solid var(--amber);
 }
 
 .strip-stats {
@@ -1053,6 +1139,13 @@ button {
   font-size: 14px;
 }
 
+.heat-card em {
+  color: var(--cyan);
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .heat-card span {
   color: var(--muted);
   font-size: 12px;
@@ -1353,8 +1446,8 @@ details summary {
   }
 
   .activity-hud {
-    width: min(420px, calc(100% - 16px));
-    max-width: min(420px, calc(100% - 16px));
+    width: min(560px, calc(100% - 16px));
+    max-width: min(560px, calc(100% - 16px));
   }
 
   .planet-strip {

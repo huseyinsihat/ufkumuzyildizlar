@@ -49,6 +49,10 @@ export function LabHome() {
               Tümüne dön
             </button>
           ) : null}
+          <button type="button" className="btn" onClick={() => useLabStore.getState().resetProgress()}>
+            <Icon name="reset" />
+            Sıfırla
+          </button>
           <button
             type="button"
             className="btn"

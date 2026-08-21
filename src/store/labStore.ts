@@ -27,6 +27,7 @@ interface LabState {
   setStep: (step: LabStep) => void
   setPrediction: (id: string) => void
   completeActivity: () => void
+  resetProgress: () => void
   setYearTours: (rows: { id: string; name: string; tours: number }[]) => void
   setRaceWinner: (id: string | null) => void
   setMoonPhaseDeg: (deg: number) => void
@@ -138,6 +139,7 @@ export const useLabStore = create<LabState>((set, get) => ({
       lightArrived: false,
       mercuryYear: 0,
       mercuryDay: 0,
+      moonPhaseDeg: 0,
     })
   },
   setStep: (step) => set({ step }),
@@ -149,6 +151,24 @@ export const useLabStore = create<LabState>((set, get) => ({
     set({
       step: 'explain',
       completed: already ? completed : [...completed, activityId],
+    })
+  },
+  resetProgress: () => {
+    get().resetActivityScene()
+    set({
+      completed: [],
+      activityId: null,
+      room: null,
+      step: 'predict',
+      prediction: null,
+      missionIndex: 0,
+      yearTours: [],
+      raceWinner: null,
+      moonPhaseDeg: 0,
+      lightProgress: 0,
+      lightArrived: false,
+      mercuryYear: 0,
+      mercuryDay: 0,
     })
   },
   setYearTours: (rows) => set({ yearTours: rows }),

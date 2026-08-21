@@ -610,40 +610,31 @@ export function MoonPhasesLab() {
   const correct = prediction === 'light'
 
   return (
-    <div>
+    <div className="activity-stage">
       {step === 'simulate' && !prediction ? (
         <div>
-          <p className="muted">Ay gerçekten şekil mi değiştiriyor?</p>
+          <p className="muted">Ay gerçekten ezilip büyüyor mu?</p>
           <div className="choice-row">
             <button type="button" className="chip" onClick={() => setPrediction('shape')}>
               Evet, şekli değişiyor
             </button>
             <button type="button" className="chip" onClick={() => setPrediction('light')}>
-              Hayır, görünen aydınlık kısım değişiyor
+              Hayır, aydınlık dilim değişiyor
             </button>
           </div>
         </div>
       ) : null}
       {step === 'simulate' && prediction ? (
         <div>
-          <div className="moon-align" aria-hidden="true">
-            <span>
-              <b className="sun-dot" /> Güneş
-            </span>
-            <span>
-              <b className="earth-dot" /> Dünya
-            </span>
-            <span>
-              <b className="moon-dot" /> Ay
-            </span>
-          </div>
+          <p>
+            Şimdi Ay’ı <strong>Dünya’nın karanlık tarafına</strong> sürükle. Güneş–Dünya–Ay neredeyse bir çizgi olunca dolunay olur.
+          </p>
           <p>
             Evre: <strong>{moonPhaseName(deg)}</strong>
           </p>
-          <p className="muted">Ay’ı Dünya’nın gece tarafına sürükle. Dolunayda Güneş–Dünya–Ay neredeyse hizalanır.</p>
-          {full ? <p className="success">DOLUNAY OLUŞTU</p> : null}
-          <button type="button" className="btn primary" onClick={() => setStep('result')}>
-            {full ? 'Nedenini gör' : 'Bu evreyi kaydet'}
+          {full ? <p className="success">Dolunay oldu. Devam et.</p> : <p className="muted">Henüz dolunay değil — Ay’ı çekmeye devam et.</p>}
+          <button type="button" className="btn primary" disabled={!full} onClick={() => setStep('result')}>
+            {full ? 'Devam et' : 'Önce dolunayı yakala'}
           </button>
         </div>
       ) : null}
@@ -964,7 +955,7 @@ export function ClosestHottestLab() {
     <div>
       {step === 'simulate' && !prediction ? (
         <div>
-          <p className="muted">En sıcak yüzey hangisinde? Önce tahmin et, sonra ısıyı gör.</p>
+          <p className="muted">Hangisinin yüzeyi en sıcaktır? Birine dokun.</p>
           <div className="heat-cards">
             {HEAT_GUESSES.map((item) => (
               <button
@@ -978,7 +969,7 @@ export function ClosestHottestLab() {
                 }}
               >
                 <strong>{item.label}</strong>
-                <span>Dokun ve seç</span>
+                <em>Dokun ve seç</em>
               </button>
             ))}
           </div>
@@ -997,7 +988,7 @@ export function ClosestHottestLab() {
               </div>
             ))}
           </div>
-          <p className="muted">Venüs’ün atmosfer battaniyesi ısıyı tutar. En yakın gezegen en sıcak olmak zorunda değildir.</p>
+          <p className="muted">Venüs’ün kalın atmosferi ısıyı tutar. Güneş’e en yakın gezegen en sıcak olmak zorunda değildir.</p>
           <div className="row-actions">
             <button
               type="button"
@@ -1007,7 +998,7 @@ export function ClosestHottestLab() {
                 getScene()?.setVenusBlanket(false)
               }}
             >
-              Battaniyeyi çıkar
+              Atmosferi kaldır
             </button>
             <button
               type="button"
@@ -1017,7 +1008,7 @@ export function ClosestHottestLab() {
                 getScene()?.setVenusBlanket(true)
               }}
             >
-              Battaniyeyi giydir
+              Atmosferi geri koy
             </button>
             <button type="button" className="btn primary" onClick={() => setStep('result')}>
               Sonucu gör

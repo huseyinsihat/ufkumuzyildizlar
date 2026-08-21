@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react'
 import { getActivity } from '../../content/labActivities'
-import { TEAM } from '../../content/team'
 import { useLabStore } from '../../store/labStore'
+import { Icon } from '../ui/Icon'
+
+const STEPS = ['Tahmin', 'İzle', 'Neden'] as const
 
 export function ActivityShell({ children }: { children: ReactNode }) {
   const id = useLabStore((s) => s.activityId)
@@ -10,7 +12,10 @@ export function ActivityShell({ children }: { children: ReactNode }) {
   const complete = useLabStore((s) => s.completeActivity)
   const start = useLabStore((s) => s.startActivity)
   const reset = useLabStore((s) => s.resetActivityScene)
-  const setActivityNone = () => useLabStore.setState({ activityId: null, step: 'predict', prediction: null })
+  const backToCatalog = () => {
+    reset()
+    useLabStore.setState({ activityId: null, step: 'predict', prediction: null })
+  }
 
   if (!id) return null
   const activity = getActivity(id)
@@ -20,31 +25,23 @@ export function ActivityShell({ children }: { children: ReactNode }) {
     <section className="activity-hud" aria-label={activity.title}>
       <header className="panel-head">
         <div>
-          <p className="eyebrow">{TEAM.home}</p>
           <h2>{activity.title}</h2>
-          <p className="step-dots" aria-hidden="true">
-            <i className={index >= 1 ? 'is-on' : ''} />
-            <i className={index >= 2 ? 'is-on' : ''} />
-            <i className={index >= 3 ? 'is-on' : ''} />
-            <span>{index === 1 ? '1 Tahmin' : index === 2 ? '2 İzle' : '3 Neden'}</span>
-          </p>
+          <ol className="step-track">
+            {STEPS.map((label, i) => (
+              <li key={label} className={index === i + 1 ? 'is-on' : index > i + 1 ? 'is-done' : ''}>
+                {i + 1} {label}
+              </li>
+            ))}
+          </ol>
         </div>
-        <button
-          type="button"
-          className="icon-btn"
-          aria-label="Kataloga dön"
-          onClick={() => {
-            reset()
-            setActivityNone()
-          }}
-        >
+        <button type="button" className="icon-btn" onClick={backToCatalog} aria-label="Etkinliklere dön">
           ×
         </button>
       </header>
-      <p className="question">{activity.question}</p>
+      {step === 'simulate' ? <p className="question">{activity.question}</p> : null}
       {step === 'simulate' ? children : null}
       {step === 'result' ? (
-        <div>
+        <div className="activity-stage">
           <p>
             <strong>{activity.resultTitle}</strong>
           </p>
@@ -55,23 +52,19 @@ export function ActivityShell({ children }: { children: ReactNode }) {
         </div>
       ) : null}
       {step === 'explain' ? (
-        <div>
+        <div className="activity-stage">
           <p>{activity.explain}</p>
           <div className="row-actions">
             <button type="button" className="btn primary" onClick={() => start(id)}>
+              <Icon name="replay" />
               Yeniden izle
             </button>
-            <button
-              type="button"
-              className="btn"
-              onClick={() => {
-                reset()
-                setActivityNone()
-              }}
-            >
+            <button type="button" className="btn" onClick={backToCatalog}>
+              <Icon name="back" />
               Etkinliklere dön
             </button>
             <button type="button" className="btn" onClick={() => setStep('result')}>
+              <Icon name="check" />
               Sonuca dön
             </button>
           </div>
