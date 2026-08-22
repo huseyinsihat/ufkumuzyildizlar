@@ -331,7 +331,8 @@ export class SolarSystemScene {
     const date = month === 'jan' ? { year: 2026, month: 1, day: 4, hour: 12, minute: 0 } : { year: 2026, month: 7, day: 4, hour: 12, minute: 0 }
     useSimulationStore.getState().setDateParts(date)
     useSimulationStore.getState().setPlaying(false)
-    this.focusBody('earth')
+    earth.group.getWorldPosition(this.world)
+    this.camera.focusSeasonEarth(this.world.clone(), visualRadius('earth', this.scaleMode))
   }
 
   setHeatCompare(on: boolean): void {
@@ -439,6 +440,7 @@ export class SolarSystemScene {
   private labelOverlay(): boolean {
     const ui = useUiStore.getState()
     const lab = useLabStore.getState()
+    if (lab.activityId === 'arrange-orbits') return true
     const blocked = ui.introVisible || Boolean(lab.labOpen && !lab.activityId)
     if (blocked) {
       this.labelsReadyAt = performance.now() + 400

@@ -74,6 +74,25 @@ export class CameraController {
     this.beginTween()
   }
 
+  focusSeasonEarth(earthPos: Vector3, earthRadius: number): void {
+    this.fromPos.copy(this.camera.position)
+    this.fromTarget.copy(this.controls.target)
+    this.toTarget.copy(earthPos)
+    const dist = Math.max(earthRadius * 4.8, 5.2)
+    const away = earthPos.lengthSq() > 0.01 ? earthPos.clone().normalize() : new Vector3(0, 0, 1)
+    const up = new Vector3(0, 1, 0)
+    const side = new Vector3().crossVectors(away, up)
+    if (side.lengthSq() < 0.01) side.set(1, 0, 0)
+    side.normalize()
+    this.toPos
+      .copy(earthPos)
+      .addScaledVector(away, dist * 0.95)
+      .addScaledVector(side, dist * 0.5)
+      .addScaledVector(up, dist * 0.28)
+    this.willFollow = true
+    this.beginTween()
+  }
+
   enterSkyView(): void {
     this.fromPos.copy(this.camera.position)
     this.fromTarget.copy(this.controls.target)

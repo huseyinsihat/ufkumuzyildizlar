@@ -347,14 +347,8 @@ export function matchCanned(text: string): CannedPrompt | undefined {
   return undefined
 }
 
-export function pickChipQuestions(
-  askedQuestions: ReadonlySet<string>,
-  random = Math.random,
-  count = pickChipCount(),
-): CannedPrompt[] {
-  const asked = new Set([...askedQuestions].map(normalizeQuestion))
-  const pool = CANNED_PROMPTS.filter((item) => !asked.has(normalizeQuestion(item.question)))
-  const shuffled = [...pool]
+function shufflePrompts(items: CannedPrompt[], random: () => number): CannedPrompt[] {
+  const shuffled = [...items]
   for (let i = shuffled.length - 1; i > 0; i -= 1) {
     const j = Math.floor(random() * (i + 1))
     const a = shuffled[i]
@@ -363,7 +357,25 @@ export function pickChipQuestions(
     shuffled[i] = b
     shuffled[j] = a
   }
-  return shuffled.slice(0, Math.min(count, shuffled.length))
+  return shuffled
+}
+
+export function pickChipQuestions(
+  askedQuestions: ReadonlySet<string>,
+  random = Math.random,
+  count = pickChipCount(),
+): CannedPrompt[] {
+  const asked = new Set([...askedQuestions].map(normalizeQuestion))
+  const unused = CANNED_PROMPTS.filter((item) => !asked.has(normalizeQuestion(item.question)))
+  const picked = shufflePrompts(unused, random).slice(0, count)
+  if (picked.length >= count) return picked
+  const used = CANNED_PROMPTS.filter((item) => asked.has(normalizeQuestion(item.question)))
+  for (const item of shufflePrompts(used, random)) {
+    if (picked.length >= count) break
+    if (picked.some((chip) => chip.id === item.id)) continue
+    picked.push(item)
+  }
+  return picked.slice(0, Math.min(count, picked.length))
 }
 
 export function pickCannedAnswer(question: string, random = Math.random): string | null {

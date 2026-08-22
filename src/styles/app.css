@@ -101,6 +101,12 @@ button {
   visibility: hidden;
 }
 
+.app-shell.hide-scene-labels .planet-label,
+.app-shell.hide-scene-labels .sky-label,
+.app-shell.hide-scene-labels .city-label {
+  visibility: hidden !important;
+}
+
 .city-label {
   font-size: 13px;
 }
@@ -518,13 +524,25 @@ button {
   bottom: max(16px, var(--safe-bottom));
   top: auto;
   transform: translateX(-50%);
-  width: min(560px, calc(100% - 32px));
-  max-width: min(560px, calc(100% - 32px));
-  max-height: min(38vh, calc(100% - 140px));
+  width: min(440px, calc(100% - 32px));
+  max-width: min(440px, calc(100% - 32px));
+  max-height: min(34vh, calc(100% - 140px));
   margin: 0;
   overflow: auto;
-  padding: 12px 14px 14px;
+  padding: 10px 12px 12px;
   border-radius: var(--panel-radius);
+}
+
+.activity-hud--seasons-tilt {
+  left: max(16px, var(--safe-left));
+  transform: none;
+  width: min(360px, calc(100% - 28px));
+  max-width: min(360px, calc(100% - 28px));
+}
+
+.activity-hud--arrange-orbits {
+  width: min(480px, calc(100% - 32px));
+  max-width: min(480px, calc(100% - 32px));
 }
 
 .nav-label {
@@ -712,9 +730,24 @@ button {
   align-items: flex-start;
 }
 
-.panel-head h2,
-.intro-card h1 {
-  margin: 0 0 6px;
+.activity-hud .panel-head h2 {
+  font-size: 16px;
+  margin: 0 0 4px;
+}
+
+.activity-hud .step-track {
+  margin: 4px 0 0;
+}
+
+.lab-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.season-panel .btn.primary {
+  width: 100%;
+  justify-content: center;
 }
 
 .step-track {
@@ -1557,7 +1590,7 @@ button {
 
 .big-toggle {
   flex: 1;
-  min-width: 180px;
+  min-width: 0;
 }
 
 .orbit-lab {
@@ -1952,8 +1985,8 @@ details summary {
   }
 
   .activity-hud {
-    width: min(520px, calc(100% - 24px));
-    max-width: min(520px, calc(100% - 24px));
+    width: min(440px, calc(100% - 24px));
+    max-width: min(440px, calc(100% - 24px));
   }
 
   .planet-strip {
@@ -2334,13 +2367,13 @@ details summary {
 }
 
 .guide-bubble {
-  margin: 8px 0 10px;
+  margin: 6px 0 8px;
   padding: 8px 10px;
   border-radius: 12px;
   background: rgba(251, 191, 36, 0.1);
   border: 1px solid rgba(251, 191, 36, 0.35);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.45;
 }
 
 .badge-toast,

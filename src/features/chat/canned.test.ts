@@ -30,6 +30,13 @@ describe('canned sun questions', () => {
     expect(chips.some((item) => item.id === 'sun-yellow')).toBe(false)
   })
 
+  it('keeps two chips cycling after the pool is exhausted', () => {
+    const asked = new Set(CANNED_PROMPTS.map((item) => item.question))
+    const chips = pickChipQuestions(asked, () => 0.35)
+    expect(chips).toHaveLength(2)
+    expect(new Set(chips.map((item) => item.id)).size).toBe(2)
+  })
+
   it('matches kid phrasing like kaç yıldız vardı', () => {
     expect(matchCanned('kaç yıldız vardı')?.id).toBe('how-many-stars')
     expect(pickCannedAnswer('Kaç gezegen var?', () => 0)).toContain('8')

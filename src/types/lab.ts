@@ -36,6 +36,7 @@ export interface LabActivity {
   room: LabRoomId
   title: string
   question: string
+  watchHint: string
   choices?: LabChoice[]
   simulateLabel: string
   resultTitle: string

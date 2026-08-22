@@ -56,7 +56,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({
       messages,
       error: null,
-      chips: get().chips.filter((item) => item.question !== content),
+      chips: pickChipQuestions(askedQuestions(messages)),
     })
   },
   send: async (text) => {
@@ -76,11 +76,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
     inflight = controller
 
     const userMessage: StoredChatMessage = { id: uid(), role: 'user', content }
+    const messages = [...get().messages, userMessage]
     set({
-      messages: [...get().messages, userMessage],
+      messages,
       busy: true,
       error: null,
-      chips: get().chips.filter((item) => item.question !== content),
+      chips: pickChipQuestions(askedQuestions(messages)),
     })
 
     const sim = useSimulationStore.getState()

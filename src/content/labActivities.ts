@@ -15,6 +15,11 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'motion',
     title: 'Bir Dünya yılı',
     question: 'Dünya 1 tur atınca diğer gezegenler ne yapar?',
+    watchHint: '1 yılı başlat. Yakın gezegenler daha çok tur atar.',
+    choices: [
+      { id: 'inner', label: 'Yakın gezegenler daha çok tur atar' },
+      { id: 'same', label: 'Hepsi 1 tur atar' },
+    ],
     simulateLabel: '1 yılı başlat',
     resultTitle: 'Dünya 1 turunu tamamladı',
     explain:
@@ -26,6 +31,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'motion',
     title: 'Yıl yarışı',
     question: 'Kim önce tur atar: Merkür mü, Dünya mı?',
+    watchHint: 'Yarışı başlat. Kim önce turunu bitirir?',
     choices: [
       { id: 'mercury', label: 'Merkür' },
       { id: 'earth', label: 'Dünya' },
@@ -43,6 +49,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'motion',
     title: 'Dönüyor mu, dolanıyor mu?',
     question: 'Gece ve gündüz için Dünya ne yapmalı?',
+    watchHint: 'Dönmeyi ve dolanmayı tek tek durdur. Gece-gündüz hangisinde kaybolur?',
     choices: [
       { id: 'spin', label: 'Kendi etrafında dönmesi' },
       { id: 'orbit', label: 'Güneş etrafında dolanması' },
@@ -59,6 +66,11 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'earth',
     title: 'Gece ve gündüz',
     question: 'İstanbul ve Diyarbakır aynı anda mı gece olur?',
+    watchHint: 'Camgöbeği İstanbul, amber Diyarbakır. Geceye birlikte mi giriyorlar?',
+    choices: [
+      { id: 'same', label: 'Evet, neredeyse aynı anda' },
+      { id: 'diff', label: 'Hayır, saatlerce fark var' },
+    ],
     simulateLabel: 'Gördüm',
     resultTitle: 'Gece ve gündüz dönmeden doğar',
     explain:
@@ -70,6 +82,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'gravity',
     title: 'Kütlem değişir mi?',
     question: 'Ay’a gidince kütlen değişir mi?',
+    watchHint: 'Kilonu seç. Ay’da his değişir, kütle aynı kalır.',
     choices: [
       { id: 'yes', label: 'Evet' },
       { id: 'no', label: 'Hayır' },
@@ -85,6 +98,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'gravity',
     title: 'Kim önce düşer?',
     question: 'Aynı top nerede önce yere düşer?',
+    watchHint: 'Topları bırak. Aynı yükseklikten hangisi önce düşer?',
     choices: [
       { id: 'moon', label: 'Ay' },
       { id: 'earth', label: 'Dünya' },
@@ -102,6 +116,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'gravity',
     title: 'Nerede daha yükseğe?',
     question: 'Nerede daha yükseğe zıplarsın?',
+    watchHint: 'Bir gezegen seç, zıplat. Ay’da daha yükseğe çıkarsın.',
     choices: [
       { id: 'moon', label: 'Ay' },
       { id: 'earth', label: 'Dünya' },
@@ -118,6 +133,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'scale',
     title: 'Uzay neden boş?',
     question: 'Neden modellerde gezegenler büyük gösterilir?',
+    watchHint: 'Görsel ölçek ile gerçek oranı karşılaştır.',
     choices: [
       { id: 'wrong', label: 'Çünkü gerçekte de öyle büyükler' },
       { id: 'model', label: 'Yoksa gezegenler görünmez olurdu' },
@@ -133,6 +149,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'build',
     title: 'Gezegenleri kendin diz',
     question: 'Gezegenleri Güneş’ten uzağa doğru dizebilir misin?',
+    watchHint: 'Aşağıdan bir gezegen seç, sonra sahnedeki doğru halkaya dokun.',
     simulateLabel: 'Sırayı gördüm',
     resultTitle: 'Yörünge sırası hazır',
     explain:
@@ -145,6 +162,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'build',
     title: 'Dolunay’ı sen oluştur',
     question: 'Dolunay için Ay’ı nereye koyarsın?',
+    watchHint: 'Ay’ı sürükle. Dolunay: Güneş–Dünya–Ay hizası.',
     choices: [
       { id: 'shape', label: 'Evet, Ay’ın şekli değişiyor' },
       { id: 'light', label: 'Hayır, görünen aydınlık kısım değişiyor' },
@@ -161,6 +179,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'sky',
     title: 'Yıldızlar gerçekten hareket ediyor mu?',
     question: 'Yıldızlar mı kayıyor, Dünya mı dönüyor?',
+    watchHint: 'Gökyüzünü hızlandır, sonra Dünya’nın dönüşüne bak.',
     choices: [
       { id: 'stars', label: 'Yıldızlar hareket ediyor' },
       { id: 'earth', label: 'Dünya dönüyor' },
@@ -176,6 +195,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'sky',
     title: 'Yıldızı tanı',
     question: 'Bu yıldız hangisi?',
+    watchHint: 'Kameranın baktığı yıldızı seç.',
     simulateLabel: 'Yıldıza bak',
     resultTitle: 'Gökyüzünü tanıdın',
     explain: 'Her yıldızın adı ve rengi farklıdır. Tıklayınca kamera o yıldıza gider.',
@@ -186,6 +206,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'sky',
     title: 'Uzay görevi',
     question: 'Mars yılı, dolunay ve zıplamayı birleştir.',
+    watchHint: 'Adımları sırayla tamamla. Önce Mars’a git.',
     simulateLabel: 'Göreve başla',
     resultTitle: 'Keşif tamam',
     explain: 'Mars’ın yılı daha uzun, Ay’ın yerçekimi daha zayıf, dolunay bir hizadır. Bunları simülasyonda gördün.',
@@ -196,6 +217,11 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'scale',
     title: 'Işık ne zaman gelir?',
     question: 'Güneş ışığı Dünya’ya anında mı gelir?',
+    watchHint: 'Işığı Dünya’ya ve Jüpiter’e gönder. Hangisi daha uzun sürer?',
+    choices: [
+      { id: 'instant', label: 'Anında gelir' },
+      { id: 'minutes', label: 'Birkaç dakikada gelir' },
+    ],
     simulateLabel: 'Işığı gönder',
     resultTitle: 'Işık yolculuğu bitti',
     explain:
@@ -208,6 +234,11 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'earth',
     title: 'Yazın Güneş’e daha yakın mıyız?',
     question: 'Yaz, Dünya Güneş’e yaklaştığı için mi olur?',
+    watchHint: 'Eğikliği aç-kapa. Ocak ve temmuzu dene. Dünya’ya bak.',
+    choices: [
+      { id: 'closer', label: 'Evet, daha yakınız' },
+      { id: 'tilt', label: 'Hayır, eksen eğikliği' },
+    ],
     simulateLabel: 'Eğikliği dene',
     resultTitle: 'Yaz, yakınlıktan doğmaz',
     explain:
@@ -220,6 +251,12 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'scale',
     title: 'En sıcak kim?',
     question: 'Hangisinin yüzeyi en sıcaktır?',
+    watchHint: 'Atmosferi kaldır ve geri koy. En sıcak yüzey değişir mi?',
+    choices: [
+      { id: 'mercury', label: 'Merkür' },
+      { id: 'venus', label: 'Venüs' },
+      { id: 'earth', label: 'Dünya' },
+    ],
     simulateLabel: 'Atmosferi dene',
     resultTitle: 'Venüs, Merkür’den sıcaktır',
     explain:
@@ -232,6 +269,11 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'sky',
     title: 'Kuyruk arkada mı kalır?',
     question: 'Kuyruk hep arkada mı kalır?',
+    watchHint: 'Buz topunu Güneş’in etrafında sürükle. Kuyruk nereye bakar?',
+    choices: [
+      { id: 'behind', label: 'Evet, hep arkada' },
+      { id: 'sun', label: 'Hayır, Güneş’ten uzağa bakar' },
+    ],
     simulateLabel: 'Kuyrukluyu sürükle',
     resultTitle: 'Kuyruk Güneş’ten kaçar',
     explain:
@@ -244,6 +286,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'motion',
     title: 'Kepler’in pizza kuralı',
     question: 'Merkür Güneş’e yaklaşınca ne olur?',
+    watchHint: 'Amber dilim yakın, cyan dilim uzak. İkisi de aynı süredir.',
     choices: [
       { id: 'faster', label: 'Hızlanır' },
       { id: 'slower', label: 'Yavaşlar' },
@@ -261,6 +304,11 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'motion',
     title: 'Merkür’ün günü neden uzun?',
     question: 'Merkür’de bir gün kısa mıdır?',
+    watchHint: '1 yılı izle. Yıl biter, gün bitmez.',
+    choices: [
+      { id: 'short', label: 'Evet, günü kısadır' },
+      { id: 'long', label: 'Hayır, günü yıldan uzundur' },
+    ],
     simulateLabel: '1 yılı izle',
     resultTitle: 'Yıl bitti, gün bitmedi',
     explain:
@@ -273,6 +321,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'build',
     title: 'Tutulma hizası',
     question: 'Her dolunayda Ay tutulması olur mu?',
+    watchHint: 'Ay’ı sürükle. Tutulma için gölge konisine gir.',
     choices: [
       { id: 'always', label: 'Evet, her dolunay tutulmadır' },
       { id: 'align', label: 'Hayır, tam hiza ve gölge gerekir' },
@@ -288,6 +337,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'sky',
     title: 'Büyükayı’yı bul',
     question: 'Kepçedeki yedi yıldızı bulabilir misin?',
+    watchHint: 'Kepçedeki yedi parlak yıldıza dokun.',
     simulateLabel: 'Yıldızlara dokun',
     resultTitle: 'Büyükayı tamam',
     explain:
@@ -300,6 +350,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'scale',
     title: 'Işık günlüğü',
     question: 'Uzak yıldızın ışığı daha mı uzun sürer?',
+    watchHint: 'Önce Dünya’ya ışık gönder, sonra Proxima’ya bak.',
     choices: [
       { id: 'same', label: 'Evet, ışık her yere aynı anda gider' },
       { id: 'far', label: 'Hayır, daha uzak yıldız daha uzun sürer' },

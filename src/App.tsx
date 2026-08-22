@@ -60,7 +60,7 @@ export default function App() {
   const showActivity = Boolean(activityId)
 
   return (
-    <div className={`app-shell ${largeText ? 'large-text' : ''}`}>
+    <div className={`app-shell ${largeText ? 'large-text' : ''} ${activityId === 'arrange-orbits' ? 'hide-scene-labels' : ''}`}>
       <div className="space-glow" />
       {webgl && !use2d ? <CanvasHost /> : <SolarSystem2D />}
       <TopBar />

@@ -111,6 +111,8 @@ function applyActivityScene(id: LabActivityId): void {
   if (id === 'seasons-tilt') {
     sim.selectBody('earth')
     sim.setShowAxes(true)
+    sim.setFreezeRevolution(true)
+    sim.setPlaying(false)
     scene?.setSeasonDemo(true, 'jan')
   }
   if (id === 'closest-hottest') {

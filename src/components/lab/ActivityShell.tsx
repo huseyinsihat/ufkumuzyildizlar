@@ -1,14 +1,21 @@
 import { useEffect, type ReactNode } from 'react'
 import { BADGES } from '../../content/missions'
-import { TEAM } from '../../content/team'
 import { getActivity } from '../../content/labActivities'
 import { useEducationStore } from '../../store/educationStore'
 import { useLabStore } from '../../store/labStore'
 import { useVoiceStore } from '../../store/voiceStore'
 import { speak } from '../../utils/speech'
 import { Icon } from '../ui/Icon'
+import type { LabActivity, LabStep } from '../../types/lab'
 
 const STEPS = ['Tahmin', 'İzle', 'Neden'] as const
+
+function bubbleText(activity: LabActivity, step: LabStep): string {
+  if (step === 'explain') return activity.explain
+  if (step === 'result') return 'Sahneyi gördün. Şimdi nedenine bak.'
+  if (step === 'simulate') return activity.watchHint
+  return activity.question
+}
 
 export function ActivityShell({ children }: { children: ReactNode }) {
   const id = useLabStore((s) => s.activityId)
@@ -18,7 +25,6 @@ export function ActivityShell({ children }: { children: ReactNode }) {
   const reset = useLabStore((s) => s.resetActivityScene)
   const setPrediction = useLabStore((s) => s.setPrediction)
   const lastBadge = useEducationStore((s) => s.lastBadge)
-  const guide = TEAM.members[0]?.name ?? TEAM.teamName
   const activity = id ? getActivity(id) : null
 
   useEffect(() => {
@@ -36,7 +42,7 @@ export function ActivityShell({ children }: { children: ReactNode }) {
   const badge = BADGES.find((item) => item.id === lastBadge)
 
   return (
-    <section className="activity-hud" aria-label={activity.title}>
+    <section className={`activity-hud activity-hud--${activity.id}`} aria-label={activity.title}>
       <header className="panel-head">
         <div>
           <h2>{activity.title}</h2>
@@ -52,9 +58,7 @@ export function ActivityShell({ children }: { children: ReactNode }) {
           ×
         </button>
       </header>
-      <p className="guide-bubble">
-        <strong>{guide}:</strong> {step === 'explain' ? activity.explain : activity.question}
-      </p>
+      <p className="guide-bubble">{bubbleText(activity, step)}</p>
       {badge ? <p className="badge-toast">Rozet: {badge.name}</p> : null}
       {step === 'predict' && activity.choices ? (
         <div className="choice-row">
