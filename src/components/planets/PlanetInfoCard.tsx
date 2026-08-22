@@ -4,8 +4,7 @@ import { formatAu, formatDays, formatHours, formatKm, formatNumberTr } from '../
 import { AU_KM } from '../../astronomy/astronomyConstants'
 import { useEducationStore } from '../../store/educationStore'
 import { useSimulationStore } from '../../store/simulationStore'
-import { useUiStore } from '../../store/uiStore'
-import { focusBody } from '../../features/planetExplorer/focus'
+import { focusBody, openCompare } from '../../features/planetExplorer/focus'
 
 const TABS = ['Bilgi', 'Keşfet', 'Karşılaştır', 'Yörünge', 'Dönüş', 'Uydular'] as const
 
@@ -13,8 +12,6 @@ export function PlanetInfoCard() {
   const id = useSimulationStore((s) => s.selectedBodyId)
   const showAxes = useSimulationStore((s) => s.showAxes)
   const setShowAxes = useSimulationStore((s) => s.setShowAxes)
-  const setCompare = useSimulationStore((s) => s.setCompare)
-  const setPanel = useUiStore((s) => s.setActivePanel)
   const notifyAxes = useEducationStore((s) => s.notifyAxesVisible)
   const [tab, setTab] = useState<(typeof TABS)[number]>('Bilgi')
 
@@ -98,10 +95,7 @@ export function PlanetInfoCard() {
           <button
             type="button"
             className="btn"
-            onClick={() => {
-              setCompare(id === 'earth' ? 'earth' : id, id === 'earth' ? 'mars' : 'earth')
-              setPanel('compare')
-            }}
+            onClick={() => openCompare(id)}
           >
             Karşılaştırma aç
           </button>

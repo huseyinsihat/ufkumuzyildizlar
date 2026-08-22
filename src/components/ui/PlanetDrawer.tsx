@@ -1,5 +1,5 @@
 import { BODIES } from '../../astronomy/planetData'
-import { focusBody } from '../../features/planetExplorer/focus'
+import { focusBody, openCompare } from '../../features/planetExplorer/focus'
 import { NOTABLE_STARS } from '../../content/skyWonders'
 import { useLabStore } from '../../store/labStore'
 import { useSimulationStore } from '../../store/simulationStore'
@@ -80,8 +80,12 @@ export function ExploreDock() {
               type="button"
               className={`btn ${panel === 'compare' ? 'is-on' : ''}`}
               onClick={() => {
-                if (panel !== 'compare') useVoiceStore.getState().play('ui-compare')
-                setPanel(panel === 'compare' ? 'none' : 'compare')
+                if (panel === 'compare') {
+                  setPanel('none')
+                  return
+                }
+                useVoiceStore.getState().play('ui-compare')
+                openCompare()
               }}
             >
               <Icon name="compare" />

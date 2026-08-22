@@ -1,13 +1,11 @@
 import { getBody } from '../../astronomy/planetData'
 import { insightFor } from '../../content/insights'
 import { formatDays, formatHours, formatNumberTr } from '../../utils/formatting'
+import { openCompare } from '../../features/planetExplorer/focus'
 import { useSimulationStore } from '../../store/simulationStore'
-import { useUiStore } from '../../store/uiStore'
 
 export function PlanetStrip() {
   const id = useSimulationStore((s) => s.selectedBodyId)
-  const setCompare = useSimulationStore((s) => s.setCompare)
-  const setPanel = useUiStore((s) => s.setActivePanel)
   if (!id) return null
   const body = getBody(id)
   const tip = insightFor([id])
@@ -38,10 +36,7 @@ export function PlanetStrip() {
         <button
           type="button"
           className="btn"
-          onClick={() => {
-            setCompare(id === 'earth' ? 'earth' : id, id === 'earth' ? 'mars' : 'earth')
-            setPanel('compare')
-          }}
+          onClick={() => openCompare(id)}
         >
           Karşılaştır
         </button>

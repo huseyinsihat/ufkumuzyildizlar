@@ -1,1 +1,2 @@
-export { compareBodies, earthSunDistanceAtScale } from '../comparison/compareBodies'
+export { compareBodies, earthSunDistanceAtScale } from './compareBodies'
+export { comparePairFor } from './pair'

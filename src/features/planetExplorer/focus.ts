@@ -7,6 +7,7 @@ import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
 import { useVoiceStore } from '../../store/voiceStore'
 import { DEMO_STEPS } from '../../content/team'
+import { comparePairFor } from '../comparison/pair'
 import type { BodyId } from '../../types/planet'
 
 export function onSunSelected(): void {
@@ -26,6 +27,13 @@ export function focusBody(id: BodyId): void {
   const hex = getBody(id).color.replace('#', '')
   void useHardwareStore.getState().writeLine(`L:${hex}`)
   if (id === 'sun') onSunSelected()
+}
+
+export function openCompare(selected?: BodyId | null): void {
+  const id = selected === undefined ? useSimulationStore.getState().selectedBodyId : selected
+  const pair = comparePairFor(id)
+  useSimulationStore.getState().setCompare(pair.a, pair.b)
+  useUiStore.getState().setActivePanel('compare')
 }
 
 export function lookAtSolarSystem(): void {
@@ -50,10 +58,7 @@ export function runDemoAction(step: number): void {
     sim.addYears(1)
     useEducationStore.getState().notifyTimeAdvanceDays(365)
   }
-  if (action === 'compare') {
-    sim.setCompare('earth', 'mars')
-    useUiStore.getState().setActivePanel('compare')
-  }
+  if (action === 'compare') openCompare('earth')
   if (action === 'saturn') focusBody('saturn')
 }
 

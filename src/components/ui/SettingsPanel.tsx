@@ -5,17 +5,37 @@ import { useUiStore } from '../../store/uiStore'
 import { useVoiceStore } from '../../store/voiceStore'
 import type { VoiceLang } from '../../features/voice/clips'
 import { scaleExplanation } from '../../features/scaleMode'
+import { Icon, type IconName } from './Icon'
 import type { ScaleMode } from '../../types/simulation'
 
 const MODES: { id: ScaleMode; label: string }[] = [
-  { id: 'educational', label: 'Eğitimsel görünüm' },
+  { id: 'educational', label: 'Eğitimsel' },
   { id: 'trueScale', label: 'Gerçek ölçek' },
 ]
 
 const VOICE_LANGS: { id: VoiceLang; label: string }[] = [
   { id: 'tr', label: 'Türkçe' },
-  { id: 'en', label: 'English' },
+  { id: 'en', label: 'EN' },
 ]
+
+function Chip({
+  on,
+  label,
+  icon,
+  onToggle,
+}: {
+  on: boolean
+  label: string
+  icon: IconName
+  onToggle: (value: boolean) => void
+}) {
+  return (
+    <button type="button" className={`settings-chip${on ? ' is-on' : ''}`} aria-pressed={on} onClick={() => onToggle(!on)}>
+      <Icon name={icon} />
+      {label}
+    </button>
+  )
+}
 
 export function SettingsPanel() {
   const scaleMode = useSimulationStore((s) => s.scaleMode)
@@ -43,90 +63,80 @@ export function SettingsPanel() {
   const close = () => useUiStore.getState().setActivePanel('none')
 
   return (
-    <aside className="hud-sheet" aria-label="Ayarlar">
+    <aside className="hud-sheet settings-sheet" aria-label="Ayarlar">
       <header className="panel-head">
         <h2>Ayarlar</h2>
         <button type="button" className="icon-btn" onClick={close} aria-label="Kapat">
           ×
         </button>
       </header>
-      <p className="nav-label">Görünüm</p>
-      {MODES.map((mode) => (
-        <button
-          key={mode.id}
-          type="button"
-          className={`nav-btn ${scaleMode === mode.id ? 'is-active' : ''}`}
-          onClick={() => setScaleMode(mode.id)}
-        >
-          {mode.label}
-        </button>
-      ))}
-      <p className="muted">{scaleExplanation(scaleMode)}</p>
-      <label className="check">
-        <input type="checkbox" checked={leftOpen} onChange={(e) => setLeftOpen(e.target.checked)} />
-        Gezegen kartı
-      </label>
-      <label className="check">
-        <input type="checkbox" checked={showOrbits} onChange={(e) => setShowOrbits(e.target.checked)} />
-        Yörünge çizgileri
-      </label>
-      <label className="check">
-        <input type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} />
-        İsim etiketleri
-      </label>
-      <label className="check">
-        <input type="checkbox" checked={showAxes} onChange={(e) => setShowAxes(e.target.checked)} />
-        Eksen çizgileri
-      </label>
-      <label className="check">
-        <input type="checkbox" checked={showConstellations} onChange={(e) => setShowConstellations(e.target.checked)} />
-        Takımyıldız çizgileri
-      </label>
-      <label className="check">
-        <input type="checkbox" checked={largeText} onChange={(e) => setLargeText(e.target.checked)} />
-        Büyük yazı
-      </label>
-      <p className="nav-label">Seslendirme</p>
-      <label className="check">
-        <input
-          type="checkbox"
-          checked={voiceOn}
-          onChange={(e) => setVoiceOn(e.target.checked)}
-        />
-        Sesli anlatım
-      </label>
-      <p className="muted">Okumayı kolaylaştırmak için kısa cümleler. İlk dokunuştan sonra çalar.</p>
-      {VOICE_LANGS.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          className={`nav-btn ${voiceLang === item.id ? 'is-active' : ''}`}
-          onClick={() => setVoiceLang(item.id)}
-        >
-          Anlatım dili: {item.label}
-        </button>
-      ))}
-      <button type="button" className="nav-btn" onClick={() => getScene()?.focusOverview()}>
-        Kamerayı sıfırla
-      </button>
-      <p className="nav-label">DeneyapKart</p>
-      {hwStatus === 'unsupported' ? (
-        <p className="muted">USB için Chrome veya Edge kullan.</p>
-      ) : (
-        <div className="row-actions">
-          {hwStatus === 'connected' ? (
-            <button type="button" className="btn" onClick={() => void disconnect()}>
-              Bağlantıyı kes
+
+      <p className="nav-label">Ölçek</p>
+      <div className="settings-seg" role="group" aria-label="Ölçek">
+        {MODES.map((mode) => (
+          <button
+            key={mode.id}
+            type="button"
+            className={`settings-seg-btn${scaleMode === mode.id ? ' is-on' : ''}`}
+            onClick={() => setScaleMode(mode.id)}
+          >
+            {mode.label}
+          </button>
+        ))}
+      </div>
+      <p className="settings-note">{scaleExplanation(scaleMode)}</p>
+
+      <p className="nav-label">Sahne</p>
+      <div className="settings-toggles">
+        <Chip on={leftOpen} label="Gezegen kartı" icon="planet" onToggle={setLeftOpen} />
+        <Chip on={showOrbits} label="Yörüngeler" icon="orbit" onToggle={setShowOrbits} />
+        <Chip on={showLabels} label="İsimler" icon="book" onToggle={setShowLabels} />
+        <Chip on={showAxes} label="Eksenler" icon="ruler" onToggle={setShowAxes} />
+        <Chip on={showConstellations} label="Takımyıldız" icon="spark" onToggle={setShowConstellations} />
+        <Chip on={largeText} label="Büyük yazı" icon="people" onToggle={setLargeText} />
+      </div>
+
+      <p className="nav-label">Ses</p>
+      <div className="settings-voice">
+        <Chip on={voiceOn} label="Sesli anlatım" icon="play" onToggle={setVoiceOn} />
+        <div className="settings-seg is-slim" role="group" aria-label="Anlatım dili">
+          {VOICE_LANGS.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`settings-seg-btn${voiceLang === item.id ? ' is-on' : ''}`}
+              onClick={() => setVoiceLang(item.id)}
+            >
+              {item.label}
             </button>
-          ) : (
-            <button type="button" className="btn primary" onClick={() => void connect()}>
-              {hwStatus === 'error' ? 'Yeniden bağla' : 'DeneyapKart bağla'}
-            </button>
-          )}
-          <span className="muted">{hwStatus === 'connected' ? 'Bağlı' : 'Bağlı değil'}</span>
+          ))}
         </div>
-      )}
-      {hwMessage ? <p className="muted">{hwMessage}</p> : null}
+      </div>
+
+      <div className="settings-foot">
+        <button type="button" className="settings-chip" onClick={() => getScene()?.focusOverview()}>
+          <Icon name="reset" />
+          Kamerayı sıfırla
+        </button>
+        {hwStatus === 'unsupported' ? (
+          <p className="settings-note">USB için Chrome veya Edge kullan.</p>
+        ) : (
+          <div className="settings-hw">
+            {hwStatus === 'connected' ? (
+              <button type="button" className="settings-chip" onClick={() => void disconnect()}>
+                <Icon name="gear" />
+                Kartı kes
+              </button>
+            ) : (
+              <button type="button" className="settings-chip is-on" onClick={() => void connect()}>
+                <Icon name="gear" />
+                {hwStatus === 'error' ? 'Yeniden bağla' : 'Kartı bağla'}
+              </button>
+            )}
+            <span className="settings-note">{hwStatus === 'connected' ? 'Bağlı' : hwMessage || 'Bağlı değil'}</span>
+          </div>
+        )}
+      </div>
     </aside>
   )
 }

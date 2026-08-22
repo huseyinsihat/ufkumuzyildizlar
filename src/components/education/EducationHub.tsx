@@ -1,3 +1,4 @@
+import { openCompare } from '../../features/planetExplorer/focus'
 import { useUiStore } from '../../store/uiStore'
 
 export function EducationHub() {
@@ -16,7 +17,7 @@ export function EducationHub() {
       <button type="button" className="nav-btn" onClick={() => setPanel('missions')}>
         Görevler ve rozetler
       </button>
-      <button type="button" className="nav-btn" onClick={() => setPanel('compare')}>
+      <button type="button" className="nav-btn" onClick={() => openCompare()}>
         Gezegen karşılaştır
       </button>
       <button type="button" className="nav-btn" onClick={() => setPanel('scale')}>
