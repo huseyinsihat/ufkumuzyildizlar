@@ -34,6 +34,8 @@ export default function App() {
   const labOpen = useLabStore((s) => s.labOpen)
   const activityId = useLabStore((s) => s.activityId)
   const largeText = useUiStore((s) => s.largeText)
+  const drawerOpen = useUiStore((s) => s.planetDrawerOpen || s.starDrawerOpen)
+  const chatOpen = useUiStore((s) => s.sunChatOpen)
   const setWebgl = useUiStore((s) => s.setWebglSupported)
   const set2d = useUiStore((s) => s.setUse2dFallback)
 
@@ -60,12 +62,18 @@ export default function App() {
   const showActivity = Boolean(activityId)
 
   return (
-    <div className={`app-shell ${largeText ? 'large-text' : ''} ${activityId === 'arrange-orbits' ? 'hide-scene-labels' : ''}`}>
+    <div
+      className={`app-shell${largeText ? ' large-text' : ''}${activityId === 'arrange-orbits' ? ' hide-scene-labels' : ''}${drawerOpen ? ' has-drawer' : ''}${chatOpen ? ' has-chat' : ''}${panel !== 'none' ? ' has-panel' : ''}${activityId ? ' has-activity' : ''}`}
+    >
       <div className="space-glow" />
       {webgl && !use2d ? <CanvasHost /> : <SolarSystem2D />}
       <TopBar />
-      {explore ? <ExploreDock /> : null}
-      {explore ? <CompactTimeBar /> : null}
+      {explore ? (
+        <div className="explore-chrome">
+          <CompactTimeBar />
+          <ExploreDock />
+        </div>
+      ) : null}
       {explore && scaleMode === 'trueScale' ? (
         <p className="scale-banner">Gezegenler gerçek boyutta — uzay çok boş.</p>
       ) : null}

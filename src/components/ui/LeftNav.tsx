@@ -82,6 +82,8 @@ function extraRows(body: PlanetDefinition): { label: string; value: string }[] {
 export function InspectRail() {
   const leftOpen = useUiStore((s) => s.leftOpen)
   const listOpen = useUiStore((s) => s.planetDrawerOpen || s.starDrawerOpen)
+  const chatOpen = useUiStore((s) => s.sunChatOpen)
+  const panel = useUiStore((s) => s.activePanel)
   const bodyId = useSimulationStore((s) => s.selectedBodyId)
   const wonderId = useSimulationStore((s) => s.selectedWonderId)
   const [more, setMore] = useState(false)
@@ -90,7 +92,7 @@ export function InspectRail() {
     setMore(false)
   }, [bodyId, wonderId])
 
-  if (!leftOpen || listOpen) return null
+  if (!leftOpen || listOpen || chatOpen || panel !== 'none') return null
 
   const body = bodyId ? getBody(bodyId) : null
   const wonder = findWonder(wonderId)

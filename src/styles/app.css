@@ -56,6 +56,23 @@ select {
 
 button {
   cursor: pointer;
+  touch-action: manipulation;
+}
+
+.chip,
+.btn,
+.icon-btn,
+a {
+  touch-action: manipulation;
+}
+
+.hud-sheet,
+.activity-hud,
+.sun-chat,
+.inspect-rail,
+.lab-home,
+.planet-drawer {
+  overscroll-behavior: contain;
 }
 
 .canvas-host,
@@ -235,6 +252,10 @@ button {
   align-items: stretch;
   gap: 8px;
   max-width: none;
+}
+
+.explore-chrome {
+  display: contents;
 }
 
 .dock-icons {
@@ -1220,6 +1241,7 @@ button {
   flex: 1 1 auto;
   min-width: 0;
   width: 100%;
+  font-size: 16px;
 }
 
 .sun-chat-form .btn {
@@ -1984,29 +2006,121 @@ details summary {
     flex-wrap: wrap;
   }
 
-  .activity-hud {
-    width: min(440px, calc(100% - 24px));
-    max-width: min(440px, calc(100% - 24px));
+  .explore-chrome {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 6;
+    gap: 6px;
+    padding: 8px max(10px, var(--safe-left)) max(8px, var(--safe-bottom)) max(10px, var(--safe-right));
+    background: linear-gradient(180deg, transparent, rgba(3, 7, 18, 0.94) 28%);
+    pointer-events: none;
   }
 
-  .planet-strip {
-    grid-template-columns: 1fr;
-    left: 8px;
-    right: 8px;
+  .explore-chrome > * {
+    pointer-events: auto;
+    position: static;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    transform: none;
+    width: auto;
+    max-width: none;
+  }
+
+  .explore-dock {
+    gap: 6px;
+    padding: 0;
+    background: none;
+  }
+
+  .planet-drawer,
+  .planet-drawer.star-drawer {
+    max-height: min(28vh, 220px);
+    overflow: auto;
+    width: 100%;
+  }
+
+  .time-compact {
+    border-radius: 16px;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 10px;
+  }
+
+  .app-shell.has-drawer .time-compact {
+    display: none;
+  }
+
+  .inspect-rail,
+  .sun-chat {
+    top: calc(56px + var(--safe-top));
+    bottom: auto;
+    max-height: min(52dvh, calc(100dvh - 200px));
+  }
+
+  .inspect-rail {
+    width: min(280px, calc(100% - 20px));
+  }
+
+  .sun-chat {
+    width: min(380px, calc(100% - 20px));
+  }
+
+  .explore-side {
+    top: calc(56px + var(--safe-top));
+    right: max(10px, var(--safe-right));
+    bottom: auto;
+  }
+
+  .hud-sheet,
+  .team-sheet,
+  .facts-sheet,
+  .compare-sheet {
+    top: calc(56px + var(--safe-top));
+    bottom: max(10px, var(--safe-bottom));
+    left: max(10px, var(--safe-left));
+    right: max(10px, var(--safe-right));
+    max-height: none;
+    max-width: none;
+    width: auto;
+    z-index: 7;
+  }
+
+  .activity-hud,
+  .activity-hud--seasons-tilt,
+  .activity-hud--arrange-orbits {
+    left: max(8px, var(--safe-left));
+    right: max(8px, var(--safe-right));
+    transform: none;
+    width: auto;
+    max-width: none;
+    max-height: min(42vh, calc(100dvh - 80px));
+  }
+
+  .activity-hud .row-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .activity-hud .row-actions .btn,
+  .activity-hud .choice-row .chip,
+  .activity-hud .btn {
+    min-height: var(--touch);
+  }
+
+  .scale-banner {
+    top: calc(52px + var(--safe-top));
+    white-space: normal;
+    text-align: center;
+    max-width: calc(100% - 24px);
   }
 
   .category {
     display: none;
-  }
-
-  .inspect-rail {
-    width: min(200px, 34vw);
-    top: calc(64px + var(--safe-top));
-  }
-
-  .sun-chat {
-    width: min(360px, calc(100% - 24px));
-    top: calc(64px + var(--safe-top));
   }
 
   .orbit-slots {
@@ -2073,24 +2187,14 @@ details summary {
     font-size: 13px;
   }
 
-  .explore-dock {
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 6;
-    gap: 4px;
-    padding: 6px max(8px, var(--safe-left)) max(6px, var(--safe-bottom)) max(8px, var(--safe-right));
-    background: linear-gradient(180deg, transparent, rgba(3, 7, 18, 0.94) 28%);
-  }
-
-  .explore-side {
-    bottom: calc(138px + var(--safe-bottom));
-    right: max(10px, var(--safe-right));
-  }
-
   .sun-mascot-lg {
-    width: 72px;
-    height: 72px;
+    width: 64px;
+    height: 64px;
+  }
+
+  .sun-ask-fab-label {
+    font-size: 12px;
+    padding: 4px 10px;
   }
 
   .dock-buttons {
@@ -2098,8 +2202,6 @@ details summary {
     flex-wrap: nowrap;
     overflow-x: auto;
     gap: 6px;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
   }
 
   .dock-home {
@@ -2109,13 +2211,9 @@ details summary {
   .dock-home-tools .btn {
     min-width: 0;
     flex-direction: row;
-    min-height: 32px;
+    min-height: 40px;
     padding: 4px 8px;
-    font-size: 10px;
-  }
-
-  .dock-buttons::-webkit-scrollbar {
-    display: none;
+    font-size: 11px;
   }
 
   .dock-buttons .btn {
@@ -2140,12 +2238,6 @@ details summary {
     flex-wrap: nowrap;
     overflow-x: auto;
     justify-content: flex-start;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .view-tools::-webkit-scrollbar {
-    display: none;
   }
 
   .view-tools .dock-label {
@@ -2165,17 +2257,6 @@ details summary {
     justify-content: center;
   }
 
-  .time-compact {
-    left: max(8px, var(--safe-left));
-    right: max(8px, var(--safe-right));
-    bottom: calc(118px + var(--safe-bottom));
-    transform: none;
-    border-radius: 16px;
-    justify-content: center;
-    gap: 8px;
-    padding: 8px 10px;
-  }
-
   .time-compact .time-readout {
     min-width: 0;
     flex: 1 1 100%;
@@ -2189,13 +2270,17 @@ details summary {
     font-size: 12px;
   }
 
-  .planet-drawer,
-  .planet-drawer.star-drawer {
-    left: auto;
-    right: auto;
-    width: 100%;
-    bottom: auto;
-    max-height: none;
+  .inspect-rail,
+  .sun-chat {
+    left: max(8px, var(--safe-left));
+    right: max(8px, var(--safe-right));
+    width: auto;
+    max-height: min(46dvh, calc(100dvh - 210px));
+    z-index: 6;
+  }
+
+  .explore-side {
+    z-index: 4;
   }
 
   .lab-home.lab-catalog {
@@ -2249,64 +2334,6 @@ details summary {
     width: 100%;
     min-height: var(--touch);
   }
-
-  .hud-sheet,
-  .team-sheet,
-  .facts-sheet,
-  .compare-sheet {
-    top: calc(56px + var(--safe-top));
-    bottom: max(12px, var(--safe-bottom));
-    left: max(10px, var(--safe-left));
-    right: max(10px, var(--safe-right));
-    max-height: none;
-    max-width: none;
-    width: auto;
-  }
-
-  .activity-hud {
-    left: max(8px, var(--safe-left));
-    right: max(8px, var(--safe-right));
-    transform: none;
-    width: auto;
-    max-width: none;
-    max-height: min(42vh, calc(100% - 24px));
-  }
-
-  .activity-hud .row-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .activity-hud .row-actions .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .inspect-rail {
-    left: max(8px, var(--safe-left));
-    right: max(8px, var(--safe-right));
-    top: auto;
-    bottom: calc(168px + var(--safe-bottom));
-    width: auto;
-    max-height: 28vh;
-  }
-
-  .sun-chat {
-    left: max(8px, var(--safe-left));
-    right: max(8px, var(--safe-right));
-    top: auto;
-    bottom: calc(168px + var(--safe-bottom));
-    width: auto;
-    max-height: 36vh;
-    z-index: 6;
-  }
-
-  .scale-banner {
-    top: calc(48px + var(--safe-top));
-    white-space: normal;
-    text-align: center;
-    max-width: calc(100% - 24px);
-  }
 }
 
 @media (max-height: 500px) and (orientation: landscape) {
@@ -2330,31 +2357,19 @@ details summary {
     min-height: 96px;
   }
 
-  .explore-dock {
-    flex-direction: row;
-    align-items: center;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    bottom: 0;
-    left: 0;
-    right: 0;
+  .explore-chrome {
     padding: 4px max(8px, var(--safe-left)) max(4px, var(--safe-bottom)) max(8px, var(--safe-right));
+    gap: 4px;
   }
 
-  .time-compact {
-    bottom: calc(56px + var(--safe-bottom));
-    left: max(8px, var(--safe-left));
-    right: max(8px, var(--safe-right));
-    transform: none;
-    border-radius: 16px;
-  }
-
-  .inspect-rail {
-    max-height: 40vh;
-  }
-
+  .inspect-rail,
   .sun-chat {
-    max-height: 42vh;
+    max-height: min(44dvh, calc(100dvh - 140px));
+  }
+
+  .sun-mascot-lg {
+    width: 52px;
+    height: 52px;
   }
 }
 

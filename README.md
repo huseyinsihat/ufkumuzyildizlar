@@ -1,10 +1,13 @@
 # Ufkumuz Yıldızlar
 
-Minik Dahiler takımının TEKNOFEST 2026 projesidir.
+**Minik Dahiler** takımının **TEKNOFEST 2026** projesidir.  
+Kategori: Astronomi, Uzay Bilimleri ve Havacılık.
 
-Tarayıcıda 3B Güneş Sistemi açılır. Gezegenlere bakılır, Proje Etkinlikleri ile tahmin edilip izlenir.
+Tarayıcıda 3B Güneş Sistemi açılır. Gezegenleri gez, Proje Etkinlikleri ile öğren, Güneş’e sor.
 
-Canlı yayın: https://huseyinsihat.github.io/ufkumuzyildizlar/
+Canlı site: https://huseyinsihat.github.io/ufkumuzyildizlar/
+
+Bilgisayar, tablet ve telefonda aynı adresten açılır.
 
 ## Çalıştırma
 
@@ -13,13 +16,9 @@ npm install
 npm run dev
 ```
 
-Tarayıcıda http://localhost:5173/ adresini aç. `index.html` dosyasını doğrudan açma.
+Tarayıcıda http://localhost:5173/ adresini aç.
 
 ```bash
 npm test
 npm run build
 ```
-
-React, TypeScript, Vite, Three.js. Gezegen verileri NASA Planetary Fact Sheet kaynaklıdır.
-
-DeneyapKart isteğe bağlıdır. Kart yokken proje aynı çalışır. USB için Chrome veya Edge ve Takım panelindeki bağlantı yeter. Firmware: `firmware/deneyapkart/ufkumuz.ino`.

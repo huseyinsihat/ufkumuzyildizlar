@@ -39,7 +39,8 @@ export function SunMascot({ size = 'md' }: { size?: 'md' | 'lg' }) {
 
 export function ExploreSideTools() {
   const chatOpen = useUiStore((s) => s.sunChatOpen)
-  if (chatOpen) return null
+  const panel = useUiStore((s) => s.activePanel)
+  if (chatOpen || panel !== 'none') return null
 
   return (
     <div className="explore-side">
