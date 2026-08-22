@@ -263,6 +263,76 @@ export function createRingTexture(inner: number, outer: number, faint: boolean):
   return texture
 }
 
+const portraitCache = new Map<string, string>()
+
+export function createBodyPortraitUrl(id: BodyId, color: string, size = 168): string | undefined {
+  const cached = portraitCache.get(id)
+  if (cached) return cached
+  if (typeof document === 'undefined') return undefined
+  try {
+    const mapTex = createBodyTexture(id, color, 256)
+    const map = mapTex.image as HTMLCanvasElement
+    const mapCtx = map.getContext('2d', { willReadFrequently: true })
+    if (!mapCtx) {
+      mapTex.dispose()
+      return undefined
+    }
+    const mapPixels = mapCtx.getImageData(0, 0, map.width, map.height).data
+    const mw = map.width
+    const mh = map.height
+    const out = document.createElement('canvas')
+    out.width = size
+    out.height = size
+    const ctx = out.getContext('2d')
+    if (!ctx) {
+      mapTex.dispose()
+      return undefined
+    }
+    const pixels = ctx.createImageData(size, size)
+    const data = pixels.data
+    const radius = (size - 1) / 2
+    const yaw = id === 'earth' ? 0.42 : id === 'mars' ? 0.2 : 0.28
+    const lx = -0.42
+    const ly = 0.52
+    const lz = 0.74
+    const len = Math.hypot(lx, ly, lz) || 1
+    const Lx = lx / len
+    const Ly = ly / len
+    const Lz = lz / len
+    for (let y = 0; y < size; y += 1) {
+      for (let x = 0; x < size; x += 1) {
+        const nx = (x - radius) / radius
+        const ny = (radius - y) / radius
+        const d2 = nx * nx + ny * ny
+        const i = (y * size + x) * 4
+        if (d2 > 1) continue
+        const nz = Math.sqrt(Math.max(0, 1 - d2))
+        const lon = Math.atan2(nx, nz) + yaw
+        const lat = Math.asin(Math.max(-1, Math.min(1, ny)))
+        let frac = lon / (Math.PI * 2) + 0.5
+        frac -= Math.floor(frac)
+        const u = Math.min(mw - 1, Math.floor(frac * mw))
+        const v = Math.max(0, Math.min(mh - 1, Math.floor((0.5 - lat / Math.PI) * mh)))
+        const mi = (v * mw + u) * 4
+        const shade = 0.34 + 0.78 * Math.max(0, nx * Lx + ny * Ly + nz * Lz)
+        const limb = 0.62 + 0.38 * nz
+        const light = shade * limb
+        data[i] = clampByte((mapPixels[mi] ?? 0) * light)
+        data[i + 1] = clampByte((mapPixels[mi + 1] ?? 0) * light)
+        data[i + 2] = clampByte((mapPixels[mi + 2] ?? 0) * light)
+        data[i + 3] = 255
+      }
+    }
+    ctx.putImageData(pixels, 0, 0)
+    mapTex.dispose()
+    const url = out.toDataURL('image/png')
+    portraitCache.set(id, url)
+    return url
+  } catch {
+    return undefined
+  }
+}
+
 export function createStarGlowTexture(): CanvasTexture {
   const size = 64
   const canvas = document.createElement('canvas')

@@ -1369,9 +1369,9 @@ a {
 .compare-heroes {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  align-items: end;
+  align-items: center;
   gap: 8px 10px;
-  margin: 4px 0 12px;
+  margin: 2px 0 10px;
 }
 
 .compare-pick-card {
@@ -1405,7 +1405,7 @@ a {
 }
 
 .compare-vs {
-  margin: 0 0 42px;
+  margin: 0 0 28px;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -1417,19 +1417,18 @@ a {
   position: relative;
   display: grid;
   place-items: center;
-  width: 108px;
-  height: 96px;
+  width: 116px;
+  height: 116px;
 }
 
 .compare-orb {
   display: block;
+  width: 108px;
+  height: 108px;
   border-radius: 50%;
-  background-size: 210% 100%;
-  background-position: 42% 50%;
-  box-shadow:
-    inset -8px -6px 14px rgba(0, 0, 0, 0.48),
-    inset 6px 4px 10px rgba(255, 255, 255, 0.18),
-    0 0 0 1px rgba(255, 255, 255, 0.12);
+  object-fit: cover;
+  background-size: cover;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14), 0 8px 18px rgba(0, 0, 0, 0.35);
 }
 
 .compare-orb-wrap.is-sun .compare-orb {

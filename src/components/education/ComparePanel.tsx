@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { BODIES } from '../../astronomy/planetData'
 import { kidCompare } from '../../features/lab/kidCompare'
 import { insightFor } from '../../content/insights'
-import { createBodyTexture } from '../../scene/proceduralTextures'
+import { createBodyPortraitUrl } from '../../scene/proceduralTextures'
 import { Icon, type IconName } from '../ui/Icon'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
@@ -24,65 +24,34 @@ const ROW_ICONS: Record<string, IconName> = {
   Sıcaklık: 'thermo',
 }
 
-const portraitUrls = new Map<string, string>()
-
-function portraitUrl(body: PlanetDefinition): string | undefined {
-  const cached = portraitUrls.get(body.id)
-  if (cached) return cached
-  if (typeof document === 'undefined') return undefined
-  try {
-    const texture = createBodyTexture(body.id, body.color, 192)
-    const canvas = texture.image as HTMLCanvasElement
-    const url = canvas.toDataURL('image/png')
-    texture.dispose()
-    portraitUrls.set(body.id, url)
-    return url
-  } catch {
-    return undefined
-  }
-}
-
-function orbScale(radiusKm: number, maxRadiusKm: number): number {
-  return 0.34 + 0.66 * (radiusKm / Math.max(maxRadiusKm, 1))
-}
-
-function PlanetOrb({ body, scale }: { body: PlanetDefinition; scale: number }) {
-  const url = useMemo(() => portraitUrl(body), [body])
-  const size = 34 + scale * 58
+function PlanetOrb({ body }: { body: PlanetDefinition }) {
+  const url = useMemo(() => createBodyPortraitUrl(body.id, body.color), [body.id, body.color])
   return (
     <span className={`compare-orb-wrap${body.hasRings ? ' has-rings' : ''}${body.id === 'sun' ? ' is-sun' : ''}`}>
       {body.hasRings ? <i className="compare-ring" aria-hidden="true" /> : null}
-      <span
-        className="compare-orb"
-        role="img"
-        aria-label={body.name}
-        style={{
-          width: size,
-          height: size,
-          backgroundColor: body.color,
-          backgroundImage: url ? `url("${url}")` : undefined,
-        }}
-      />
+      {url ? (
+        <img className="compare-orb" src={url} alt={body.name} width={108} height={108} />
+      ) : (
+        <span className="compare-orb" role="img" aria-label={body.name} style={{ backgroundColor: body.color }} />
+      )}
     </span>
   )
 }
 
 function PickCard({
   body,
-  scale,
   value,
   tone,
   onChange,
 }: {
   body: PlanetDefinition
-  scale: number
   value: BodyId
   tone: 'a' | 'b'
   onChange: (id: BodyId) => void
 }) {
   return (
     <label className={`compare-pick-card is-${tone}`}>
-      <PlanetOrb body={body} scale={scale} />
+      <PlanetOrb body={body} />
       <select value={value} onChange={(event) => onChange(event.target.value as BodyId)} aria-label={tone === 'a' ? 'Birinci gök cismi' : 'İkinci gök cismi'}>
         {BODIES.map((item) => (
           <option key={item.id} value={item.id}>
@@ -105,7 +74,6 @@ export function ComparePanel() {
   const bodyB = BODIES.find((item) => item.id === b)
   const tip = insightFor([a, b])
   if (!bodyA || !bodyB) return null
-  const maxRadius = Math.max(bodyA.radiusKm, bodyB.radiusKm)
 
   return (
     <aside className="hud-sheet compare-sheet" aria-label="Karşılaştırma">
@@ -116,11 +84,11 @@ export function ComparePanel() {
         </button>
       </header>
       <div className="compare-heroes">
-        <PickCard body={bodyA} scale={orbScale(bodyA.radiusKm, maxRadius)} value={a} tone="a" onChange={(id) => setCompare(id, b)} />
+        <PickCard body={bodyA} value={a} tone="a" onChange={(id) => setCompare(id, b)} />
         <p className="compare-vs" aria-hidden="true">
           karşı
         </p>
-        <PickCard body={bodyB} scale={orbScale(bodyB.radiusKm, maxRadius)} value={b} tone="b" onChange={(id) => setCompare(a, id)} />
+        <PickCard body={bodyB} value={b} tone="b" onChange={(id) => setCompare(a, id)} />
       </div>
       <div className="compare-table" role="table" aria-label="Karşılaştırma tablosu">
         <div className="compare-tr is-head" role="row">
