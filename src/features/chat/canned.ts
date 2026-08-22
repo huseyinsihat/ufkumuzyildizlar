@@ -312,6 +312,42 @@ export const CANNED_PROMPTS: readonly CannedPrompt[] = [
       'Büyüklüğüm yüzünden hepsini çekerim. Gezegenler benim etrafımda tur atar.',
     ],
   },
+  {
+    id: 'iss',
+    question: 'ISS nedir?',
+    aliases: ['uzay istasyonu nedir', 'iss ne', 'uluslararası uzay istasyonu'],
+    answers: [
+      'ISS, Dünya’nın yakınında dolanan Uluslararası Uzay İstasyonu’dur. Astronotlar orada yaşar ve deney yapar.',
+      'Yaklaşık 400 kilometre yüksektedir. Bir turu yaklaşık 90 dakika sürer; günde Dünya’yı birçok kez dolaşır.',
+      'Birçok ülke birlikte kurdu. 2024’te Alper Gezeravcı da orada çalıştı.',
+    ],
+  },
+  {
+    id: 'alper-gezeravci',
+    question: 'Alper Gezeravcı kimdir?',
+    aliases: [
+      'alper gezeravcı',
+      'alper gezeravci',
+      'türkiyenin ilk astronotu',
+      'ilk türk astronot',
+      'crew dragon nedir',
+    ],
+    answers: [
+      'Alper Gezeravcı, Türkiye’nin ilk astronotudur. 18 Ocak 2024’te Crew Dragon Freedom ile ISS’e gitti.',
+      'Görevin adı Ax-3’tür. Yaklaşık 18 gün uzayda kaldı ve bilimsel deneyler yaptı.',
+      'Aracı SpaceX’in Crew Dragon kapsülüdür. İstasyona gidip Dünya’ya döndü.',
+    ],
+  },
+  {
+    id: 'turksat',
+    question: 'Türksat uyduları nedir?',
+    aliases: ['türksat nedir', 'turksat nedir', 'türksat 6a', 'türksat 5b', 'türkiye uydusu'],
+    answers: [
+      'Türksat uyduları Türkiye’nin haberleşme uydularıdır. Televizyon ve internet sinyalini taşırlar.',
+      'Türksat 6A, Türkiye’de tasarlanıp üretilen ilk haberleşme uydusudur. 8 Temmuz 2024’te uzaya gitti.',
+      'Türksat 5A ve 5B de güncel ailedendir. Yüksek yörüngede Dünya ile birlikte durur gibi görünürler.',
+    ],
+  },
 ]
 
 export function pickChipCount(): 2 {
@@ -343,6 +379,15 @@ export function matchCanned(text: string): CannedPrompt | undefined {
   }
   if (needle.includes('en yakın') && needle.includes('gezegen')) {
     return CANNED_PROMPTS.find((item) => item.id === 'closest-planet')
+  }
+  if (needle.includes('iss') || needle.includes('uzay istasyonu')) {
+    return CANNED_PROMPTS.find((item) => item.id === 'iss')
+  }
+  if (needle.includes('alper') || needle.includes('gezeravcı') || needle.includes('gezeravci')) {
+    return CANNED_PROMPTS.find((item) => item.id === 'alper-gezeravci')
+  }
+  if (needle.includes('türksat') || needle.includes('turksat')) {
+    return CANNED_PROMPTS.find((item) => item.id === 'turksat')
   }
   return undefined
 }

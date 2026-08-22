@@ -9,9 +9,9 @@ import {
 
 describe('canned sun questions', () => {
   it('keeps a kid question pool with three answers each', () => {
-    expect(CANNED_PROMPTS).toHaveLength(32)
+    expect(CANNED_PROMPTS).toHaveLength(35)
     const questions = new Set(CANNED_PROMPTS.map((item) => item.question))
-    expect(questions.size).toBe(32)
+    expect(questions.size).toBe(35)
     for (const item of CANNED_PROMPTS) {
       expect(item.answers).toHaveLength(3)
       expect(item.question.endsWith('?')).toBe(true)
@@ -43,6 +43,9 @@ describe('canned sun questions', () => {
     expect(matchCanned('güneş e en uzak gezegen')?.id).toBe('farthest-planet')
     expect(matchCanned('samanyolunda kaç gezegen vardır')?.id).toBe('milky-way-planets')
     expect(pickCannedAnswer('samanyolunda kaç gezegen vardır', () => 0)).toContain('milyar')
+    expect(matchCanned('ISS nedir?')?.id).toBe('iss')
+    expect(matchCanned('Alper Gezeravcı kimdir?')?.id).toBe('alper-gezeravci')
+    expect(matchCanned('türksat 6a')?.id).toBe('turksat')
   })
 
   it('returns one of the three same-fact answers for a chip', () => {

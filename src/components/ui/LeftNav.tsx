@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { getBody } from '../../astronomy/planetData'
+import { CRAFT_KIND_LABEL, findEarthCraft } from '../../content/earthCrafts'
 import { findWonder } from '../../content/skyWonders'
 import { earthRelativeWeight } from '../../features/lab/gravityMath'
 import { formatAu, formatDays, formatHours, formatKm, formatNumberTr } from '../../utils/formatting'
@@ -95,8 +96,9 @@ export function InspectRail() {
   if (!leftOpen || listOpen || chatOpen || panel !== 'none') return null
 
   const body = bodyId ? getBody(bodyId) : null
-  const wonder = findWonder(wonderId)
-  if (!body && !wonder) return null
+  const craft = findEarthCraft(wonderId)
+  const wonder = craft ? undefined : findWonder(wonderId)
+  if (!body && !wonder && !craft) return null
 
   return (
     <aside className="inspect-rail" aria-label="Seçim bilgisi">
@@ -143,7 +145,38 @@ export function InspectRail() {
           </button>
         </div>
       ) : null}
-      {!body && wonder ? (
+      {!body && craft ? (
+        <div className="inspect-card">
+          <header className="panel-head">
+            <div>
+              <p className="eyebrow">
+                <i className="body-swatch" style={{ background: craft.color }} aria-hidden="true" />
+                {CRAFT_KIND_LABEL[craft.kind]}
+              </p>
+              <h2>{craft.name}</h2>
+            </div>
+            <button type="button" className="icon-btn" onClick={() => useSimulationStore.getState().selectWonder(null)} aria-label="Kapat">
+              ×
+            </button>
+          </header>
+          <p className="inspect-lead">{more ? craft.description : craft.fact}</p>
+          <div className="inspect-stats">
+            <Stat label="Tür" value={CRAFT_KIND_LABEL[craft.kind]} />
+            <Stat label="Özellik" value={craft.tag} />
+          </div>
+          {more ? (
+            <ul className="inspect-facts">
+              {craft.facts.map((fact) => (
+                <li key={fact}>{fact}</li>
+              ))}
+            </ul>
+          ) : null}
+          <button type="button" className="text-link inspect-more" onClick={() => setMore((open) => !open)}>
+            {more ? 'Daha az' : 'Daha fazla'}
+          </button>
+        </div>
+      ) : null}
+      {!body && !craft && wonder ? (
         <div className="inspect-card">
           <header className="panel-head">
             <div>

@@ -50,6 +50,13 @@ describe('sun chat prompt', () => {
     expect(summary).toContain('gerçek ölçek')
   })
 
+  it('grounds Earth crafts such as Crew Dragon when selected', () => {
+    const summary = buildSceneSummary({ bodyId: null, wonderId: 'crew-dragon', scaleMode: 'educational' })
+    expect(summary).toContain('Crew Dragon')
+    expect(summary).toContain('Alper Gezeravcı')
+    expect(summary).toContain('Ax-3')
+  })
+
   it('offers a canned pool for chips', () => {
     expect(CANNED_PROMPTS.length).toBeGreaterThanOrEqual(30)
   })

@@ -1,4 +1,5 @@
 import { getBody } from '../../astronomy/planetData'
+import { CRAFT_KIND_LABEL, findEarthCraft } from '../../content/earthCrafts'
 import { findWonder } from '../../content/skyWonders'
 import { TEAM } from '../../content/team'
 import type { BodyId } from '../../types/planet'
@@ -55,11 +56,20 @@ export function buildSceneSummary(input: {
     lines.push(`Şu an bakılan gök cismi: ${body.name} (${body.englishName}). ${body.description}`)
     lines.push(...body.facts.slice(0, 3))
   } else {
-    lines.push('Şu an tek bir gezegen seçili değil. Genel bakışta Güneş Sistemi görünüyor.')
-  }
-  const wonder = findWonder(input.wonderId)
-  if (wonder) {
-    lines.push(`İşaretlenen gökyüzü cismi: ${wonder.name}. ${wonder.fact}`)
+    const craft = findEarthCraft(input.wonderId)
+    if (craft) {
+      lines.push(
+        `Şu an bakılan Dünya yakını cisim: ${craft.name} (${CRAFT_KIND_LABEL[craft.kind]}). ${craft.description}`,
+      )
+      lines.push(craft.fact)
+      lines.push(...craft.facts)
+    } else {
+      lines.push('Şu an tek bir gezegen seçili değil. Genel bakışta Güneş Sistemi görünüyor.')
+      const wonder = findWonder(input.wonderId)
+      if (wonder) {
+        lines.push(`İşaretlenen gökyüzü cismi: ${wonder.name}. ${wonder.fact}`)
+      }
+    }
   }
   return lines.join(' ')
 }

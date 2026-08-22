@@ -29,10 +29,12 @@ import { useLabStore } from '../store/labStore'
 import { useSimulationStore } from '../store/simulationStore'
 import { useUiStore } from '../store/uiStore'
 import { onSunSelected } from '../features/planetExplorer/focus'
+import { findEarthCraft } from '../content/earthCrafts'
 import { capPixelRatio, starCountForDevice } from '../utils/performance'
 import { AsteroidBelt } from './AsteroidBelt'
 import { CameraController } from './CameraController'
 import { CityPins } from './CityPins'
+import { EarthCrafts } from './EarthCrafts'
 import { CometMesh } from './CometMesh'
 import { ConstellationLayer } from './ConstellationLayer'
 import { HeatAura } from './HeatAura'
@@ -68,6 +70,7 @@ export class SolarSystemScene {
   private stars: Points
   private starRoot: Group
   private cityPins: CityPins
+  private earthCrafts = new EarthCrafts()
   private clock = new Clock()
   private raycaster = new Raycaster()
   private pointer = new Vector2()
@@ -179,6 +182,7 @@ export class SolarSystemScene {
       this.labels.attach(body, planet.group, visualRadius(body.id, 'educational') * 1.45)
       if (body.id === 'earth') {
         planet.mesh.add(this.cityPins.group)
+        planet.group.add(this.earthCrafts.group)
       }
     }
 
@@ -215,6 +219,8 @@ export class SolarSystemScene {
         planet.applyScale(state.scaleMode)
       }
       this.sun.setVisualRadius(visualRadius('sun', state.scaleMode))
+      this.earthCrafts.setEarthRadius(visualRadius('earth', state.scaleMode))
+      this.earthCrafts.setVisible(state.scaleMode === 'educational')
       this.orbits.highlight(state.selectedBodyId)
       if (this.kepler.isPinned()) {
         this.kepler.rebuild(state.scaleMode)
@@ -233,6 +239,8 @@ export class SolarSystemScene {
     this.labels.setVisible(initial.showLabels)
     this.cityPins.setVisible(initial.cityPinsVisible)
 
+    this.earthCrafts.setEarthRadius(visualRadius('earth', this.scaleMode))
+    this.earthCrafts.setVisible(this.scaleMode === 'educational')
     this.resize()
     registerScene(this)
     void loadBodyTextures().then((maps) => {
@@ -490,13 +498,19 @@ export class SolarSystemScene {
     this.asteroids.update(dtSim / 86_400)
     this.skyRocks.update(dt, dtSim / 86_400)
     this.notableStars.update(dt)
+    this.earthCrafts.update(dt)
+    this.earthCrafts.setSelected(sim.selectedWonderId)
     const followId = sim.selectedBodyId
+    const craft = sim.selectedWonderId ? this.earthCrafts.meshById(sim.selectedWonderId) : undefined
     if (followId && followId !== 'sun') {
       const followed = this.planets.get(followId)
       if (followed) {
         followed.group.getWorldPosition(this.world)
         this.camera.track(this.world)
       }
+    } else if (craft) {
+      craft.getWorldPosition(this.world)
+      this.camera.track(this.world)
     } else {
       this.camera.stopFollow()
     }
@@ -514,6 +528,18 @@ export class SolarSystemScene {
     this.notableStars.setLabelsVisible(!hideLabels && sim.showLabels)
     this.skyRocks.setLabelsVisible(!hideLabels && sim.showLabels)
     this.cityPins.setLabelsVisible(!hideLabels && sim.showLabels)
+    const earth = this.planets.get('earth')
+    if (earth) {
+      earth.group.getWorldPosition(this.world)
+      const nearEarth = this.camera.camera.position.distanceTo(this.world) < visualRadius('earth', this.scaleMode) * 16 + 10
+      const craftOn = Boolean(sim.selectedWonderId && this.earthCrafts.meshById(sim.selectedWonderId))
+      this.earthCrafts.setLabelsVisible(
+        !hideLabels &&
+          sim.showLabels &&
+          sim.scaleMode === 'educational' &&
+          (nearEarth || sim.selectedBodyId === 'earth' || craftOn),
+      )
+    }
     this.lightPulse.update(dt)
     const mercury = this.planets.get('mercury')
     const venus = this.planets.get('venus')
@@ -668,6 +694,13 @@ export class SolarSystemScene {
   }
 
   focusWonder(id: string): void {
+    const craft = this.earthCrafts.meshById(id)
+    if (craft) {
+      useSimulationStore.getState().selectWonder(id)
+      craft.getWorldPosition(this.world)
+      this.camera.focusOn(this.world.clone(), 0.55, true)
+      return
+    }
     const target =
       this.notableStars.meshes.find((mesh) => mesh.userData.wonderId === id) ??
       this.skyRocks.meshes.find((mesh) => mesh.userData.wonderId === id)
@@ -724,6 +757,17 @@ export class SolarSystemScene {
       }
     }
     this.raycaster.setFromCamera(this.pointer, this.camera.camera)
+    const craftHits = this.raycaster.intersectObjects(this.earthCrafts.pickMeshes, false)
+    const craftId = craftHits[0]?.object.userData.craftId as string | undefined
+    if (craftId && findEarthCraft(craftId)) {
+      useSimulationStore.getState().selectWonder(craftId)
+      const craft = this.earthCrafts.meshById(craftId)
+      if (craft) {
+        craft.getWorldPosition(this.world)
+        this.camera.focusOn(this.world.clone(), 0.55, true)
+      }
+      return
+    }
     const skyHits = this.raycaster.intersectObjects([...this.notableStars.meshes, ...this.skyRocks.meshes], false)
     const wonderId = skyHits[0]?.object.userData.wonderId as string | undefined
     if (wonderId) {
@@ -856,6 +900,7 @@ export class SolarSystemScene {
     this.constellations.dispose()
     this.labels.dispose()
     this.cityPins.dispose()
+    this.earthCrafts.dispose()
     this.camera.dispose()
     this.composer.dispose()
     this.renderer.dispose()
