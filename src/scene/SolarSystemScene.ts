@@ -3,11 +3,13 @@ import {
   Color,
   Group,
   Mesh,
+  MeshBasicMaterial,
   Plane,
   Points,
   Raycaster,
   Scene,
   SRGBColorSpace,
+  TorusGeometry,
   Vector2,
   Vector3,
   WebGLRenderer,
@@ -18,7 +20,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { BODIES, getBody } from '../astronomy/planetData'
 import { TimeEngine } from '../astronomy/timeEngine'
 import { getHeliocentricEclipticAu } from '../astronomy/coordinateSystems'
-import { auToScene, visualMoonOrbitRadius, visualRadius } from '../astronomy/visualScale'
+import { auToScene, educationalOrbitRadius, visualMoonOrbitRadius, visualRadius } from '../astronomy/visualScale'
 import { RAD2DEG } from '../astronomy/astronomyConstants'
 import { earthYearTours, eclipticLongitude, wrapDelta } from '../features/lab/orbitMath'
 import { LIGHT_TRAVEL_SEC, mercuryDayProgress } from '../features/lab/wowMath'
@@ -26,6 +28,7 @@ import { useEducationStore } from '../store/educationStore'
 import { useLabStore } from '../store/labStore'
 import { useSimulationStore } from '../store/simulationStore'
 import { useUiStore } from '../store/uiStore'
+import { onSunSelected } from '../features/planetExplorer/focus'
 import { capPixelRatio } from '../utils/performance'
 import { AsteroidBelt } from './AsteroidBelt'
 import { CameraController } from './CameraController'
@@ -35,7 +38,10 @@ import { ConstellationLayer } from './ConstellationLayer'
 import { HeatAura } from './HeatAura'
 import { LabelLayer, type LabelOccluder } from './LabelLayer'
 import { loadBodyTextures } from './loadBodyTextures'
-import { addLighting } from './Lighting'
+import { addLighting, setFillLight, type SceneLights } from './Lighting'
+import { KeplerSlices } from './KeplerSlices'
+import { SurfaceLab } from './SurfaceLab'
+import { UmbraMesh } from './UmbraMesh'
 import { LightPulse } from './LightPulse'
 import { NotableStars } from './NotableStars'
 import { OrbitRenderer } from './OrbitRenderer'
@@ -90,6 +96,14 @@ export class SolarSystemScene {
   private comet = new CometMesh()
   private notableStars = new NotableStars()
   private skyRocks = new SkyRocks()
+  private kepler = new KeplerSlices()
+  private surface = new SurfaceLab()
+  private umbra = new UmbraMesh()
+  private lights: SceneLights
+  private arrangeGroup = new Group()
+  private arrangeRings: Mesh[] = []
+  private arrangeHandler: ((index: number) => void) | null = null
+  private arrangeOn = false
 
   constructor(canvas: HTMLCanvasElement, host: HTMLElement) {
     this.canvas = canvas
@@ -109,7 +123,7 @@ export class SolarSystemScene {
 
     this.scene = new Scene()
     this.camera = new CameraController(canvas)
-    addLighting(this.scene)
+    this.lights = addLighting(this.scene)
 
     this.starRoot = new Group()
     this.stars = createStarField(typeof navigator !== 'undefined' ? 4200 : 3000)
@@ -136,6 +150,23 @@ export class SolarSystemScene {
     this.scene.add(this.comet.group)
     this.scene.add(this.notableStars.group)
     this.scene.add(this.skyRocks.group)
+    this.scene.add(this.kepler.group)
+    this.scene.add(this.surface.group)
+    this.scene.add(this.umbra.group)
+    this.arrangeGroup.visible = false
+    this.scene.add(this.arrangeGroup)
+    const arrangeIds = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'] as const
+    arrangeIds.forEach((id, index) => {
+      const r = educationalOrbitRadius(getBody(id).orbitalRadiusAu)
+      const ring = new Mesh(
+        new TorusGeometry(r, 1.15, 8, 64),
+        new MeshBasicMaterial({ color: getBody(id).color, transparent: true, opacity: 0.18 }),
+      )
+      ring.rotation.x = Math.PI / 2
+      ring.userData.arrangeIndex = index
+      this.arrangeGroup.add(ring)
+      this.arrangeRings.push(ring)
+    })
 
     for (const body of BODIES) {
       if (body.id === 'sun') {
@@ -185,6 +216,9 @@ export class SolarSystemScene {
       }
       this.sun.setVisualRadius(visualRadius('sun', state.scaleMode))
       this.orbits.highlight(state.selectedBodyId)
+      if (this.kepler.isPinned()) {
+        this.kepler.rebuild(state.scaleMode)
+      }
       this.labels.highlight(state.selectedBodyId)
       this.labels.setOffset('sun', visualRadius('sun', state.scaleMode) * 1.35)
       for (const planet of this.planets.values()) {
@@ -335,11 +369,54 @@ export class SolarSystemScene {
     this.focusBody('mercury')
   }
 
+  setKeplerOverlay(id: BodyId | null, pin = false): void {
+    this.kepler.setTarget(id, pin)
+  }
+
+  setUmbra(on: boolean): void {
+    this.umbra.setEnabled(on)
+    setFillLight(this.lights, on || useSimulationStore.getState().moonDragEnabled)
+  }
+
+  startSurfaceLab(mode: 'drop' | 'jump'): void {
+    this.clearWow()
+    if (mode === 'drop') this.surface.startDrop()
+    else this.surface.startJump('earth')
+    this.camera.stopFollow()
+    this.camera.focusOn(this.surface.group.position.clone(), 9)
+  }
+
+  playSurfaceLab(): void {
+    this.surface.play()
+  }
+
+  setSurfaceJumpBody(id: BodyId): void {
+    this.surface.setJumpBody(id)
+  }
+
+  setArrangeMode(on: boolean): void {
+    this.arrangeOn = on
+    this.arrangeGroup.visible = this.arrangeOn
+  }
+
+  setArrangeHandler(handler: ((index: number) => void) | null): void {
+    this.arrangeHandler = handler
+  }
+
+  applyGyro(yaw: number, pitch: number): void {
+    this.camera.setGyro(yaw, pitch)
+  }
+
   clearWow(): void {
     this.lightPulse.stop()
     this.heatAura.setEnabled(false)
     this.comet.setEnabled(false)
     this.draggingComet = false
+    this.surface.stop()
+    this.umbra.setEnabled(false)
+    this.kepler.setTarget(null)
+    this.setArrangeMode(false)
+    setFillLight(this.lights, false)
     const earth = this.planets.get('earth')
     if (earth) {
       earth.setTiltDeg(earth.body.axialTiltDeg)
@@ -355,6 +432,7 @@ export class SolarSystemScene {
     this.raceBodies = []
     this.moonPinned = false
     this.draggingMoon = false
+    this.kepler.setTarget(null)
     this.clearWow()
   }
 
@@ -444,6 +522,15 @@ export class SolarSystemScene {
       this.heatAura.update(m, this.world, visualRadius('mercury', this.scaleMode), visualRadius('venus', this.scaleMode))
     }
     this.comet.updateTail(new Vector3(0, 0, 0))
+    this.surface.update(dt)
+    this.kepler.advance(dtSim / 86_400, getBody(this.kepler.pinnedBody() ?? 'mercury').orbitalPeriodDays)
+    const earthPos = this.planets.get('earth')?.group.position
+    if (earthPos) this.umbra.update(earthPos, visualMoonOrbitRadius() * 2.4)
+    if (sim.moonDragEnabled) {
+      setFillLight(this.lights, true)
+      const kind = this.eclipseKind()
+      if (kind !== useLabStore.getState().eclipseKind) useLabStore.getState().setEclipseKind(kind)
+    }
     this.updateWatches(date)
 
     const now = performance.now()
@@ -518,6 +605,9 @@ export class SolarSystemScene {
       if (!freezeRevolution && !skipMoonEphemeris) {
         if (id === 'moon' && earth) {
           this.placeMoonFromEphemeris(date, earth, planet)
+        } else if (this.kepler.isPinned() && this.kepler.pinnedBody() === id) {
+          const pinned = this.kepler.planetPoint()
+          if (pinned) planet.group.position.set(pinned.x, pinned.y, pinned.z)
         } else {
           const au = getHeliocentricEclipticAu(id, date)
           const scenePos = auToScene(au, this.scaleMode)
@@ -552,6 +642,13 @@ export class SolarSystemScene {
     )
   }
 
+  eclipseKind(): 'none' | 'solar' | 'lunar' {
+    const deg = this.moonPhaseDeg()
+    if (Math.abs(deg - 180) < 16) return 'lunar'
+    if (deg < 16 || deg > 344) return 'solar'
+    return 'none'
+  }
+
   moonPhaseDeg(): number {
     const earth = this.planets.get('earth')
     const moon = this.planets.get('moon')
@@ -583,6 +680,25 @@ export class SolarSystemScene {
   private onPointerDown = (event: PointerEvent): void => {
     if (event.button !== 0) return
     this.setPointer(event)
+    if (this.arrangeOn) {
+      this.raycaster.setFromCamera(this.pointer, this.camera.camera)
+      const hits = this.raycaster.intersectObjects(this.arrangeRings, false)
+      const index = hits[0]?.object.userData.arrangeIndex as number | undefined
+      if (index !== undefined) {
+        this.arrangeHandler?.(index)
+        return
+      }
+    }
+    const hunt = useLabStore.getState().activityId === 'ursa-hunt'
+    if (hunt) {
+      this.raycaster.setFromCamera(this.pointer, this.camera.camera)
+      const hits = this.raycaster.intersectObjects(this.constellations.pickMeshes, false)
+      const starId = hits[0]?.object.userData.starId as string | undefined
+      if (starId) {
+        useLabStore.getState().addHuntStar(starId)
+        return
+      }
+    }
     if (useSimulationStore.getState().moonDragEnabled) {
       this.raycaster.setFromCamera(this.pointer, this.camera.camera)
       const moon = this.planets.get('moon')
@@ -623,6 +739,7 @@ export class SolarSystemScene {
     useSimulationStore.getState().selectBody(id)
     useEducationStore.getState().notifySelection(id)
     this.focusBody(id)
+    if (id === 'sun') onSunSelected()
   }
 
   private onPointerMove = (event: PointerEvent): void => {
@@ -683,12 +800,18 @@ export class SolarSystemScene {
   }
 
   private onKeyDown = (event: KeyboardEvent): void => {
-    if (event.code === 'Space' && !(event.target instanceof HTMLInputElement)) {
+    if (
+      event.code === 'Space' &&
+      !(event.target instanceof HTMLInputElement) &&
+      !(event.target instanceof HTMLTextAreaElement) &&
+      !(event.target instanceof HTMLButtonElement)
+    ) {
       event.preventDefault()
       useSimulationStore.getState().togglePlaying()
     }
     if (event.code === 'Escape') {
       useSimulationStore.getState().selectBody(null)
+      useUiStore.getState().closeSunChat()
       this.focusOverview()
     }
   }
@@ -717,6 +840,14 @@ export class SolarSystemScene {
     this.comet.dispose()
     this.notableStars.dispose()
     this.skyRocks.dispose()
+    this.kepler.dispose()
+    this.surface.dispose()
+    this.umbra.dispose()
+    this.arrangeRings.forEach((ring) => {
+      ring.geometry.dispose()
+      const mat = ring.material
+      if (!Array.isArray(mat)) mat.dispose()
+    })
     for (const planet of this.planets.values()) planet.dispose()
     this.orbits.dispose()
     this.asteroids.dispose()

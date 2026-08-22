@@ -1,6 +1,7 @@
 import { getBody } from '../../astronomy/planetData'
 import { findWonder } from '../../content/skyWonders'
 import { earthRelativeWeight } from '../../features/lab/gravityMath'
+import { askTheSun } from '../../features/planetExplorer/focus'
 import { formatAu, formatDays, formatHours, formatKm, formatNumberTr } from '../../utils/formatting'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
@@ -98,6 +99,11 @@ export function InspectRail() {
               <li key={fact}>{fact}</li>
             ))}
           </ul>
+          {body.id === 'sun' ? (
+            <button type="button" className="btn primary" onClick={() => askTheSun()}>
+              Güneş’e sor
+            </button>
+          ) : null}
         </div>
       ) : null}
       {!body && wonder ? (

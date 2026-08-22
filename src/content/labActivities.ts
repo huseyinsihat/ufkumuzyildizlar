@@ -78,7 +78,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     resultTitle: 'Kütle aynı kalır',
     explain:
       'Kütle maddenin miktarıdır, gezegen değişince değişmez. Ağırlık ise yerçekiminin çekmesidir. Ay’da g daha küçük olduğu için aynı kütle daha hafif çekilir.',
-    uses3d: false,
+    uses3d: true,
   },
   {
     id: 'drop-ball',
@@ -95,7 +95,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     explain:
       'Yerçekimi büyüdükçe ivme büyür. Jüpiter’de g en büyüktür, bu yüzden top yere daha çabuk varır. Ay’da ise yavaş düşer.',
     featured: true,
-    uses3d: false,
+    uses3d: true,
   },
   {
     id: 'jump',
@@ -111,7 +111,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     resultTitle: 'Ay’da zıplama daha yüksektir',
     explain:
       'Zıplama yüksekliği yerçekimi artınca küçülür. Ay’da g küçük olduğu için aynı hızla çok yükseğe çıkarsın. Jüpiter büyük olsa da yerçekimi daha güçlüdür; orada daha yükseğe değil, daha alçağa zıplarsın.',
-    uses3d: false,
+    uses3d: true,
   },
   {
     id: 'real-scale',
@@ -138,7 +138,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     explain:
       'Sıra: Merkür → Venüs → Dünya → Mars → Jüpiter → Satürn → Uranüs → Neptün. Sıra Güneş’e olan gerçek uzaklığı izler.',
     featured: true,
-    uses3d: false,
+    uses3d: true,
   },
   {
     id: 'moon-phases',
@@ -240,6 +240,23 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     uses3d: true,
   },
   {
+    id: 'kepler-pizza',
+    room: 'motion',
+    title: 'Kepler’in pizza kuralı',
+    question: 'Merkür Güneş’e yaklaşınca hızlanır mı, yavaşlar mı?',
+    choices: [
+      { id: 'faster', label: 'Hızlanır' },
+      { id: 'slower', label: 'Yavaşlar' },
+      { id: 'same', label: 'Hep aynı hız' },
+    ],
+    simulateLabel: 'Dilimleri izle',
+    resultTitle: 'Yakınken dilim şişman, gezegen hızlı',
+    explain:
+      'Aynı sürede Güneş ile gezegen arasındaki dilimin alanı eşittir. Güneş’e yakınken yol daha kısadır; bu yüzden Merkür orada daha hızlı gider. Bu bir eğitim modelidir, elips biraz abartılmıştır.',
+    featured: true,
+    uses3d: true,
+  },
+  {
     id: 'mercury-long-day',
     room: 'motion',
     title: 'Merkür’ün günü neden uzun?',
@@ -249,6 +266,48 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     explain:
       'Merkür kendi etrafında çok yavaş döner. Bir yılı yaklaşık 88 Dünya günüdür; bir güneş günü ise yaklaşık 176 Dünya günüdür.',
     featured: true,
+    uses3d: true,
+  },
+  {
+    id: 'eclipse-align',
+    room: 'build',
+    title: 'Tutulma hizası',
+    question: 'Dolunay olunca her zaman Ay tutulması mı olur?',
+    choices: [
+      { id: 'always', label: 'Evet, her dolunay tutulmadır' },
+      { id: 'align', label: 'Hayır, tam hiza ve gölge gerekir' },
+    ],
+    simulateLabel: 'Hizala',
+    resultTitle: 'Tutulma bir hizadır',
+    explain:
+      'Ay tutulması için Ay, Dünya’nın gölgesine girmelidir. Her dolunay tutulma değildir; yörünge düzlemi biraz eğik olduğu için çoğu dolunay gölgenin yanından geçer.',
+    uses3d: true,
+  },
+  {
+    id: 'ursa-hunt',
+    room: 'sky',
+    title: 'Büyükayı’yı bul',
+    question: 'Kepçedeki yedi yıldızı sırayla bulabilir misin?',
+    simulateLabel: 'Yıldızlara dokun',
+    resultTitle: 'Büyükayı tamam',
+    explain:
+      'Büyükayı bir gezegen değil, yedi parlak yıldızın gökyüzünde çizdiği şekildir. Yıldızlar çok uzaktadır; Dünya döndüğü için yerleri kayıyor gibi görünür.',
+    featured: true,
+    uses3d: true,
+  },
+  {
+    id: 'light-diary',
+    room: 'scale',
+    title: 'Işık günlüğü',
+    question: 'Güneş ışığı Dünya’ya gelirken Proxima’ya da aynı sürede mi varır?',
+    choices: [
+      { id: 'same', label: 'Evet, ışık her yere aynı anda gider' },
+      { id: 'far', label: 'Hayır, daha uzak yıldız daha uzun sürer' },
+    ],
+    simulateLabel: 'Işığı karşılaştır',
+    resultTitle: 'Işık zamanda yol alır',
+    explain:
+      'Işık Dünya’ya yaklaşık 8 dakika 20 saniyede gelir. En yakın yıldız Proxima’ya ise dört yıldan uzun sürer. 10 yaşındaysan o ışık sen 14 olmadan hâlâ yoldadır.',
     uses3d: true,
   },
 ]

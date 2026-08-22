@@ -1,6 +1,11 @@
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
+import { BADGES } from '../../content/missions'
+import { TEAM } from '../../content/team'
 import { getActivity } from '../../content/labActivities'
+import { useEducationStore } from '../../store/educationStore'
 import { useLabStore } from '../../store/labStore'
+import { useVoiceStore } from '../../store/voiceStore'
+import { speak } from '../../utils/speech'
 import { Icon } from '../ui/Icon'
 
 const STEPS = ['Tahmin', 'İzle', 'Neden'] as const
@@ -12,14 +17,24 @@ export function ActivityShell({ children }: { children: ReactNode }) {
   const complete = useLabStore((s) => s.completeActivity)
   const start = useLabStore((s) => s.startActivity)
   const reset = useLabStore((s) => s.resetActivityScene)
+  const setPrediction = useLabStore((s) => s.setPrediction)
+  const lastBadge = useEducationStore((s) => s.lastBadge)
+  const guide = TEAM.members[0]?.name ?? TEAM.teamName
+  const activity = id ? getActivity(id) : null
+
+  useEffect(() => {
+    if (step === 'explain' && activity && useVoiceStore.getState().enabled) speak(activity.explain)
+  }, [step, activity])
+
   const backToCatalog = () => {
     reset()
     useLabStore.setState({ activityId: null, step: 'predict', prediction: null })
+    useVoiceStore.getState().play('lab-done')
   }
 
-  if (!id) return null
-  const activity = getActivity(id)
-  const index = step === 'simulate' ? 1 : step === 'result' ? 2 : 3
+  if (!id || !activity) return null
+  const index = step === 'predict' ? 1 : step === 'simulate' ? 2 : 3
+  const badge = BADGES.find((item) => item.id === lastBadge)
 
   return (
     <section className="activity-hud" aria-label={activity.title}>
@@ -38,7 +53,19 @@ export function ActivityShell({ children }: { children: ReactNode }) {
           ×
         </button>
       </header>
-      {step === 'simulate' ? <p className="question">{activity.question}</p> : null}
+      <p className="guide-bubble">
+        <strong>{guide}:</strong> {step === 'explain' ? activity.explain : activity.question}
+      </p>
+      {badge ? <p className="badge-toast">Rozet: {badge.name}</p> : null}
+      {step === 'predict' && activity.choices ? (
+        <div className="choice-row">
+          {activity.choices.map((choice) => (
+            <button key={choice.id} type="button" className="chip" onClick={() => setPrediction(choice.id)}>
+              {choice.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
       {step === 'simulate' ? children : null}
       {step === 'result' ? (
         <div className="activity-stage">

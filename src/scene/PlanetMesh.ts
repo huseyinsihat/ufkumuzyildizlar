@@ -213,6 +213,7 @@ export class PlanetMesh {
     }
     this.lod = next
     this.mesh.geometry = next === 'high' ? HIGH_GEO : LOW_GEO
+    this.rings?.setLod(next === 'high')
   }
 
   update(dtSimSeconds: number): void {

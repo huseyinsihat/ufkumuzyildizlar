@@ -1,6 +1,8 @@
 import { TIME_PRESETS } from '../../astronomy/timeEngine'
 import { formatSimulationDate } from '../../utils/formatting'
+import { lookAtSolarSystem } from '../../features/planetExplorer/focus'
 import { useSimulationStore } from '../../store/simulationStore'
+import { Icon } from './Icon'
 
 export function CompactTimeBar() {
   const playing = useSimulationStore((s) => s.playing)
@@ -15,7 +17,12 @@ export function CompactTimeBar() {
 
   return (
     <footer className="time-compact" aria-label="Zaman">
+      <button type="button" className="btn emergency" onClick={lookAtSolarSystem}>
+        <Icon name="sun" />
+        Güneşe Dön
+      </button>
       <button type="button" className="btn primary" onClick={toggle} aria-label={playing ? 'Duraklat' : 'Oynat'}>
+        <Icon name={playing ? 'pause' : 'play'} />
         {playing ? 'Duraklat' : 'Oynat'}
       </button>
       <p className="time-readout">{formatSimulationDate(displayed)}</p>

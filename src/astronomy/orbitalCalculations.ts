@@ -51,6 +51,40 @@ export function sampleOrbit(elements: KeplerianElements, samples = 180): Vec3[] 
   return points
 }
 
+/** Educational overlay: stretch a small eccentricity so kids can see the ellipse. */
+export function visualEccentricity(e: number, exaggerate: boolean): number {
+  if (!exaggerate) return Math.max(0, Math.min(0.9, e))
+  return Math.min(0.72, e * 2.35 + 0.1)
+}
+
+/** Relative orbital speed from the vis-viva shape (perihelion is fastest). */
+export function keplerSpeedFactor(eccentricity: number, trueAnomalyRad: number): number {
+  const e = Math.max(0, Math.min(0.9, eccentricity))
+  return Math.sqrt((1 + e * Math.cos(trueAnomalyRad)) / Math.max(1e-6, 1 - e * e))
+}
+
+export function orbitPointFlat(semiMajor: number, eccentricity: number, trueAnomalyRad: number): { x: number; z: number } {
+  const r = keplerRadius(semiMajor, eccentricity, trueAnomalyRad)
+  return { x: r * Math.cos(trueAnomalyRad), z: r * Math.sin(trueAnomalyRad) }
+}
+
+/** Equal mean-anomaly span = equal time. Returns fan points including the focus at the origin. */
+export function equalTimeSector(
+  semiMajor: number,
+  eccentricity: number,
+  meanCenterRad: number,
+  halfWidthRad: number,
+  samples = 18,
+): { x: number; z: number }[] {
+  const points: { x: number; z: number }[] = [{ x: 0, z: 0 }]
+  for (let n = 0; n <= samples; n += 1) {
+    const mean = meanCenterRad - halfWidthRad + (n / samples) * halfWidthRad * 2
+    const nu = trueAnomalyFromMean(mean, eccentricity)
+    points.push(orbitPointFlat(semiMajor, eccentricity, nu))
+  }
+  return points
+}
+
 export function julianDateFromMs(ms: number): number {
   return ms / 86_400_000 + 2_440_587.5
 }

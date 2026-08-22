@@ -1,6 +1,7 @@
 import { PerspectiveCamera, Vector3 } from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { clamp, easeInOutCubic } from '../utils/math'
+import { CAMERA_TRAVEL_MIN_SEC, cameraTravelArcOffset, cameraTravelDuration } from './cameraTravel'
 
 export class CameraController {
   readonly camera: PerspectiveCamera
@@ -11,11 +12,20 @@ export class CameraController {
   private toTarget = new Vector3()
   private followPos = new Vector3()
   private followDelta = new Vector3()
+  private arcOffset = new Vector3()
   private elapsed = 0
-  private duration = 1.15
+  private duration = CAMERA_TRAVEL_MIN_SEC
   private animating = false
   private followEnabled = false
   private willFollow = false
+  private gyroYaw = 0
+  private gyroPitch = 0
+  private gyroTargetYaw = 0
+  private gyroTargetPitch = 0
+  private appliedYaw = 0
+  private appliedPitch = 0
+  private up = new Vector3(0, 1, 0)
+  private right = new Vector3()
 
   constructor(canvas: HTMLCanvasElement) {
     this.camera = new PerspectiveCamera(48, 1, 0.1, 800)
@@ -41,11 +51,8 @@ export class CameraController {
     this.toTarget.copy(worldPosition)
     const offset = Math.max(radius * 6.5, 4.5)
     this.toPos.set(worldPosition.x + offset, worldPosition.y + offset * 0.45, worldPosition.z + offset)
-    this.elapsed = 0
-    this.animating = true
     this.willFollow = follow
-    this.followEnabled = false
-    this.controls.enabled = false
+    this.beginTween()
   }
 
   focusOverview(trueScale = false): void {
@@ -53,11 +60,8 @@ export class CameraController {
     this.fromTarget.copy(this.controls.target)
     this.toPos.set(0, trueScale ? 72 : 48, trueScale ? 210 : 118)
     this.toTarget.set(0, 0, 0)
-    this.elapsed = 0
-    this.animating = true
     this.willFollow = false
-    this.followEnabled = false
-    this.controls.enabled = false
+    this.beginTween()
   }
 
   focusClose(worldPosition: Vector3, radius: number): void {
@@ -66,11 +70,8 @@ export class CameraController {
     this.toTarget.copy(worldPosition)
     const offset = Math.max(radius * 3.1, 2.4)
     this.toPos.set(worldPosition.x + offset * 0.2, worldPosition.y + offset * 0.15, worldPosition.z + offset)
-    this.elapsed = 0
-    this.animating = true
     this.willFollow = true
-    this.followEnabled = false
-    this.controls.enabled = false
+    this.beginTween()
   }
 
   enterSkyView(): void {
@@ -78,11 +79,8 @@ export class CameraController {
     this.fromTarget.copy(this.controls.target)
     this.toPos.set(0, 6, 14)
     this.toTarget.set(40, 18, 120)
-    this.elapsed = 0
-    this.animating = true
     this.willFollow = false
-    this.followEnabled = false
-    this.controls.enabled = false
+    this.beginTween()
   }
 
   stopFollow(): void {
@@ -111,11 +109,17 @@ export class CameraController {
     this.controls.maxDistance = distance
   }
 
+  setGyro(yaw: number, pitch: number): void {
+    this.gyroTargetYaw = clamp(yaw, -0.55, 0.55)
+    this.gyroTargetPitch = clamp(pitch, -0.35, 0.35)
+  }
+
   update(dt: number): void {
     if (this.animating) {
       this.elapsed += dt
       const t = easeInOutCubic(clamp(this.elapsed / this.duration, 0, 1))
       this.camera.position.lerpVectors(this.fromPos, this.toPos, t)
+      this.camera.position.addScaledVector(this.arcOffset, Math.sin(Math.PI * t))
       this.controls.target.lerpVectors(this.fromTarget, this.toTarget, t)
       if (t >= 1) {
         this.animating = false
@@ -124,6 +128,31 @@ export class CameraController {
       }
     }
     this.controls.update()
+    if (this.animating) return
+    this.gyroYaw += (this.gyroTargetYaw - this.gyroYaw) * Math.min(1, dt * 5)
+    this.gyroPitch += (this.gyroTargetPitch - this.gyroPitch) * Math.min(1, dt * 5)
+    const dyaw = this.gyroYaw - this.appliedYaw
+    const dpitch = this.gyroPitch - this.appliedPitch
+    if (Math.abs(dyaw) > 0.0002 || Math.abs(dpitch) > 0.0002) {
+      const offset = this.camera.position.clone().sub(this.controls.target)
+      offset.applyAxisAngle(this.up, dyaw)
+      this.right.crossVectors(this.up, offset).normalize()
+      if (this.right.lengthSq() > 0.01) offset.applyAxisAngle(this.right, dpitch)
+      this.camera.position.copy(this.controls.target).add(offset)
+      this.appliedYaw = this.gyroYaw
+      this.appliedPitch = this.gyroPitch
+    }
+  }
+
+  private beginTween(): void {
+    this.elapsed = 0
+    this.animating = true
+    this.followEnabled = false
+    this.controls.enabled = false
+    const distance = this.fromPos.distanceTo(this.toPos)
+    this.duration = cameraTravelDuration(distance)
+    const arc = cameraTravelArcOffset(this.fromPos, this.toPos)
+    this.arcOffset.set(arc.x, arc.y, arc.z)
   }
 
   resize(width: number, height: number): void {

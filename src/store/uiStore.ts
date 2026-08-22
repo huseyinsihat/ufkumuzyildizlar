@@ -14,6 +14,7 @@ interface UiState {
   leftOpen: boolean
   planetDrawerOpen: boolean
   starDrawerOpen: boolean
+  sunChatOpen: boolean
   setIntroVisible: (visible: boolean) => void
   setAppMode: (mode: AppMode) => void
   setActivePanel: (panel: AppPanel) => void
@@ -26,6 +27,10 @@ interface UiState {
   setLeftOpen: (open: boolean) => void
   setPlanetDrawerOpen: (open: boolean) => void
   setStarDrawerOpen: (open: boolean) => void
+  openSunChat: () => void
+  closeSunChat: () => void
+  largeText: boolean
+  setLargeText: (on: boolean) => void
 }
 
 export const useUiStore = create<UiState>((set, get) => ({
@@ -39,6 +44,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   leftOpen: true,
   planetDrawerOpen: false,
   starDrawerOpen: false,
+  sunChatOpen: false,
+  largeText: false,
   setIntroVisible: (visible) => set({ introVisible: visible }),
   setAppMode: (mode) => set({ appMode: mode }),
   setActivePanel: (panel) => set({ activePanel: panel, planetDrawerOpen: false, starDrawerOpen: false }),
@@ -48,7 +55,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   },
   setWebglSupported: (supported) => set({ webglSupported: supported }),
   setUse2dFallback: (use2d) => set({ use2dFallback: use2d }),
-  startDemo: () => set({ demoActive: true, demoStep: 0, introVisible: false, activePanel: 'none', appMode: 'explore' }),
+  startDemo: () =>
+    set({ demoActive: true, demoStep: 0, introVisible: false, activePanel: 'none', appMode: 'explore', sunChatOpen: false }),
   nextDemoStep: () => set({ demoStep: get().demoStep + 1 }),
   stopDemo: () => set({ demoActive: false, demoStep: 0 }),
   setLeftOpen: (open) => set({ leftOpen: open }),
@@ -56,4 +64,7 @@ export const useUiStore = create<UiState>((set, get) => ({
     set({ planetDrawerOpen: open, starDrawerOpen: open ? false : get().starDrawerOpen, activePanel: open ? 'none' : get().activePanel }),
   setStarDrawerOpen: (open) =>
     set({ starDrawerOpen: open, planetDrawerOpen: open ? false : get().planetDrawerOpen, activePanel: open ? 'none' : get().activePanel }),
+  openSunChat: () => set({ sunChatOpen: true }),
+  closeSunChat: () => set({ sunChatOpen: false }),
+  setLargeText: (on) => set({ largeText: on }),
 }))

@@ -19,6 +19,10 @@ export type LabActivityId =
   | 'closest-hottest'
   | 'comet-tail'
   | 'mercury-long-day'
+  | 'kepler-pizza'
+  | 'eclipse-align'
+  | 'ursa-hunt'
+  | 'light-diary'
 
 export type LabStep = 'predict' | 'simulate' | 'result' | 'explain'
 

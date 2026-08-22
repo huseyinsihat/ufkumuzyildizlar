@@ -1,9 +1,10 @@
 import { BODIES } from '../../astronomy/planetData'
-import { focusBody, lookAtSolarSystem } from '../../features/planetExplorer/focus'
+import { askTheSun, focusBody, lookAtSolarSystem } from '../../features/planetExplorer/focus'
 import { NOTABLE_STARS } from '../../content/skyWonders'
 import { useLabStore } from '../../store/labStore'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
+import { useVoiceStore } from '../../store/voiceStore'
 import { TEAM } from '../../content/team'
 import { getScene } from '../../scene/sceneApi'
 import { Icon } from './Icon'
@@ -19,6 +20,7 @@ export function ExploreDock() {
   const openLab = useLabStore((s) => s.openLab)
   const selected = useSimulationStore((s) => s.selectedBodyId)
   const selectedWonder = useSimulationStore((s) => s.selectedWonderId)
+  const sunChatOpen = useUiStore((s) => s.sunChatOpen)
   const showOrbits = useSimulationStore((s) => s.showOrbits)
   const setShowOrbits = useSimulationStore((s) => s.setShowOrbits)
   const showAxes = useSimulationStore((s) => s.showAxes)
@@ -33,38 +35,55 @@ export function ExploreDock() {
           type="button"
           className="btn primary"
           onClick={() => {
+            useVoiceStore.getState().play('mode-lab')
             setMode('lab')
             openLab()
           }}
         >
           <Icon name="flask" />
-          {TEAM.home}
+          <span className="dock-label">{TEAM.home}</span>
         </button>
-        <button type="button" className={`btn ${planetOpen ? 'is-on' : ''}`} onClick={() => setPlanetOpen(!planetOpen)} aria-expanded={planetOpen}>
+        <button type="button" className={`btn ${planetOpen ? 'is-on' : ''}`} onClick={() => {
+          if (!planetOpen) useVoiceStore.getState().play('ui-planets')
+          setPlanetOpen(!planetOpen)
+        }} aria-expanded={planetOpen}>
           <Icon name="planet" />
-          Gezegenler
+          <span className="dock-label">Gezegenler</span>
         </button>
-        <button type="button" className={`btn ${starOpen ? 'is-on' : ''}`} onClick={() => setStarOpen(!starOpen)} aria-expanded={starOpen}>
+        <button type="button" className={`btn ${starOpen ? 'is-on' : ''}`} onClick={() => {
+          if (!starOpen) useVoiceStore.getState().play('ui-stars')
+          setStarOpen(!starOpen)
+        }} aria-expanded={starOpen}>
           <Icon name="spark" />
-          Yıldızlar
+          <span className="dock-label">Yıldızlar</span>
         </button>
-        <button type="button" className={`btn ${panel === 'facts' ? 'is-on' : ''}`} onClick={() => setPanel(panel === 'facts' ? 'none' : 'facts')}>
+        <button type="button" className={`btn ${panel === 'facts' ? 'is-on' : ''}`} onClick={() => {
+          if (panel !== 'facts') useVoiceStore.getState().play('ui-facts')
+          setPanel(panel === 'facts' ? 'none' : 'facts')
+        }}>
           <Icon name="book" />
-          Bilgiler
+          <span className="dock-label">Bilgiler</span>
         </button>
-        <button type="button" className={`btn ${panel === 'compare' ? 'is-on' : ''}`} onClick={() => setPanel(panel === 'compare' ? 'none' : 'compare')}>
+        <button type="button" className={`btn ${panel === 'compare' ? 'is-on' : ''}`} onClick={() => {
+          if (panel !== 'compare') useVoiceStore.getState().play('ui-compare')
+          setPanel(panel === 'compare' ? 'none' : 'compare')
+        }}>
           <Icon name="compare" />
-          Karşılaştır
+          <span className="dock-label">Karşılaştır</span>
+        </button>
+        <button type="button" className={`btn ${sunChatOpen ? 'is-on' : ''}`} onClick={() => askTheSun()}>
+          <Icon name="sun" />
+          <span className="dock-label">Güneş’e sor</span>
         </button>
         <button type="button" className={`btn ${panel === 'settings' ? 'is-on' : ''}`} onClick={() => setPanel(panel === 'settings' ? 'none' : 'settings')}>
           <Icon name="gear" />
-          Ayarlar
+          <span className="dock-label">Ayarlar</span>
         </button>
       </nav>
       <nav className="view-tools" aria-label="Görünüm">
-        <button type="button" className="btn" onClick={lookAtSolarSystem}>
+        <button type="button" className="btn emergency" onClick={lookAtSolarSystem}>
           <Icon name="sun" />
-          Güneş Sistemi
+          <span className="dock-label">Güneşe Dön</span>
         </button>
         <button
           type="button"
@@ -73,15 +92,15 @@ export function ExploreDock() {
           onClick={() => setShowOrbits(!showOrbits)}
         >
           <Icon name="orbit" />
-          Yörünge
+          <span className="dock-label">Yörünge</span>
         </button>
         <button type="button" className={`btn ${showAxes ? 'is-on' : ''}`} aria-pressed={showAxes} onClick={() => setShowAxes(!showAxes)}>
           <Icon name="ruler" />
-          Eksen
+          <span className="dock-label">Eksen</span>
         </button>
         <button type="button" className={`btn ${showLabels ? 'is-on' : ''}`} aria-pressed={showLabels} onClick={() => setShowLabels(!showLabels)}>
           <Icon name="spark" />
-          Etiket
+          <span className="dock-label">Etiket</span>
         </button>
       </nav>
       {planetOpen ? (

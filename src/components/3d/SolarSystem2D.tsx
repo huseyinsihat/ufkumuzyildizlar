@@ -6,6 +6,7 @@ import { useSimulationStore } from '../../store/simulationStore'
 import { useEducationStore } from '../../store/educationStore'
 import { useLabStore } from '../../store/labStore'
 import { useUiStore } from '../../store/uiStore'
+import { focusBody } from '../../features/planetExplorer/focus'
 
 const SIZE = 640
 const CX = SIZE / 2
@@ -31,7 +32,24 @@ export function SolarSystem2D() {
     <div className="fallback-2d">
       <svg viewBox={`0 0 ${SIZE} ${SIZE}`} role="img" aria-label="2B Güneş Sistemi şeması">
         <rect width={SIZE} height={SIZE} fill="#050814" />
-        <circle cx={CX} cy={CY} r={14} fill={getBody('sun').color} />
+        <circle
+          cx={CX}
+          cy={CY}
+          r={14}
+          fill={getBody('sun').color}
+          stroke={selected === 'sun' ? '#7ee0ff' : 'transparent'}
+          strokeWidth={2}
+          role="button"
+          tabIndex={0}
+          aria-label="Güneş"
+          onClick={() => focusBody('sun')}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault()
+              focusBody('sun')
+            }
+          }}
+        />
         {hideNames ? null : (
           <text x={CX} y={CY - 20} textAnchor="middle" fill="#fff" fontSize="11">
             Güneş

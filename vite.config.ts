@@ -7,6 +7,16 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 1200,
   },
+  server: {
+    proxy: {
+      '/api/openrouter': {
+        target: 'https://openrouter.ai',
+        changeOrigin: true,
+        secure: true,
+        rewrite: () => '/api/v1/chat/completions',
+      },
+    },
+  },
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],

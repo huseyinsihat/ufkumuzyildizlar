@@ -4,17 +4,22 @@ import {
   Group,
   LineBasicMaterial,
   LineSegments,
+  Mesh,
+  MeshBasicMaterial,
   Points,
   PointsMaterial,
+  SphereGeometry,
 } from 'three'
 import { CONSTELLATIONS, type Constellation } from '../content/constellations'
 
 const SPHERE_RADIUS = 260
+const STAR_GEO = new SphereGeometry(1.8, 10, 8)
 
 export class ConstellationLayer {
   readonly group: Group
   private selectedId: string | null = null
   private figures = new Map<string, Group>()
+  readonly pickMeshes: Mesh[] = []
 
   constructor() {
     this.group = new Group()
@@ -32,6 +37,13 @@ export class ConstellationLayer {
     const byId = new Map(constellation.stars.map((star) => [star.id, star]))
     for (const star of constellation.stars) {
       starPositions.push(star.x * SPHERE_RADIUS, star.y * SPHERE_RADIUS, star.z * SPHERE_RADIUS)
+      const mesh = new Mesh(STAR_GEO, new MeshBasicMaterial({ color: '#e2f6ff' }))
+      mesh.position.set(star.x * SPHERE_RADIUS, star.y * SPHERE_RADIUS, star.z * SPHERE_RADIUS)
+      mesh.userData.constellationId = constellation.id
+      mesh.userData.starId = star.id
+      mesh.visible = constellation.id === 'ursa-major'
+      root.add(mesh)
+      if (constellation.id === 'ursa-major') this.pickMeshes.push(mesh)
     }
     const starGeo = new BufferGeometry()
     starGeo.setAttribute('position', new Float32BufferAttribute(starPositions, 3))

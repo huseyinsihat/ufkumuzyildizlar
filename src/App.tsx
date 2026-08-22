@@ -5,12 +5,14 @@ import { WebGLFallback } from './components/3d/WebGLFallback'
 import { ComparePanel } from './components/education/ComparePanel'
 import { FactsPanel } from './components/education/FactsPanel'
 import { DemoTour } from './components/education/DemoTour'
+import { SunChatPanel } from './components/chat/SunChatPanel'
 import { ActivityBody } from './components/lab/ActivityBody'
 import { ActivityShell } from './components/lab/ActivityShell'
 import { LabHome } from './components/lab/LabHome'
 import { InspectRail } from './components/ui/LeftNav'
 import { CompactTimeBar } from './components/ui/ExploreDock'
 import { IntroScreen } from './components/ui/IntroScreen'
+import { VoiceHost } from './components/ui/VoiceHost'
 import { ExploreDock } from './components/ui/PlanetDrawer'
 import { SettingsPanel } from './components/ui/SettingsPanel'
 import { TeamPanel } from './components/ui/TeamPanel'
@@ -30,6 +32,7 @@ export default function App() {
   const scaleMode = useSimulationStore((s) => s.scaleMode)
   const labOpen = useLabStore((s) => s.labOpen)
   const activityId = useLabStore((s) => s.activityId)
+  const largeText = useUiStore((s) => s.largeText)
   const setWebgl = useUiStore((s) => s.setWebglSupported)
   const set2d = useUiStore((s) => s.setUse2dFallback)
 
@@ -44,6 +47,7 @@ export default function App() {
       if (event.key === 'Escape') {
         useUiStore.getState().setActivePanel('none')
         useUiStore.getState().setIntroVisible(false)
+        useUiStore.getState().closeSunChat()
       }
     }
     window.addEventListener('keydown', onKey)
@@ -55,7 +59,7 @@ export default function App() {
   const showActivity = Boolean(activityId)
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${largeText ? 'large-text' : ''}`}>
       <div className="space-glow" />
       {webgl && !use2d ? <CanvasHost /> : <SolarSystem2D />}
       <TopBar />
@@ -65,6 +69,7 @@ export default function App() {
         <p className="scale-banner">Gezegenler gerçek boyutta — uzay çok boş.</p>
       ) : null}
       {explore ? <InspectRail /> : null}
+      {explore && !intro ? <SunChatPanel /> : null}
       {showLabHome ? <LabHome /> : null}
       {showActivity ? (
         <ActivityShell>
@@ -76,6 +81,7 @@ export default function App() {
       {panel === 'settings' ? <SettingsPanel /> : null}
       {panel === 'team' ? <TeamPanel /> : null}
       {demo ? <DemoTour /> : null}
+      <VoiceHost />
       {intro ? <IntroScreen /> : null}
       {!webgl ? <WebGLFallback /> : null}
     </div>

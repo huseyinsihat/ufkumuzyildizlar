@@ -1,6 +1,7 @@
 import { TEAM } from '../../content/team'
 import { useLabStore } from '../../store/labStore'
 import { useUiStore } from '../../store/uiStore'
+import { useVoiceStore } from '../../store/voiceStore'
 import { Icon } from './Icon'
 
 export function IntroScreen() {
@@ -12,7 +13,7 @@ export function IntroScreen() {
   return (
     <div className="intro-screen" role="dialog" aria-labelledby="intro-title">
       <div className="intro-card">
-        <p className="eyebrow">{TEAM.event}</p>
+        <p className="eyebrow section-kicker">{TEAM.event}</p>
         <h1 id="intro-title">{TEAM.project}</h1>
         <p className="intro-team">{TEAM.teamName}</p>
         <p className="intro-lead">Güneş Sistemini canlı izle. Döndür, hızlandır, nedenini gör.</p>
@@ -21,12 +22,15 @@ export function IntroScreen() {
             type="button"
             className="intro-tile primary"
             onClick={() => {
+              useVoiceStore.getState().play('intro-lab')
               setIntro(false)
               setMode('lab')
               openLab()
             }}
           >
-            <Icon name="sun" />
+            <span className="icon-well">
+              <Icon name="flask" />
+            </span>
             <strong>{TEAM.home}</strong>
             <span>{TEAM.teamName}’in projesi</span>
           </button>
@@ -34,24 +38,30 @@ export function IntroScreen() {
             type="button"
             className="intro-tile"
             onClick={() => {
+              useVoiceStore.getState().play('intro-explore')
               setIntro(false)
               setMode('explore')
             }}
           >
-            <Icon name="planet" />
-            <strong>Güneş Sistemini gez</strong>
+            <span className="icon-well">
+              <Icon name="planet" />
+            </span>
+            <strong>Güneş Sistemini Gez</strong>
             <span>Serbest keşif</span>
           </button>
           <button
             type="button"
             className="intro-tile"
             onClick={() => {
+              useVoiceStore.getState().play('intro-team')
               setIntro(false)
               setMode('explore')
               setPanel('team')
             }}
           >
-            <Icon name="people" />
+            <span className="icon-well">
+              <Icon name="people" />
+            </span>
             <strong>Takım</strong>
             <span>{TEAM.teamName}</span>
           </button>

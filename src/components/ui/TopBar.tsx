@@ -1,5 +1,7 @@
 import { TEAM } from '../../content/team'
 import { useUiStore } from '../../store/uiStore'
+import { useVoiceStore } from '../../store/voiceStore'
+import { Icon } from './Icon'
 
 const logoSrc = `${import.meta.env.BASE_URL}Teknofest_logo.png`
 
@@ -19,7 +21,15 @@ export function TopBar() {
         <img className="brand-logo" src={logoSrc} alt="TEKNOFEST" />
       </button>
       <p className="category">{TEAM.category.replace(/, /g, ' · ')}</p>
-      <button type="button" className="text-link" onClick={() => setPanel('team')}>
+      <button
+        type="button"
+        className="chip team-chip"
+        onClick={() => {
+          useVoiceStore.getState().play('ui-team')
+          setPanel('team')
+        }}
+      >
+        <Icon name="people" />
         Takım
       </button>
     </header>

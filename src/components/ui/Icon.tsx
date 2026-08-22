@@ -109,6 +109,12 @@ const ICONS: Record<string, ReactNode> = {
       <path d="M17.8 15.8A6.5 6.5 0 0 1 6 14.6" />
     </>
   ),
+  play: <path d="M8 6.5v11L18 12z" />,
+  pause: (
+    <>
+      <path d="M8 6h3v12H8zM13 6h3v12h-3z" />
+    </>
+  ),
 }
 
 export type IconName = keyof typeof ICONS

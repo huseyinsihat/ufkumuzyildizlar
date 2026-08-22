@@ -1,20 +1,39 @@
+import { getBody } from '../../astronomy/planetData'
+import { useHardwareStore } from '../../hardware/hardwareStore'
 import { getScene } from '../../scene/sceneApi'
 import { useEducationStore } from '../../store/educationStore'
+import { useLabStore } from '../../store/labStore'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
+import { useVoiceStore } from '../../store/voiceStore'
 import { DEMO_STEPS } from '../../content/team'
 import type { BodyId } from '../../types/planet'
+
+export function onSunSelected(): void {
+  if (useUiStore.getState().demoActive) return
+  useVoiceStore.getState().play('body-sun')
+}
+
+export function askTheSun(): void {
+  useUiStore.getState().openSunChat()
+}
 
 export function focusBody(id: BodyId): void {
   useSimulationStore.getState().selectBody(id)
   useEducationStore.getState().notifySelection(id)
   useUiStore.getState().setActivePanel('none')
   getScene()?.focusBody(id)
+  const hex = getBody(id).color.replace('#', '')
+  void useHardwareStore.getState().writeLine(`L:${hex}`)
+  if (id === 'sun') onSunSelected()
 }
 
 export function lookAtSolarSystem(): void {
   useSimulationStore.getState().selectBody(null)
   getScene()?.focusOverview()
+  if (useUiStore.getState().demoActive) return
+  if (useLabStore.getState().activityId) return
+  useVoiceStore.getState().play('ui-overview')
 }
 
 export function runDemoAction(step: number): void {

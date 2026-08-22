@@ -33,14 +33,41 @@ export type HardwareCommand =
   | { kind: 'orbits' }
   | { kind: 'axes' }
   | { kind: 'labels' }
+  | { kind: 'time'; t: number }
+  | { kind: 'gyro'; yaw: number; pitch: number }
+
+export function timeScaleFromPot(t: number): number {
+  const u = Math.min(1, Math.max(0, t))
+  const second = 1
+  const day = 86_400
+  const year = 86_400 * 365.25
+  if (u < 0.5) return second * (day / second) ** (u / 0.5)
+  return day * (year / day) ** ((u - 0.5) / 0.5)
+}
 
 export function parseHardwareLine(line: string): HardwareCommand | null {
   const raw = line.trim()
-  if (!raw || raw.length > 48) return null
-  if (/[^A-Za-z0-9:_-]/.test(raw)) return null
+  if (!raw || raw.length > 72) return null
+  if (/[^A-Za-z0-9:_.,-]/.test(raw)) return null
   const token = raw.toUpperCase()
   const prefix = token.includes(':') ? token.slice(0, token.indexOf(':')) : ''
   const value = token.includes(':') ? token.slice(token.indexOf(':') + 1) : token
+  if (prefix === 'T') {
+    const t = Number(value)
+    if (!Number.isFinite(t)) return null
+    return { kind: 'time', t: Math.min(1, Math.max(0, t)) }
+  }
+  if (prefix === 'G') {
+    const [yawRaw, pitchRaw] = value.split(',')
+    const yaw = Number(yawRaw)
+    const pitch = Number(pitchRaw)
+    if (!Number.isFinite(yaw) || !Number.isFinite(pitch)) return null
+    return { kind: 'gyro', yaw, pitch }
+  }
+  if (prefix === 'R') {
+    const planet = BODIES.find((id) => id.toUpperCase() === value)
+    return planet ? { kind: 'planet', id: planet } : null
+  }
   const planet = BODIES.find((id) => id.toUpperCase() === value)
   if (prefix === 'P' || (!prefix && planet)) {
     return planet ? { kind: 'planet', id: planet } : null
@@ -90,4 +117,6 @@ export function applyHardwareCommand(command: HardwareCommand): void {
   if (command.kind === 'orbits') sim.setShowOrbits(!sim.showOrbits)
   if (command.kind === 'axes') sim.setShowAxes(!sim.showAxes)
   if (command.kind === 'labels') sim.setShowLabels(!sim.showLabels)
+  if (command.kind === 'time') sim.setTimeScale(timeScaleFromPot(command.t))
+  if (command.kind === 'gyro') getScene()?.applyGyro(command.yaw, command.pitch)
 }

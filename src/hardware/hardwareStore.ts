@@ -9,11 +9,14 @@ interface HardwareState {
   message: string
   connect: () => Promise<void>
   disconnect: () => Promise<void>
+  writeLine: (line: string) => Promise<void>
 }
 
 let port: SerialPort | null = null
 let reader: ReadableStreamDefaultReader<Uint8Array> | null = null
+let writer: WritableStreamDefaultWriter<Uint8Array> | null = null
 let closed = true
+const encoder = new TextEncoder()
 
 async function readLoop(): Promise<void> {
   if (!port?.readable) return
@@ -60,6 +63,12 @@ export const useHardwareStore = create<HardwareState>((set) => ({
         /* already closed */
       }
       try {
+        writer?.releaseLock()
+      } catch {
+        /* already closed */
+      }
+      writer = null
+      try {
         await port?.close()
       } catch {
         /* already closed */
@@ -68,6 +77,7 @@ export const useHardwareStore = create<HardwareState>((set) => ({
       reader = null
       port = await navigator.serial.requestPort()
       await port.open({ baudRate: 115200 })
+      writer = port.writable?.getWriter() ?? null
       closed = false
       set({ status: 'connected', message: 'DeneyapKart bağlı.', lastLine: '' })
       void readLoop()
@@ -83,11 +93,25 @@ export const useHardwareStore = create<HardwareState>((set) => ({
       /* already closed */
     }
     try {
+      writer?.releaseLock()
+    } catch {
+      /* already closed */
+    }
+    writer = null
+    try {
       await port?.close()
     } catch {
       /* already closed */
     }
     port = null
     set({ status: 'idle', message: '', lastLine: '' })
+  },
+  writeLine: async (line) => {
+    if (!writer) return
+    try {
+      await writer.write(encoder.encode(`${line}\n`))
+    } catch {
+      /* port closed */
+    }
   },
 }))

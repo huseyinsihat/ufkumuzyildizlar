@@ -62,6 +62,31 @@ export const BADGES = [
   { id: 'first-discovery', name: 'İlk Keşif', description: 'İlk gezegenini seçtin.' },
   { id: 'mars-explorer', name: 'Mars Kaşifi', description: 'Mars’ı inceledin.' },
   { id: 'planet-expert', name: 'Gezegen Uzmanı', description: 'Birden fazla gezegeni keşfettin.' },
-  { id: 'orbit-master', name: 'Yörünge Ustası', description: 'Yörüngeyi bilinçli olarak gösterdin.' },
+  { id: 'orbit-master', name: 'Yörünge Ustası', description: 'Yörünge sırasını veya yılı gördün.' },
+  { id: 'kepler-slice', name: 'Pizza Kuralı', description: 'Güneş’e yakınken gezegenin hızlandığını gördün.' },
+  { id: 'tilt-explorer', name: 'Eksen Kaşifi', description: 'Mevsimlerin eğiklikten geldiğini gördün.' },
+  { id: 'ring-observer', name: 'Halka Gözlemcisi', description: 'Satürn’ün buz halkalarına baktın.' },
+  { id: 'full-moon', name: 'Dolunay Ustası', description: 'Ay’ın aydınlık dilimini hizaladın.' },
+  { id: 'gravity-lab', name: 'Yerçekimi Deneycisi', description: 'Kütle ile ağırlığın farkını denedin.' },
+  { id: 'bear-hunter', name: 'Büyükayı Avcısı', description: 'Yedi yıldızı sırayla buldun.' },
+  { id: 'light-scribe', name: 'Işık Günlüğü', description: 'Işığın zamanda yol aldığını gördün.' },
   { id: 'solar-sage', name: 'Güneş Sistemi Bilgini', description: 'Görevlerin çoğunu tamamladın.' },
 ] as const
+
+export type BadgeId = (typeof BADGES)[number]['id']
+
+export const LAB_BADGES: Record<string, BadgeId> = {
+  'who-faster': 'orbit-master',
+  'earth-year': 'orbit-master',
+  'arrange-orbits': 'orbit-master',
+  'kepler-pizza': 'kepler-slice',
+  'seasons-tilt': 'tilt-explorer',
+  'moon-phases': 'full-moon',
+  'eclipse-align': 'full-moon',
+  'drop-ball': 'gravity-lab',
+  jump: 'gravity-lab',
+  'mass-weight': 'gravity-lab',
+  'ursa-hunt': 'bear-hunter',
+  'light-diary': 'light-scribe',
+  'light-travel': 'light-scribe',
+}

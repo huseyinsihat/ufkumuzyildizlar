@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { BodyId } from '../types/planet'
-import { MISSIONS } from '../content/missions'
+import { LAB_BADGES, MISSIONS, type BadgeId } from '../content/missions'
 import { useSimulationStore } from './simulationStore'
 
 interface EducationState {
@@ -8,17 +8,21 @@ interface EducationState {
   stars: number
   completedMissions: string[]
   unlockedBadges: string[]
+  lastBadge: BadgeId | null
   activeMissionId: string | null
   quizIndex: number
   quizScore: number
   startMission: (id: string) => void
   completeMission: (id: string) => void
+  unlockBadge: (id: BadgeId) => void
+  unlockForLab: (activityId: string) => void
   notifySelection: (bodyId: BodyId) => void
   notifyOrbitsVisible: (visible: boolean, selected: BodyId | null) => void
   notifyAxesVisible: (visible: boolean, selected: BodyId | null) => void
   notifyTimeAdvanceDays: (days: number) => void
   answerQuiz: (correct: boolean) => void
   resetQuiz: () => void
+  clearLastBadge: () => void
 }
 
 function unlockForMission(missionId: string, badges: string[]): string[] {
@@ -26,9 +30,9 @@ function unlockForMission(missionId: string, badges: string[]): string[] {
   if (missionId === 'find-earth') next.add('first-discovery')
   if (missionId === 'find-mars-orbit') next.add('orbit-master')
   if (missionId === 'find-jupiter') next.add('planet-expert')
-  if (missionId === 'saturn-rings') next.add('planet-expert')
-  if (missionId === 'earth-tilt') next.add('planet-expert')
-  if (missionId === 'earth-year') next.add('solar-sage')
+  if (missionId === 'saturn-rings') next.add('ring-observer')
+  if (missionId === 'earth-tilt') next.add('tilt-explorer')
+  if (missionId === 'earth-year') next.add('orbit-master')
   if (missionId === 'find-mars') next.add('mars-explorer')
   return [...next]
 }
@@ -38,6 +42,7 @@ export const useEducationStore = create<EducationState>((set, get) => ({
   stars: 0,
   completedMissions: [],
   unlockedBadges: [],
+  lastBadge: null,
   activeMissionId: MISSIONS[0]?.id ?? null,
   quizIndex: 0,
   quizScore: 0,
@@ -62,9 +67,19 @@ export const useEducationStore = create<EducationState>((set, get) => ({
       activeMissionId: MISSIONS.find((item) => !completed.includes(item.id))?.id ?? id,
     })
   },
+  unlockBadge: (id) => {
+    const state = get()
+    if (state.unlockedBadges.includes(id)) return
+    set({ unlockedBadges: [...state.unlockedBadges, id], lastBadge: id, stars: state.stars + 1 })
+  },
+  unlockForLab: (activityId) => {
+    const badge = LAB_BADGES[activityId]
+    if (badge) get().unlockBadge(badge)
+  },
   notifySelection: (bodyId) => {
-    const { activeMissionId, completeMission } = get()
+    const { activeMissionId, completeMission, unlockBadge } = get()
     const sim = useSimulationStore.getState()
+    if (bodyId === 'saturn') unlockBadge('ring-observer')
     if (activeMissionId === 'find-earth' && bodyId === 'earth') completeMission('find-earth')
     if (activeMissionId === 'find-jupiter' && bodyId === 'jupiter') completeMission('find-jupiter')
     if (activeMissionId === 'saturn-rings' && bodyId === 'saturn') completeMission('saturn-rings')
@@ -102,5 +117,5 @@ export const useEducationStore = create<EducationState>((set, get) => ({
     })
   },
   resetQuiz: () => set({ quizIndex: 0, quizScore: 0 }),
+  clearLastBadge: () => set({ lastBadge: null }),
 }))
-

@@ -1,8 +1,13 @@
 import { create } from 'zustand'
 import type { LabActivityId, LabRoomId, LabStep } from '../types/lab'
 import { useSimulationStore } from './simulationStore'
-import { getScene } from '../scene/sceneApi'
 import { TIME_PRESETS } from '../astronomy/timeEngine'
+import { getScene } from '../scene/sceneApi'
+import { useEducationStore } from './educationStore'
+import { getActivity } from '../content/labActivities'
+import { activityClip, roomClip } from '../features/voice/clips'
+import { useVoiceStore } from './voiceStore'
+import type { BodyId } from '../types/planet'
 
 interface LabState {
   labOpen: boolean
@@ -20,6 +25,10 @@ interface LabState {
   lightArrived: boolean
   mercuryYear: number
   mercuryDay: number
+  kidMassKg: number
+  huntStars: string[]
+  arrangePick: BodyId | null
+  eclipseKind: 'none' | 'solar' | 'lunar'
   openLab: () => void
   closeLab: () => void
   setRoom: (room: LabRoomId | null) => void
@@ -35,6 +44,10 @@ interface LabState {
   setLightProgress: (progress: number, seconds: number) => void
   setLightArrived: (arrived: boolean) => void
   setMercuryBars: (year: number, day: number) => void
+  setKidMassKg: (kg: number) => void
+  addHuntStar: (id: string) => void
+  setArrangePick: (id: BodyId | null) => void
+  setEclipseKind: (kind: 'none' | 'solar' | 'lunar') => void
   resetActivityScene: () => void
 }
 
@@ -54,6 +67,14 @@ function applyActivityScene(id: LabActivityId): void {
     sim.setShowOrbits(true)
     scene?.focusOverview()
   }
+  if (id === 'kepler-pizza') {
+    sim.setShowOrbits(true)
+    sim.selectBody('mercury')
+    scene?.setKeplerOverlay('mercury', true)
+    scene?.focusBody('mercury')
+    sim.setTimeScale(TIME_PRESETS.find((item) => item.id === 'year')?.scale ?? 86_400 * 365)
+    sim.setPlaying(true)
+  }
   if (id === 'spin-vs-orbit' || id === 'day-night') {
     sim.selectBody('earth')
     scene?.focusBody('earth')
@@ -69,10 +90,11 @@ function applyActivityScene(id: LabActivityId): void {
   if (id === 'real-scale') {
     scene?.focusOverview()
   }
-  if (id === 'moon-phases') {
+  if (id === 'moon-phases' || id === 'eclipse-align') {
     sim.setMoonDragEnabled(true)
     sim.selectBody('moon')
     scene?.focusBody('earth')
+    if (id === 'eclipse-align') scene?.setUmbra(true)
   }
   if (id === 'stars-or-earth') {
     sim.setSkyCamera(true)
@@ -82,7 +104,7 @@ function applyActivityScene(id: LabActivityId): void {
     sim.setSkyCamera(false)
     scene?.focusWonder('sirius')
   }
-  if (id === 'light-travel') {
+  if (id === 'light-travel' || id === 'light-diary') {
     sim.setShowOrbits(true)
     scene?.focusOverview()
   }
@@ -104,6 +126,20 @@ function applyActivityScene(id: LabActivityId): void {
     sim.setShowOrbits(true)
     scene?.focusBody('mercury')
   }
+  if (id === 'drop-ball' || id === 'jump' || id === 'mass-weight') {
+    scene?.startSurfaceLab(id === 'drop-ball' ? 'drop' : 'jump')
+  }
+  if (id === 'arrange-orbits') {
+    sim.setShowOrbits(true)
+    scene?.focusOverview()
+    scene?.setArrangeMode(true)
+  }
+  if (id === 'ursa-hunt') {
+    sim.setShowConstellations(true)
+    sim.setSkyCamera(true)
+    scene?.enterSkyView()
+    scene?.selectConstellation('ursa-major')
+  }
 }
 
 export const useLabStore = create<LabState>((set, get) => ({
@@ -122,17 +158,24 @@ export const useLabStore = create<LabState>((set, get) => ({
   lightArrived: false,
   mercuryYear: 0,
   mercuryDay: 0,
+  kidMassKg: 30,
+  huntStars: [],
+  arrangePick: null,
+  eclipseKind: 'none',
   openLab: () => set({ labOpen: true, activityId: null, room: null, step: 'predict' }),
   closeLab: () => {
     get().resetActivityScene()
     set({ labOpen: false, activityId: null, room: null, step: 'predict', prediction: null })
   },
-  setRoom: (room) => set({ room, activityId: null, step: 'predict', prediction: null }),
+  setRoom: (room) => {
+    set({ room, activityId: null, step: 'predict', prediction: null })
+    if (room) useVoiceStore.getState().play(roomClip(room))
+  },
   startActivity: (id) => {
-    applyActivityScene(id)
+    const activity = getActivity(id)
     set({
       activityId: id,
-      step: 'simulate',
+      step: activity.choices ? 'predict' : 'simulate',
       prediction: null,
       raceWinner: null,
       lightProgress: 0,
@@ -140,10 +183,21 @@ export const useLabStore = create<LabState>((set, get) => ({
       mercuryYear: 0,
       mercuryDay: 0,
       moonPhaseDeg: 0,
+      huntStars: [],
+      arrangePick: null,
+      eclipseKind: 'none',
     })
+    applyActivityScene(id)
+    const hint = activityClip(id)
+    if (hint) useVoiceStore.getState().play(hint)
+    else if (activity.choices) useVoiceStore.getState().play('lab-predict')
+    else useVoiceStore.getState().play('lab-watch')
   },
   setStep: (step) => set({ step }),
-  setPrediction: (id) => set({ prediction: id }),
+  setPrediction: (id) => {
+    set({ prediction: id, step: 'simulate' })
+    useVoiceStore.getState().play('lab-watch')
+  },
   completeActivity: () => {
     const { activityId, completed } = get()
     if (!activityId) return
@@ -152,6 +206,8 @@ export const useLabStore = create<LabState>((set, get) => ({
       step: 'explain',
       completed: already ? completed : [...completed, activityId],
     })
+    useEducationStore.getState().unlockForLab(activityId)
+    useVoiceStore.getState().play('lab-why')
   },
   resetProgress: () => {
     get().resetActivityScene()
@@ -169,6 +225,9 @@ export const useLabStore = create<LabState>((set, get) => ({
       lightArrived: false,
       mercuryYear: 0,
       mercuryDay: 0,
+      huntStars: [],
+      arrangePick: null,
+      eclipseKind: 'none',
     })
   },
   setYearTours: (rows) => set({ yearTours: rows }),
@@ -178,6 +237,11 @@ export const useLabStore = create<LabState>((set, get) => ({
   setLightProgress: (progress, seconds) => set({ lightProgress: progress, lightSeconds: seconds }),
   setLightArrived: (arrived) => set({ lightArrived: arrived }),
   setMercuryBars: (year, day) => set({ mercuryYear: year, mercuryDay: day }),
+  setKidMassKg: (kg) => set({ kidMassKg: Math.min(80, Math.max(10, kg)) }),
+  addHuntStar: (id) =>
+    set((state) => ({ huntStars: state.huntStars.includes(id) ? state.huntStars : [...state.huntStars, id] })),
+  setArrangePick: (id) => set({ arrangePick: id }),
+  setEclipseKind: (kind) => set({ eclipseKind: kind }),
   resetActivityScene: () => {
     const sim = useSimulationStore.getState()
     sim.setFreezeRotation(false)

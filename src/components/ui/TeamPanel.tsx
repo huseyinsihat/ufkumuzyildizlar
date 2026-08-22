@@ -96,22 +96,24 @@ export function TeamPanel() {
         <details>
           <summary>Pin tablosu</summary>
           <p className="muted">USB seri, 115200 baud. Tuşun bir ucu pine, diğer ucu GND.</p>
-          <table className="pin-table">
-            <thead>
-              <tr>
-                <th>Pin</th>
-                <th>Tuş</th>
-              </tr>
-            </thead>
-            <tbody>
-              {PINS.map(([pin, label]) => (
-                <tr key={pin}>
-                  <td>{pin}</td>
-                  <td>{label}</td>
+          <div className="pin-table-wrap">
+            <table className="pin-table">
+              <thead>
+                <tr>
+                  <th>Pin</th>
+                  <th>Tuş</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {PINS.map(([pin, label]) => (
+                  <tr key={pin}>
+                    <td>{pin}</td>
+                    <td>{label}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </details>
       </section>
     </aside>
