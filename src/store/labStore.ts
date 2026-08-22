@@ -31,6 +31,7 @@ interface LabState {
   eclipseKind: 'none' | 'solar' | 'lunar'
   openLab: () => void
   closeLab: () => void
+  leaveLab: () => void
   setRoom: (room: LabRoomId | null) => void
   startActivity: (id: LabActivityId) => void
   setStep: (step: LabStep) => void
@@ -167,6 +168,11 @@ export const useLabStore = create<LabState>((set, get) => ({
   openLab: () => set({ labOpen: true, activityId: null, room: null, step: 'predict' }),
   closeLab: () => {
     get().resetActivityScene()
+    get().leaveLab()
+  },
+  leaveLab: () => {
+    getScene()?.clearWow()
+    getScene()?.clearWatches()
     set({ labOpen: false, activityId: null, room: null, step: 'predict', prediction: null })
   },
   setRoom: (room) => {

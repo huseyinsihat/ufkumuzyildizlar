@@ -1,4 +1,5 @@
 import { TEAM } from '../../content/team'
+import { useHardwareStore } from '../../hardware/hardwareStore'
 import { useUiStore } from '../../store/uiStore'
 import { useVoiceStore } from '../../store/voiceStore'
 import { Icon } from './Icon'
@@ -26,6 +27,7 @@ export function TopBar() {
         className="chip team-chip"
         onClick={() => {
           useVoiceStore.getState().play('ui-team')
+          void useHardwareStore.getState().connect({ request: true })
           setPanel('team')
         }}
       >

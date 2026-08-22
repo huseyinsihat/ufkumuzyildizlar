@@ -22,6 +22,7 @@ import { useLabStore } from './store/labStore'
 import { useSimulationStore } from './store/simulationStore'
 import { useUiStore } from './store/uiStore'
 import { hasAnyWebGL } from './utils/webgl'
+import { watchHardwarePorts } from './hardware/hardwareStore'
 
 export default function App() {
   const intro = useUiStore((s) => s.introVisible)
@@ -44,6 +45,8 @@ export default function App() {
     setWebgl(ok)
     if (!ok) set2d(true)
   }, [setWebgl, set2d])
+
+  useEffect(() => watchHardwarePorts(), [])
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {

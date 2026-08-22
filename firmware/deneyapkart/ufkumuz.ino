@@ -1,9 +1,11 @@
 #include "deneyap.h"
+#include "lsm6dsm.h"
 
 // Ufkumuz Yıldızlar — Deneyap Kart 1A
 // Arduino IDE: Kart olarak "Deneyap Kart 1A" seç.
-// Baud: 115200. Tuşlar INPUT_PULLUP; bir ucu pine, diğer ucu GND.
-// A0: potansiyometre (zaman). İsteğe bağlı RGB: tarayıcı L:rrggbb yazar.
+// Baud: 115200. Tuş: bir uç pine, diğer uç GND (INPUT_PULLUP).
+// A0: hız potansiyometresi. LSM6DSM: kartı eğin, bakış döner.
+// Tarayıcı gezegen rengi için L:rrggbb yazar.
 
 struct Binding {
   uint8_t pin;
@@ -21,11 +23,11 @@ const Binding BINDINGS[] = {
   {D7, "P:uranus"},
   {D8, "P:neptune"},
   {D9, "F:play"},
-  {D10, "F:day"},
-  {D11, "F:year"},
-  {D12, "F:now"},
-  {D13, "F:overview"},
-  {D14, "F:orbits"},
+  {D10, "F:lab"},
+  {D11, "F:compare"},
+  {D12, "F:planets"},
+  {D13, "F:stars"},
+  {D14, "F:facts"},
 };
 
 const uint8_t COUNT = sizeof(BINDINGS) / sizeof(BINDINGS[0]);
@@ -35,7 +37,15 @@ bool lastRead[COUNT];
 unsigned long lastChange[COUNT];
 int lastPotSent = -1;
 unsigned long lastPotMs = 0;
+unsigned long lastGyroMs = 0;
+float restAy = 0;
+float restAx = 0;
+uint8_t restSamples = 0;
+bool imuOk = false;
+float lastYaw = 0;
+float lastPitch = 0;
 String incoming;
+LSM6DSM imu;
 
 void applyLed(const String& hex) {
   if (hex.length() < 6) return;
@@ -66,6 +76,8 @@ void setup() {
     lastRead[i] = up;
     lastChange[i] = 0;
   }
+  imu.begin();
+  imuOk = true;
 }
 
 void loop() {
@@ -94,6 +106,34 @@ void loop() {
       lastPotSent = scaled;
       Serial.print("T:");
       Serial.println(scaled / 100.0, 2);
+    }
+  }
+
+  if (imuOk && now - lastGyroMs > 40) {
+    lastGyroMs = now;
+    float ax = imu.readFloatAccelX();
+    float ay = imu.readFloatAccelY();
+    if (restSamples < 25) {
+      restAx += ax;
+      restAy += ay;
+      restSamples++;
+      if (restSamples == 25) {
+        restAx /= 25.0f;
+        restAy /= 25.0f;
+      }
+    } else {
+      float yaw = constrain((ay - restAy) * 0.55f, -0.5f, 0.5f);
+      float pitch = constrain((restAx - ax) * 0.45f, -0.35f, 0.35f);
+      if (fabs(yaw) < 0.03f) yaw = 0;
+      if (fabs(pitch) < 0.03f) pitch = 0;
+      if (fabs(yaw - lastYaw) >= 0.012f || fabs(pitch - lastPitch) >= 0.012f) {
+        lastYaw = yaw;
+        lastPitch = pitch;
+        Serial.print("G:");
+        Serial.print(yaw, 3);
+        Serial.print(",");
+        Serial.println(pitch, 3);
+      }
     }
   }
 

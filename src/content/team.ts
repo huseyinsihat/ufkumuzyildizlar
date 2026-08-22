@@ -13,6 +13,10 @@ export const TEAM = {
     { name: 'Nisa Altun', role: 'Takım Üyesi' },
     { name: 'Çınar Efe Çetin', role: 'Takım Üyesi' },
   ],
+  links: [
+    { label: 'Canlı site', href: 'https://huseyinsihat.github.io/ufkumuzyildizlar/' },
+    { label: 'GitHub', href: 'https://github.com/huseyinsihat/ufkumuzyildizlar' },
+  ],
 }
 
 export const DEMO_STEPS = [

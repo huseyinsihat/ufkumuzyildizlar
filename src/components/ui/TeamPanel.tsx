@@ -1,24 +1,5 @@
 import { TEAM } from '../../content/team'
-import { useHardwareStore } from '../../hardware/hardwareStore'
 import { useUiStore } from '../../store/uiStore'
-
-const PINS = [
-  ['D0', 'Güneş'],
-  ['D1', 'Merkür'],
-  ['D2', 'Venüs'],
-  ['D3', 'Dünya'],
-  ['D4', 'Mars'],
-  ['D5', 'Jüpiter'],
-  ['D6', 'Satürn'],
-  ['D7', 'Uranüs'],
-  ['D8', 'Neptün'],
-  ['D9', 'Oynat / Duraklat'],
-  ['D10', '1 Gün'],
-  ['D11', '1 Yıl'],
-  ['D12', 'Şu an'],
-  ['D13', 'Genel bakış'],
-  ['D14', 'Yörünge'],
-]
 
 function Badge({ name, role }: { name: string; role: string }) {
   return (
@@ -38,11 +19,6 @@ function Badge({ name, role }: { name: string; role: string }) {
 
 export function TeamPanel() {
   const close = () => useUiStore.getState().setActivePanel('none')
-  const status = useHardwareStore((s) => s.status)
-  const message = useHardwareStore((s) => s.message)
-  const lastLine = useHardwareStore((s) => s.lastLine)
-  const connect = useHardwareStore((s) => s.connect)
-  const disconnect = useHardwareStore((s) => s.disconnect)
 
   return (
     <aside className="hud-sheet team-sheet" aria-label="Takım">
@@ -71,51 +47,15 @@ export function TeamPanel() {
           <Badge key={member.name} name={member.name} role={member.role} />
         ))}
       </ul>
-
-      <section className="hardware-block" aria-label="DeneyapKart">
-        <h3>DeneyapKart</h3>
-        <p className="muted">Kart yokken sahne aynı çalışır. Takınca tuşlar menüdeki işlerin aynısını yapar.</p>
-        {status === 'unsupported' ? (
-          <p className="muted">USB için Chrome veya Edge kullan.</p>
-        ) : (
-          <div className="row-actions">
-            {status === 'connected' ? (
-              <button type="button" className="btn" onClick={() => void disconnect()}>
-                Bağlantıyı kes
-              </button>
-            ) : (
-              <button type="button" className="btn primary" onClick={() => void connect()}>
-                {status === 'error' ? 'Yeniden bağla' : 'DeneyapKart bağla'}
-              </button>
-            )}
-            <span className="muted">{status === 'connected' ? 'Bağlı' : 'Bağlı değil'}</span>
-          </div>
-        )}
-        {message ? <p className="muted">{message}</p> : null}
-        {lastLine ? <p className="muted">Son tuş: {lastLine}</p> : null}
-        <details>
-          <summary>Pin tablosu</summary>
-          <p className="muted">USB seri, 115200 baud. Tuşun bir ucu pine, diğer ucu GND.</p>
-          <div className="pin-table-wrap">
-            <table className="pin-table">
-              <thead>
-                <tr>
-                  <th>Pin</th>
-                  <th>Tuş</th>
-                </tr>
-              </thead>
-              <tbody>
-                {PINS.map(([pin, label]) => (
-                  <tr key={pin}>
-                    <td>{pin}</td>
-                    <td>{label}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </details>
-      </section>
+      <ul className="team-links">
+        {TEAM.links.map((link) => (
+          <li key={link.href}>
+            <a href={link.href} target="_blank" rel="noreferrer">
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
     </aside>
   )
 }

@@ -1,8 +1,10 @@
 import { TIME_PRESETS } from '../astronomy/timeEngine'
 import { NOTABLE_STARS, NAMED_ROCKS } from '../content/skyWonders'
-import { focusBody, lookAtSolarSystem } from '../features/planetExplorer/focus'
+import { focusBody, lookAtSolarSystem, openCompare } from '../features/planetExplorer/focus'
 import { getScene } from '../scene/sceneApi'
+import { useLabStore } from '../store/labStore'
 import { useSimulationStore } from '../store/simulationStore'
+import { useUiStore } from '../store/uiStore'
 import type { BodyId } from '../types/planet'
 
 const BODIES: BodyId[] = [
@@ -33,8 +35,37 @@ export type HardwareCommand =
   | { kind: 'orbits' }
   | { kind: 'axes' }
   | { kind: 'labels' }
+  | { kind: 'lab' }
+  | { kind: 'compare' }
+  | { kind: 'planets' }
+  | { kind: 'stars' }
+  | { kind: 'facts' }
   | { kind: 'time'; t: number }
   | { kind: 'gyro'; yaw: number; pitch: number }
+
+const FUNCTIONS: Record<string, Exclude<HardwareCommand['kind'], 'planet' | 'star' | 'time' | 'gyro'>> = {
+  PLAY: 'play',
+  PAUSE: 'play',
+  DAY: 'day',
+  YEAR: 'year',
+  SECOND: 'second',
+  SEC: 'second',
+  SN: 'second',
+  NOW: 'now',
+  OVERVIEW: 'overview',
+  HOME: 'overview',
+  ORBITS: 'orbits',
+  ORBIT: 'orbits',
+  AXES: 'axes',
+  AXIS: 'axes',
+  LABELS: 'labels',
+  LABEL: 'labels',
+  LAB: 'lab',
+  COMPARE: 'compare',
+  PLANETS: 'planets',
+  STARS: 'stars',
+  FACTS: 'facts',
+}
 
 export function timeScaleFromPot(t: number): number {
   const u = Math.min(1, Math.max(0, t))
@@ -50,8 +81,9 @@ export function parseHardwareLine(line: string): HardwareCommand | null {
   if (!raw || raw.length > 72) return null
   if (/[^A-Za-z0-9:_.,-]/.test(raw)) return null
   const token = raw.toUpperCase()
-  const prefix = token.includes(':') ? token.slice(0, token.indexOf(':')) : ''
-  const value = token.includes(':') ? token.slice(token.indexOf(':') + 1) : token
+  const colon = token.indexOf(':')
+  const prefix = colon >= 0 ? token.slice(0, colon) : ''
+  const value = colon >= 0 ? token.slice(colon + 1) : token
   if (prefix === 'T') {
     const t = Number(value)
     if (!Number.isFinite(t)) return null
@@ -76,29 +108,34 @@ export function parseHardwareLine(line: string): HardwareCommand | null {
     const id = value.toLowerCase()
     return WONDER_IDS.includes(id) ? { kind: 'star', id } : null
   }
-  if (value === 'PLAY' || value === 'PAUSE') return { kind: 'play' }
-  if (value === 'DAY') return { kind: 'day' }
-  if (value === 'YEAR') return { kind: 'year' }
-  if (value === 'SECOND' || value === 'SEC' || value === 'SN') return { kind: 'second' }
-  if (value === 'NOW') return { kind: 'now' }
-  if (value === 'OVERVIEW' || value === 'HOME') return { kind: 'overview' }
-  if (value === 'ORBITS' || value === 'ORBIT') return { kind: 'orbits' }
-  if (value === 'AXES' || value === 'AXIS') return { kind: 'axes' }
-  if (value === 'LABELS' || value === 'LABEL') return { kind: 'labels' }
+  const fn = FUNCTIONS[value]
+  if (fn) return { kind: fn }
   return null
+}
+
+function enterExplore(): void {
+  const ui = useUiStore.getState()
+  const lab = useLabStore.getState()
+  ui.setIntroVisible(false)
+  ui.setAppMode('explore')
+  if (lab.labOpen || lab.activityId) lab.leaveLab()
 }
 
 export function applyHardwareCommand(command: HardwareCommand): void {
   const sim = useSimulationStore.getState()
+  const ui = useUiStore.getState()
+  const lab = useLabStore.getState()
   const day = TIME_PRESETS.find((item) => item.id === 'day')?.scale ?? 86_400
   const year = TIME_PRESETS.find((item) => item.id === 'year')?.scale ?? 86_400 * 365
   const second = TIME_PRESETS.find((item) => item.id === '1')?.scale ?? 1
 
   if (command.kind === 'planet') {
+    enterExplore()
     focusBody(command.id)
     return
   }
   if (command.kind === 'star') {
+    enterExplore()
     getScene()?.focusWonder(command.id)
     return
   }
@@ -113,10 +150,51 @@ export function applyHardwareCommand(command: HardwareCommand): void {
     sim.goNowRealtime()
     return
   }
-  if (command.kind === 'overview') lookAtSolarSystem()
+  if (command.kind === 'overview') {
+    enterExplore()
+    lookAtSolarSystem()
+    return
+  }
   if (command.kind === 'orbits') sim.setShowOrbits(!sim.showOrbits)
   if (command.kind === 'axes') sim.setShowAxes(!sim.showAxes)
   if (command.kind === 'labels') sim.setShowLabels(!sim.showLabels)
+  if (command.kind === 'lab') {
+    ui.setIntroVisible(false)
+    if (ui.appMode === 'lab' || lab.labOpen || lab.activityId) {
+      lab.closeLab()
+      ui.setAppMode('explore')
+    } else {
+      ui.setActivePanel('none')
+      ui.setPlanetDrawerOpen(false)
+      ui.setStarDrawerOpen(false)
+      ui.setAppMode('lab')
+      lab.openLab()
+    }
+    return
+  }
+  if (command.kind === 'compare') {
+    enterExplore()
+    if (ui.activePanel === 'compare') ui.setActivePanel('none')
+    else openCompare()
+    return
+  }
+  if (command.kind === 'planets') {
+    enterExplore()
+    ui.setStarDrawerOpen(false)
+    ui.setPlanetDrawerOpen(!ui.planetDrawerOpen)
+    return
+  }
+  if (command.kind === 'stars') {
+    enterExplore()
+    ui.setPlanetDrawerOpen(false)
+    ui.setStarDrawerOpen(!ui.starDrawerOpen)
+    return
+  }
+  if (command.kind === 'facts') {
+    enterExplore()
+    ui.setActivePanel(ui.activePanel === 'facts' ? 'none' : 'facts')
+    return
+  }
   if (command.kind === 'time') sim.setTimeScale(timeScaleFromPot(command.t))
   if (command.kind === 'gyro') getScene()?.applyGyro(command.yaw, command.pitch)
 }

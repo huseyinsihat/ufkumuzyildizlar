@@ -1,5 +1,4 @@
 import { getScene } from '../../scene/sceneApi'
-import { useHardwareStore } from '../../hardware/hardwareStore'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
 import { useVoiceStore } from '../../store/voiceStore'
@@ -52,10 +51,6 @@ export function SettingsPanel() {
   const setLargeText = useUiStore((s) => s.setLargeText)
   const leftOpen = useUiStore((s) => s.leftOpen)
   const setLeftOpen = useUiStore((s) => s.setLeftOpen)
-  const hwStatus = useHardwareStore((s) => s.status)
-  const hwMessage = useHardwareStore((s) => s.message)
-  const connect = useHardwareStore((s) => s.connect)
-  const disconnect = useHardwareStore((s) => s.disconnect)
   const voiceOn = useVoiceStore((s) => s.enabled)
   const setVoiceOn = useVoiceStore((s) => s.setEnabled)
   const voiceLang = useVoiceStore((s) => s.lang)
@@ -118,24 +113,6 @@ export function SettingsPanel() {
           <Icon name="reset" />
           Kamerayı sıfırla
         </button>
-        {hwStatus === 'unsupported' ? (
-          <p className="settings-note">USB için Chrome veya Edge kullan.</p>
-        ) : (
-          <div className="settings-hw">
-            {hwStatus === 'connected' ? (
-              <button type="button" className="settings-chip" onClick={() => void disconnect()}>
-                <Icon name="gear" />
-                Kartı kes
-              </button>
-            ) : (
-              <button type="button" className="settings-chip is-on" onClick={() => void connect()}>
-                <Icon name="gear" />
-                {hwStatus === 'error' ? 'Yeniden bağla' : 'Kartı bağla'}
-              </button>
-            )}
-            <span className="settings-note">{hwStatus === 'connected' ? 'Bağlı' : hwMessage || 'Bağlı değil'}</span>
-          </div>
-        )}
       </div>
     </aside>
   )

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { HARDWARE_BUTTONS } from './bindings'
 import { parseHardwareLine, timeScaleFromPot } from './commands'
 
 describe('parseHardwareLine', () => {
@@ -16,6 +17,11 @@ describe('parseHardwareLine', () => {
     expect(parseHardwareLine('F:overview')).toEqual({ kind: 'overview' })
     expect(parseHardwareLine('F:orbits')).toEqual({ kind: 'orbits' })
     expect(parseHardwareLine('F:axes')).toEqual({ kind: 'axes' })
+    expect(parseHardwareLine('F:lab')).toEqual({ kind: 'lab' })
+    expect(parseHardwareLine('F:compare')).toEqual({ kind: 'compare' })
+    expect(parseHardwareLine('F:planets')).toEqual({ kind: 'planets' })
+    expect(parseHardwareLine('F:stars')).toEqual({ kind: 'stars' })
+    expect(parseHardwareLine('F:facts')).toEqual({ kind: 'facts' })
     expect(parseHardwareLine('S:sirius')).toEqual({ kind: 'star', id: 'sirius' })
   })
 
@@ -28,6 +34,12 @@ describe('parseHardwareLine', () => {
   it('maps the pot to day around the midpoint', () => {
     expect(timeScaleFromPot(0)).toBeCloseTo(1)
     expect(timeScaleFromPot(0.5)).toBeCloseTo(86_400)
+  })
+
+  it('parses every wired classroom button line', () => {
+    for (const item of HARDWARE_BUTTONS) {
+      expect(parseHardwareLine(item.line)).toBeTruthy()
+    }
   })
 
   it('ignores empty and unknown lines', () => {

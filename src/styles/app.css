@@ -2219,10 +2219,26 @@ details summary {
   font-weight: 700;
 }
 
-.hardware-block {
-  margin-top: 16px;
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
+.team-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.team-links a {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .hardware-block h3 {
