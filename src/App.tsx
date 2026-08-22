@@ -14,6 +14,7 @@ import { CompactTimeBar } from './components/ui/ExploreDock'
 import { IntroScreen } from './components/ui/IntroScreen'
 import { VoiceHost } from './components/ui/VoiceHost'
 import { ExploreDock } from './components/ui/PlanetDrawer'
+import { SunAskFab } from './components/ui/SunMascot'
 import { SettingsPanel } from './components/ui/SettingsPanel'
 import { TeamPanel } from './components/ui/TeamPanel'
 import { TopBar } from './components/ui/TopBar'
@@ -69,6 +70,7 @@ export default function App() {
         <p className="scale-banner">Gezegenler gerçek boyutta — uzay çok boş.</p>
       ) : null}
       {explore ? <InspectRail /> : null}
+      {explore && !intro ? <SunAskFab /> : null}
       {explore && !intro ? <SunChatPanel /> : null}
       {showLabHome ? <LabHome /> : null}
       {showActivity ? (

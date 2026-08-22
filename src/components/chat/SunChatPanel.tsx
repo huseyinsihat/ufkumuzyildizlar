@@ -1,17 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { hasOpenRouterKey } from '../../features/chat/openRouter'
+import { nextWaitingLine } from '../../features/chat/prompt'
 import { TEAM } from '../../content/team'
 import { useChatStore } from '../../store/chatStore'
 import { useUiStore } from '../../store/uiStore'
-import { Icon } from '../ui/Icon'
-
-function SunMascot() {
-  return (
-    <span className="sun-mascot" aria-hidden="true">
-      <Icon name="sun" />
-    </span>
-  )
-}
+import { SunMascot } from '../ui/SunMascot'
 
 export function SunChatPanel() {
   const open = useUiStore((s) => s.sunChatOpen)
@@ -24,6 +17,7 @@ export function SunChatPanel() {
   const askChip = useChatStore((s) => s.askChip)
   const refreshChips = useChatStore((s) => s.refreshChips)
   const [draft, setDraft] = useState('')
+  const [waiting, setWaiting] = useState(() => nextWaitingLine())
   const listRef = useRef<HTMLDivElement>(null)
   const ready = hasOpenRouterKey()
 
@@ -34,7 +28,16 @@ export function SunChatPanel() {
   useEffect(() => {
     const node = listRef.current
     if (node) node.scrollTop = node.scrollHeight
-  }, [messages, busy, open])
+  }, [messages, busy, open, waiting])
+
+  useEffect(() => {
+    if (!busy) return
+    setWaiting(nextWaitingLine())
+    const timer = window.setInterval(() => {
+      setWaiting((current) => nextWaitingLine(current))
+    }, 2600)
+    return () => window.clearInterval(timer)
+  }, [busy])
 
   if (!open) return null
 
@@ -70,9 +73,9 @@ export function SunChatPanel() {
           </p>
         ))}
         {busy ? (
-          <p className="sun-chat-bubble is-pending">
+          <p className="sun-chat-bubble is-pending" aria-live="polite">
             <span className="sun-chat-who">Güneş</span>
-            Düşünüyorum…
+            {waiting}
           </p>
         ) : null}
       </div>

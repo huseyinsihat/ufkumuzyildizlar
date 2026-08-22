@@ -885,10 +885,11 @@ button {
   flex-direction: column;
   width: min(400px, calc(100% - 24px));
   max-height: min(68vh, calc(100% - 168px));
-  padding: 12px;
-  background: var(--bg-soft);
-  border: 1px solid color-mix(in srgb, var(--amber) 55%, var(--line));
-  border-radius: 14px;
+  padding: 14px;
+  background: color-mix(in srgb, var(--bg-soft) 92%, #fbbf24);
+  border: 2px solid color-mix(in srgb, var(--amber) 70%, var(--line));
+  border-radius: 28px 28px 10px 28px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 28px rgba(251, 191, 36, 0.18);
   backdrop-filter: blur(14px);
 }
 
@@ -907,18 +908,79 @@ button {
 .sun-mascot {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
   border-radius: 50%;
-  color: #fff8e1;
-  background: radial-gradient(circle at 40% 35%, #ffe08a, #f5a524 58%, #c2410c);
-  box-shadow: 0 0 16px rgba(251, 191, 36, 0.45);
+  background: transparent;
+  filter: drop-shadow(0 0 12px rgba(251, 191, 36, 0.55));
 }
 
-.sun-mascot .ui-icon {
-  width: 22px;
-  height: 22px;
+.sun-mascot-face {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.sun-mascot-lg {
+  width: 92px;
+  height: 92px;
+  animation: sun-mascot-bob 2.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 22px rgba(251, 191, 36, 0.75));
+}
+
+.sun-ask-fab {
+  position: absolute;
+  right: max(18px, var(--safe-right));
+  bottom: 168px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+.sun-ask-fab-label {
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  color: #fff8e1;
+  background: rgba(6, 12, 28, 0.9);
+  border: 1.5px solid var(--amber);
+  border-radius: 999px;
+  padding: 5px 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.sun-ask-fab:hover .sun-mascot-lg,
+.sun-ask-fab:focus-visible .sun-mascot-lg {
+  animation-play-state: paused;
+  transform: translateY(-4px) scale(1.06);
+}
+
+.sun-ask-fab:focus-visible {
+  outline: none;
+}
+
+.sun-ask-fab:focus-visible .sun-ask-fab-label {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+
+@keyframes sun-mascot-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 .sun-chat-log {
@@ -969,6 +1031,17 @@ button {
 
 .sun-chat-bubble.is-pending {
   color: var(--muted);
+  animation: sun-wait-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes sun-wait-pulse {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 .sun-chat-chips {
@@ -1866,6 +1939,16 @@ details summary {
     gap: 4px;
     padding: 6px max(8px, var(--safe-left)) max(6px, var(--safe-bottom)) max(8px, var(--safe-right));
     background: linear-gradient(180deg, transparent, rgba(3, 7, 18, 0.94) 28%);
+  }
+
+  .sun-ask-fab {
+    bottom: calc(138px + var(--safe-bottom));
+    right: max(10px, var(--safe-right));
+  }
+
+  .sun-mascot-lg {
+    width: 72px;
+    height: 72px;
   }
 
   .dock-buttons {

@@ -46,10 +46,27 @@ export const CANNED_PROMPTS: readonly CannedPrompt[] = [
   {
     id: 'closest-planet',
     question: 'Sana en yakın gezegen hangisi?',
+    aliases: ['güneşe en yakın gezegen', 'en yakın gezegen', 'en yakın gezegen hangisi'],
     answers: [
       'Merkür bana en yakındır. Yılı da en kısadır: yaklaşık 88 gün.',
       'En yakınım Merkür’dür. O yüzden Güneş’in yanında en hızlı dolanır.',
       'Merkür. Venüs daha parlak görünür ama sıra olarak Merkür daha yakındır.',
+    ],
+  },
+  {
+    id: 'farthest-planet',
+    question: 'Güneş’e en uzak gezegen hangisi?',
+    aliases: [
+      'güneş e en uzak gezegen',
+      'güneşe en uzak gezegen',
+      'en uzak gezegen',
+      'en uzak gezegen hangisi',
+      'sana en uzak gezegen hangisi',
+    ],
+    answers: [
+      'Neptün’dür. Sekiz gezegen içinde bana en uzak olan odur. Bir Neptün yılı Dünya’dan çok daha uzundur.',
+      'En uzağım Neptün. Uranüs’ten sonra gelir; turu yaklaşık 165 Dünya yılı sürer.',
+      'Neptün. Bana en yakın Merkür, en uzak Neptün’dür.',
     ],
   },
   {
@@ -228,10 +245,26 @@ export const CANNED_PROMPTS: readonly CannedPrompt[] = [
   {
     id: 'milky-way',
     question: 'Samanyolu nedir?',
+    aliases: ['samanyolu ne', 'samanyolu nedir'],
     answers: [
       'Bizim gökadamızdır. İçinde milyarlarca yıldız vardır; ben de onlardan biriyim.',
       'Gece süt gibi görünen bant, içeriden baktığın yıldız diskidir.',
       'Güneş Sistemi Samanyolu’nun bir kenarındadır. Gökyüzü tek bir çatı değil, kocaman bir şehir.',
+    ],
+  },
+  {
+    id: 'milky-way-planets',
+    question: 'Samanyolu’nda kaç gezegen vardır?',
+    aliases: [
+      'samanyolunda kaç gezegen vardır',
+      'samanyolunda kaç gezegen var',
+      'samanyolu kaç gezegen',
+      'samanyolu nda kaç gezegen',
+    ],
+    answers: [
+      'Samanyolu’nda gezegen sayısı tek tek bilinmez. Yıldızların çoğunun yanında gezegen olabilir; milyarlarca olabilir.',
+      'Güneş Sistemi’nde 8 gezegen vardır. Samanyolu ise kocaman bir gökada; içinde çok daha fazla gezegen saklanır.',
+      'Kesin bir sayı yok. Gökadamızda milyarlarca gezegen olması beklenir; hepsini sayamayız.',
     ],
   },
   {
@@ -289,6 +322,7 @@ export function normalizeQuestion(text: string): string {
   return text
     .toLocaleLowerCase('tr-TR')
     .replace(/[?!.,;:'’]/g, '')
+    .replace(/güneş\s+e\s+/g, 'güneşe ')
     .replace(/\s+/g, ' ')
     .trim()
 }
@@ -296,10 +330,21 @@ export function normalizeQuestion(text: string): string {
 export function matchCanned(text: string): CannedPrompt | undefined {
   const needle = normalizeQuestion(text)
   if (!needle) return undefined
-  return CANNED_PROMPTS.find((item) => {
+  const exact = CANNED_PROMPTS.find((item) => {
     if (normalizeQuestion(item.question) === needle) return true
     return Boolean(item.aliases?.some((alias) => normalizeQuestion(alias) === needle))
   })
+  if (exact) return exact
+  if (needle.includes('samanyol') && needle.includes('gezegen')) {
+    return CANNED_PROMPTS.find((item) => item.id === 'milky-way-planets')
+  }
+  if (needle.includes('en uzak') && needle.includes('gezegen')) {
+    return CANNED_PROMPTS.find((item) => item.id === 'farthest-planet')
+  }
+  if (needle.includes('en yakın') && needle.includes('gezegen')) {
+    return CANNED_PROMPTS.find((item) => item.id === 'closest-planet')
+  }
+  return undefined
 }
 
 export function pickChipQuestions(

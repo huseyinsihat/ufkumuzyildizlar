@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { requestMessages, toApiMessages, trimTurns, visibleMessages, type StoredChatMessage } from './messages'
-import { extractAssistantContent, cleanAssistantReply, friendlyChatError, OPENROUTER_MODEL, openRouterChatUrl, passReasoningDetails, buildCompletionBody } from './openRouter'
-import { buildSceneSummary, CANNED_PROMPTS, systemPrompt, WELCOME_TEXT } from './prompt'
+import { extractAssistantContent, cleanAssistantReply, friendlyChatError, OPENROUTER_MODEL, openRouterChatUrl, openRouterChatUrls, passReasoningDetails, buildCompletionBody } from './openRouter'
+import { buildSceneSummary, CANNED_PROMPTS, nextWaitingLine, systemPrompt, WAITING_LINES, WELCOME_TEXT } from './prompt'
 
 function msg(
   role: StoredChatMessage['role'],
@@ -20,6 +20,15 @@ describe('sun chat prompt', () => {
     expect(text).toContain('Soruyu tekrar yazma')
     expect(text).toContain('2 ile 4 kısa cümle')
     expect(text).not.toMatch(/[\u{1F300}-\u{1FAFF}]/u)
+  })
+
+  it('rotates plain waiting lines while the sun thinks', () => {
+    expect(WAITING_LINES.length).toBeGreaterThanOrEqual(6)
+    expect(WAITING_LINES.join(' ')).not.toMatch(/[\u{1F300}-\u{1FAFF}]/u)
+    const first = nextWaitingLine(undefined, () => 0)
+    const next = nextWaitingLine(first, () => 0)
+    expect(WAITING_LINES).toContain(first)
+    expect(next).not.toBe(first)
   })
 
   it('keeps the welcome in plain Turkish without emoji', () => {
@@ -41,8 +50,8 @@ describe('sun chat prompt', () => {
     expect(summary).toContain('gerçek ölçek')
   })
 
-  it('offers a thirty-question canned pool for chips', () => {
-    expect(CANNED_PROMPTS).toHaveLength(30)
+  it('offers a canned pool for chips', () => {
+    expect(CANNED_PROMPTS.length).toBeGreaterThanOrEqual(30)
   })
 })
 
@@ -102,8 +111,9 @@ describe('sun chat history', () => {
     expect(OPENROUTER_MODEL).toBe('deepseek/deepseek-v4-flash-0731')
   })
 
-  it('talks to OpenRouter through a same-origin proxy in development', () => {
-    expect(openRouterChatUrl()).toBe('/api/openrouter')
+  it('calls OpenRouter directly and keeps a local proxy as backup in development', () => {
+    expect(openRouterChatUrl()).toBe('https://openrouter.ai/api/v1/chat/completions')
+    expect(openRouterChatUrls()[0]).toBe('https://openrouter.ai/api/v1/chat/completions')
   })
 
   it('enables capped reasoning so the final answer still arrives', () => {

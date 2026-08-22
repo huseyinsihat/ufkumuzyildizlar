@@ -7,6 +7,23 @@ import type { ScaleMode } from '../../types/simulation'
 export const WELCOME_TEXT =
   'Merhaba. Ben Güneş. Minik Dahiler beni TEKNOFEST 2026 için buraya koydu. Gökyüzü, gezegenler ve yıldızlar hakkında sor; en sade haliyle anlatayım.'
 
+export const WAITING_LINES = [
+  'Düşünüyorum. Sana şimdi cevap vereceğim.',
+  'Biraz bekle. Işığımı toparlayıp söyleyeceğim.',
+  'Aklımdan geçiriyorum. Hemen anlatacağım.',
+  'Sabrın güzel. Cevabı hazırlıyorum.',
+  'Yıldızlara bir bakayım. Az sonra konuşurum.',
+  'Dur, bunu sade sade anlatayım. Geliyor.',
+  'Isınıyorum. Sana güzel söyleyeceğim.',
+  'Bekle biraz. Cevabın yolda.',
+] as const
+
+export function nextWaitingLine(current?: string, random = Math.random): string {
+  const pool = WAITING_LINES.filter((line) => line !== current)
+  const pick = pool[Math.floor(random() * pool.length)] ?? WAITING_LINES[0]
+  return pick
+}
+
 export { CANNED_PROMPTS } from './canned'
 
 const SCALE_LABEL: Record<ScaleMode, string> = {

@@ -1,5 +1,5 @@
 import { BODIES } from '../../astronomy/planetData'
-import { askTheSun, focusBody, lookAtSolarSystem } from '../../features/planetExplorer/focus'
+import { focusBody, lookAtSolarSystem } from '../../features/planetExplorer/focus'
 import { NOTABLE_STARS } from '../../content/skyWonders'
 import { useLabStore } from '../../store/labStore'
 import { useSimulationStore } from '../../store/simulationStore'
@@ -20,7 +20,6 @@ export function ExploreDock() {
   const openLab = useLabStore((s) => s.openLab)
   const selected = useSimulationStore((s) => s.selectedBodyId)
   const selectedWonder = useSimulationStore((s) => s.selectedWonderId)
-  const sunChatOpen = useUiStore((s) => s.sunChatOpen)
   const showOrbits = useSimulationStore((s) => s.showOrbits)
   const setShowOrbits = useSimulationStore((s) => s.setShowOrbits)
   const showAxes = useSimulationStore((s) => s.showAxes)
@@ -70,10 +69,6 @@ export function ExploreDock() {
         }}>
           <Icon name="compare" />
           <span className="dock-label">Karşılaştır</span>
-        </button>
-        <button type="button" className={`btn ${sunChatOpen ? 'is-on' : ''}`} onClick={() => askTheSun()}>
-          <Icon name="sun" />
-          <span className="dock-label">Güneş’e sor</span>
         </button>
         <button type="button" className={`btn ${panel === 'settings' ? 'is-on' : ''}`} onClick={() => setPanel(panel === 'settings' ? 'none' : 'settings')}>
           <Icon name="gear" />

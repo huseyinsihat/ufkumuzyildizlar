@@ -1,5 +1,6 @@
 export const OPENROUTER_MODEL = 'deepseek/deepseek-v4-flash-0731'
 const OPENROUTER_HOST = 'https://openrouter.ai/api/v1/chat/completions'
+const PROXY_PATH = '/api/openrouter'
 const REFERER = 'https://huseyinsihat.github.io/ufkumuzyildizlar/'
 const TITLE = 'Ufkumuz Yıldızlar'
 
@@ -9,7 +10,12 @@ export interface AssistantReply {
 }
 
 export function openRouterChatUrl(): string {
-  return import.meta.env.DEV ? '/api/openrouter' : OPENROUTER_HOST
+  return OPENROUTER_HOST
+}
+
+export function openRouterChatUrls(): string[] {
+  if (import.meta.env.DEV) return [OPENROUTER_HOST, PROXY_PATH]
+  return [OPENROUTER_HOST]
 }
 
 export function hasOpenRouterKey(): boolean {
@@ -60,8 +66,12 @@ function normalizeContent(content: unknown): string {
     .join('')
 }
 
+function isAbort(error: unknown, signal?: AbortSignal): boolean {
+  return Boolean(signal?.aborted) || (error instanceof DOMException && error.name === 'AbortError')
+}
+
 export function friendlyChatError(error: unknown): string {
-  if (error instanceof DOMException && error.name === 'AbortError') {
+  if (isAbort(error)) {
     return 'Soru durdu. İstersen yeniden yaz.'
   }
   if (error instanceof TypeError) {
@@ -120,21 +130,31 @@ export function buildCompletionBody(messages: ChatTurn[], reasoningEnabled = tru
   return body
 }
 
+function requestHeaders(apiKey: string, extra: boolean): HeadersInit {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${apiKey}`,
+    'Content-Type': 'application/json',
+  }
+  if (extra) {
+    headers['HTTP-Referer'] = REFERER
+    headers['X-Title'] = TITLE
+  }
+  return headers
+}
+
 async function postChat(
+  url: string,
   apiKey: string,
   body: Record<string, unknown>,
-  signal?: AbortSignal,
+  signal: AbortSignal | undefined,
+  extraHeaders: boolean,
 ): Promise<AssistantReply> {
-  const response = await fetch(openRouterChatUrl(), {
+  const response = await fetch(url, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': REFERER,
-      'X-Title': TITLE,
-    },
+    headers: requestHeaders(apiKey, extraHeaders),
     body: JSON.stringify(body),
     signal,
+    cache: 'no-store',
   })
 
   const raw = await response.text()
@@ -171,15 +191,26 @@ export async function completeChat(
     throw new Error('missing-key')
   }
 
-  try {
-    return await postChat(apiKey, buildCompletionBody(messages, true), signal)
-  } catch (error) {
-    if (signal?.aborted) throw error
-    if (error instanceof Error && error.message === 'empty-reply') {
-      return postChat(apiKey, buildCompletionBody(messages, false), signal)
+  let lastError: unknown = new Error('empty-reply')
+
+  for (const url of openRouterChatUrls()) {
+    try {
+      return await postChat(url, apiKey, buildCompletionBody(messages, true), signal, false)
+    } catch (error) {
+      if (isAbort(error, signal)) throw error
+      lastError = error
+      if (error instanceof Error && error.message === 'empty-reply') {
+        try {
+          return await postChat(url, apiKey, buildCompletionBody(messages, false), signal, false)
+        } catch (retryError) {
+          if (isAbort(retryError, signal)) throw retryError
+          lastError = retryError
+        }
+      }
     }
-    throw error
   }
+
+  throw lastError
 }
 
 export function passReasoningDetails(details: unknown): unknown {

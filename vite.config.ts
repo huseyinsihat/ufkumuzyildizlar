@@ -13,9 +13,17 @@ export default defineConfig({
         target: 'https://openrouter.ai',
         changeOrigin: true,
         secure: true,
-        timeout: 120_000,
-        proxyTimeout: 120_000,
-        rewrite: () => '/api/v1/chat/completions',
+        rewrite: (path) => path.replace(/^\/api\/openrouter$/, '/api/v1/chat/completions'),
+        configure: (proxy) => {
+          proxy.on('error', (error, _req, res) => {
+            console.warn('openrouter-proxy', error)
+            const socket = res as { writeHead?: (code: number, headers: Record<string, string>) => void; end?: (body: string) => void }
+            if (socket.writeHead && socket.end) {
+              socket.writeHead(502, { 'Content-Type': 'application/json' })
+              socket.end(JSON.stringify({ error: { message: 'proxy-error' } }))
+            }
+          })
+        },
       },
     },
   },
