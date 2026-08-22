@@ -23,6 +23,44 @@ export function ExploreDock() {
 
   return (
     <div className="explore-dock">
+      {planetOpen ? (
+        <ul className="planet-drawer" aria-label="Gezegenler">
+          {BODIES.filter((body) => body.id !== 'moon').map((body) => (
+            <li key={body.id}>
+              <button
+                type="button"
+                className={selected === body.id ? 'is-active' : ''}
+                onClick={() => {
+                  focusBody(body.id)
+                  setPlanetOpen(false)
+                }}
+              >
+                <i className="body-swatch" style={{ background: body.color }} aria-hidden="true" />
+                {body.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {starOpen ? (
+        <ul className="planet-drawer star-drawer" aria-label="Yıldızlar">
+          {NOTABLE_STARS.map((star) => (
+            <li key={star.id}>
+              <button
+                type="button"
+                className={selectedWonder === star.id ? 'is-active' : ''}
+                onClick={() => {
+                  getScene()?.focusWonder(star.id)
+                  setStarOpen(false)
+                }}
+              >
+                <i className="body-swatch" style={{ background: star.color }} aria-hidden="true" />
+                {star.name}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
       <nav className="dock-buttons" aria-label="Keşif">
         <div className="dock-home">
           <button
@@ -81,44 +119,6 @@ export function ExploreDock() {
           <span className="dock-label">Bilgiler</span>
         </button>
       </nav>
-      {planetOpen ? (
-        <ul className="planet-drawer" aria-label="Gezegenler">
-          {BODIES.filter((body) => body.id !== 'moon').map((body) => (
-            <li key={body.id}>
-              <button
-                type="button"
-                className={selected === body.id ? 'is-active' : ''}
-                onClick={() => {
-                  focusBody(body.id)
-                  setPlanetOpen(false)
-                }}
-              >
-                <i className="body-swatch" style={{ background: body.color }} aria-hidden="true" />
-                {body.name}
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-      {starOpen ? (
-        <ul className="planet-drawer star-drawer" aria-label="Yıldızlar">
-          {NOTABLE_STARS.map((star) => (
-            <li key={star.id}>
-              <button
-                type="button"
-                className={selectedWonder === star.id ? 'is-active' : ''}
-                onClick={() => {
-                  getScene()?.focusWonder(star.id)
-                  setStarOpen(false)
-                }}
-              >
-                <i className="body-swatch" style={{ background: star.color }} aria-hidden="true" />
-                {star.name}
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
     </div>
   )
 }

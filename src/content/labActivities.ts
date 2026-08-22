@@ -133,7 +133,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'build',
     title: 'Gezegenleri kendin diz',
     question: 'Gezegenleri Güneş’ten uzağa doğru dizebilir misin?',
-    simulateLabel: '3B’ye bak',
+    simulateLabel: 'Sırayı gördüm',
     resultTitle: 'Yörünge sırası hazır',
     explain:
       'Sıra: Merkür → Venüs → Dünya → Mars → Jüpiter → Satürn → Uranüs → Neptün. Sıra Güneş’e olan gerçek uzaklığı izler.',

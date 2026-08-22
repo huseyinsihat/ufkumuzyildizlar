@@ -113,7 +113,7 @@ export const LAB_TIPS = [
   'Ay’ın şekli değişmez; gördüğümüz aydınlık dilim değişir.',
 ]
 
-export type FactStage = 'planets' | 'earth' | 'stars'
+export type FactStage = 'general' | 'planets' | 'earth' | 'stars'
 
 export interface FactCard {
   id: string
@@ -125,12 +125,69 @@ export interface FactCard {
 }
 
 export const FACT_STAGES: { id: FactStage; label: string }[] = [
+  { id: 'general', label: 'Genel' },
   { id: 'planets', label: 'Güneş ve gezegenler' },
   { id: 'earth', label: 'Dünya ve Ay' },
   { id: 'stars', label: 'Yıldızlar' },
 ]
 
 export const FACTS: FactCard[] = [
+  {
+    id: 'general-eight',
+    stage: 'general',
+    title: 'Sekiz gezegen vardır',
+    text: 'Güneş Sistemi’nde sekiz gezegen dolanır. Merkür en yakın, Neptün en uzaktır.',
+    bodyId: 'neptune',
+  },
+  {
+    id: 'general-day-year',
+    stage: 'general',
+    title: 'Gün ve yıl farklıdır',
+    text: 'Bir gün, Dünya’nın kendi etrafında dönmesidir. Bir yıl, Güneş etrafında bir tur atmasıdır.',
+    bodyId: 'earth',
+  },
+  {
+    id: 'general-star',
+    stage: 'general',
+    title: 'Güneş bir yıldızdır',
+    text: 'Güneş gezegen değildir. Kendi ışığını üretir; gezegenler onun çevresinde dolanır.',
+    bodyId: 'sun',
+  },
+  {
+    id: 'general-empty',
+    stage: 'general',
+    title: 'Uzay çok boştur',
+    text: 'Gerçek boyutta gezegenler nokta kadar kalır. Eğitim modelinde onları büyüterek sırayı görürüz.',
+    bodyId: 'sun',
+  },
+  {
+    id: 'general-light',
+    stage: 'general',
+    title: 'Işık hemen gelmez',
+    text: 'Güneş ışığı Dünya’ya yaklaşık 8 dakika 20 saniyede ulaşır.',
+    bodyId: 'sun',
+  },
+  {
+    id: 'general-weight',
+    stage: 'general',
+    title: 'Kütle ve ağırlık',
+    text: 'Ay’da daha hafif hissedersin ama kütlen aynı kalır. Değişen yerçekimidir.',
+    bodyId: 'moon',
+  },
+  {
+    id: 'general-moon-light',
+    stage: 'general',
+    title: 'Ay ışık üretmez',
+    text: 'Ay Güneş ışığını yansıtır. Şekli değişmez; gördüğümüz aydınlık dilim değişir.',
+    bodyId: 'moon',
+  },
+  {
+    id: 'general-seasons',
+    stage: 'general',
+    title: 'Mevsimler eğiklikten gelir',
+    text: 'Yaz, Dünya Güneş’e yaklaştığı için olmaz. Asıl neden eksen eğikliğidir.',
+    bodyId: 'earth',
+  },
   {
     id: 'sun-star',
     stage: 'planets',

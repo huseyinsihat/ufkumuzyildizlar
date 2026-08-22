@@ -4,10 +4,10 @@ import { focusBody } from '../../features/planetExplorer/focus'
 import { getScene } from '../../scene/sceneApi'
 import { useUiStore } from '../../store/uiStore'
 
-const PAGE_SIZE = 5
+const PAGE_SIZE = 8
 
 export function FactsPanel() {
-  const [stage, setStage] = useState<FactStage>('planets')
+  const [stage, setStage] = useState<FactStage>('general')
   const [page, setPage] = useState(0)
   const close = () => useUiStore.getState().setActivePanel('none')
   const cards = FACTS.filter((item) => item.stage === stage)

@@ -226,8 +226,8 @@ button {
   z-index: 4;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
+  align-items: stretch;
+  gap: 8px;
   max-width: none;
 }
 
@@ -313,33 +313,43 @@ button {
 }
 
 .planet-drawer {
-  position: absolute;
-  left: 0;
-  bottom: calc(100% + 8px);
+  position: static;
+  left: auto;
+  bottom: auto;
   list-style: none;
   margin: 0;
   padding: 8px;
-  width: 188px;
-  max-height: 38vh;
-  overflow: auto;
-  background: var(--bg-soft);
-  border: 1px solid var(--line);
-  border-radius: 12px;
+  width: 100%;
+  max-height: none;
+  overflow: visible;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: color-mix(in srgb, var(--bg-soft) 58%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cyan) 35%, var(--line));
+  border-radius: 16px;
+  backdrop-filter: blur(16px);
 }
 
 .planet-drawer.star-drawer {
-  width: 220px;
+  width: 100%;
+}
+
+.planet-drawer li {
+  list-style: none;
 }
 
 .planet-drawer button {
-  width: 100%;
+  width: auto;
   text-align: left;
-  margin-bottom: 4px;
+  margin: 0;
   display: flex;
   align-items: center;
   gap: 8px;
   min-height: 40px;
-  padding: 6px 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .planet-drawer button span {
@@ -496,6 +506,11 @@ button {
   z-index: 6;
 }
 
+.activity-hud,
+.lab-home.lab-catalog {
+  background: color-mix(in srgb, var(--bg-soft) 78%, transparent);
+}
+
 .activity-hud {
   position: absolute;
   left: 50%;
@@ -605,8 +620,8 @@ button {
   flex-direction: column;
   align-items: flex-start;
   gap: 6px;
-  min-height: 124px;
-  padding: 14px;
+  min-height: 108px;
+  padding: 12px;
   position: relative;
   border-radius: 18px;
 }
@@ -799,11 +814,11 @@ button {
 .inspect-tools,
 .inspect-card {
   pointer-events: auto;
-  background: var(--bg-soft);
+  background: color-mix(in srgb, var(--bg-soft) 68%, transparent);
   border: 1px solid color-mix(in srgb, var(--amber) 40%, var(--line));
   border-radius: 18px;
   padding: 8px;
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(16px);
 }
 
 .inspect-tools {
@@ -2143,11 +2158,11 @@ details summary {
 
   .planet-drawer,
   .planet-drawer.star-drawer {
-    left: 8px;
-    right: 8px;
-    width: auto;
-    bottom: calc(100% + 6px);
-    max-height: 40vh;
+    left: auto;
+    right: auto;
+    width: 100%;
+    bottom: auto;
+    max-height: none;
   }
 
   .lab-home.lab-catalog {

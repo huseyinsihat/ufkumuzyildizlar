@@ -383,7 +383,6 @@ export function RealScaleLab() {
 }
 
 const ORDER: BodyId[] = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune']
-const RING_R = [18, 28, 38, 48, 58, 68, 78, 88]
 const ORDER_LABEL = ORDER.map((id) => getBody(id).name).join(' → ')
 
 function shuffleIds(): BodyId[] {
@@ -396,7 +395,6 @@ export function ArrangeOrbitsLab() {
   const [slots, setSlots] = useState<(BodyId | null)[]>(() => Array(8).fill(null))
   const [pool, setPool] = useState<BodyId[]>(shuffleIds)
   const [pick, setPick] = useState<BodyId | null>(null)
-  const [shake, setShake] = useState<number | null>(null)
   const [lives, setLives] = useState(ARRANGE_LIVES)
   const [startedAt, setStartedAt] = useState<number | null>(null)
   const [elapsed, setElapsed] = useState<number | null>(null)
@@ -409,7 +407,6 @@ export function ArrangeOrbitsLab() {
     setSlots(Array(8).fill(null))
     setPool(shuffleIds())
     setPick(null)
-    setShake(null)
     setLives(ARRANGE_LIVES)
     setStartedAt(null)
     setElapsed(null)
@@ -418,8 +415,6 @@ export function ArrangeOrbitsLab() {
   function dropOn(index: number) {
     if (!pick || dead || ready) return
     if (ORDER[index] !== pick || slots[index]) {
-      setShake(index)
-      window.setTimeout(() => setShake((current) => (current === index ? null : current)), 420)
       setLives((current) => Math.max(0, current - 1))
       return
     }
@@ -454,62 +449,9 @@ export function ArrangeOrbitsLab() {
           : ready
             ? ORDER_LABEL
             : pick
-              ? `${getBody(pick).name}: doğru halkaya dokun.`
-              : 'Bir gezegen seç, sonra halkaya bırak.'}
+              ? `${getBody(pick).name}: sahnedeki doğru yörüngeye dokun.`
+              : 'Aşağıdan bir gezegen seç, sonra 3B yörüngeye dokun.'}
       </p>
-      <svg className="orbit-board" viewBox="0 0 260 240" aria-label="Yörünge tahtası">
-        <circle cx="120" cy="120" r="11" fill="#F7C14A" />
-        <text x="120" y="124" textAnchor="middle" className="orbit-sun-label">
-          Güneş
-        </text>
-        {ORDER.map((id, index) => {
-          const r = RING_R[index]
-          const filled = slots[index]
-          const body = filled ? getBody(filled) : null
-          const ang = ((index * 45 - 18) * Math.PI) / 180
-          const px = 120 + Math.cos(ang) * r
-          const py = 120 + Math.sin(ang) * r
-          const lx = px + Math.cos(ang) * 14
-          const ly = py + Math.sin(ang) * 4
-          return (
-            <g key={id} className={shake === index ? 'ring-shake' : undefined}>
-              <circle
-                cx="120"
-                cy="120"
-                r={r}
-                fill="none"
-                stroke="rgba(255,255,255,0.04)"
-                strokeWidth="10"
-                className="orbit-hit"
-                pointerEvents="stroke"
-                onClick={() => dropOn(index)}
-              />
-              <circle
-                cx="120"
-                cy="120"
-                r={r}
-                fill="none"
-                stroke={filled ? 'rgba(251, 191, 36, 0.9)' : 'rgba(255,255,255,0.32)'}
-                strokeWidth={filled ? 2.4 : 1.5}
-                strokeDasharray={filled ? undefined : '3 3'}
-                pointerEvents="none"
-              />
-              {body ? (
-                <>
-                  <circle cx={px} cy={py} r="7" fill={body.color} />
-                  <text x={lx} y={ly + 3} textAnchor="middle" className="orbit-token-label">
-                    {body.name}
-                  </text>
-                </>
-              ) : (
-                <text x={px} y={py + 3} textAnchor="middle" className="orbit-index">
-                  {index + 1}
-                </text>
-              )}
-            </g>
-          )
-        })}
-      </svg>
       {ready && elapsed !== null ? (
         <p className="success">
           Tamam · {elapsed.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} sn
@@ -547,7 +489,7 @@ export function ArrangeOrbitsLab() {
             setStep('result')
           }}
         >
-          3B’ye bak
+          Sırayı gördüm
         </button>
       )}
     </div>

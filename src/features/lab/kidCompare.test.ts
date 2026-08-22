@@ -13,10 +13,10 @@ describe('insightFor', () => {
 })
 
 describe('FACTS', () => {
-  it('has three stages and go-to targets', () => {
-    expect(new Set(FACTS.map((item) => item.stage)).size).toBe(3)
+  it('has four stages and go-to targets', () => {
+    expect(new Set(FACTS.map((item) => item.stage)).size).toBe(4)
     expect(FACTS.length).toBeGreaterThanOrEqual(30)
-    expect(FACT_STAGES.map((item) => item.id).sort().join()).toBe('earth,planets,stars')
+    expect(FACT_STAGES.map((item) => item.id).sort().join()).toBe('earth,general,planets,stars')
     expect(FACTS.every((item) => item.bodyId || item.wonderId)).toBe(true)
     expect(FACTS.every((item) => item.title && item.text)).toBe(true)
   })
