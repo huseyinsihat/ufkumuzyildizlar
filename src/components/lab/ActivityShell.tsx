@@ -13,7 +13,6 @@ const STEPS = ['Tahmin', 'İzle', 'Neden'] as const
 export function ActivityShell({ children }: { children: ReactNode }) {
   const id = useLabStore((s) => s.activityId)
   const step = useLabStore((s) => s.step)
-  const setStep = useLabStore((s) => s.setStep)
   const complete = useLabStore((s) => s.completeActivity)
   const start = useLabStore((s) => s.startActivity)
   const reset = useLabStore((s) => s.resetActivityScene)
@@ -80,19 +79,14 @@ export function ActivityShell({ children }: { children: ReactNode }) {
       ) : null}
       {step === 'explain' ? (
         <div className="activity-stage">
-          <p>{activity.explain}</p>
           <div className="row-actions">
             <button type="button" className="btn primary" onClick={() => start(id)}>
               <Icon name="replay" />
-              Yeniden izle
+              Yeniden
             </button>
             <button type="button" className="btn" onClick={backToCatalog}>
               <Icon name="back" />
               Etkinliklere dön
-            </button>
-            <button type="button" className="btn" onClick={() => setStep('result')}>
-              <Icon name="check" />
-              Sonuca dön
             </button>
           </div>
         </div>

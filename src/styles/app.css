@@ -240,6 +240,24 @@ button {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  align-items: flex-end;
+}
+
+.dock-home {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dock-home-tools {
+  display: flex;
+  gap: 6px;
+}
+
+.dock-home-tools .btn {
+  min-height: 34px;
+  padding: 4px 10px;
+  font-size: 12px;
 }
 
 .btn,
@@ -485,12 +503,12 @@ button {
   bottom: max(16px, var(--safe-bottom));
   top: auto;
   transform: translateX(-50%);
-  width: min(920px, calc(100% - 32px));
-  max-width: min(920px, calc(100% - 32px));
-  max-height: min(68vh, calc(100% - 140px));
+  width: min(560px, calc(100% - 32px));
+  max-width: min(560px, calc(100% - 32px));
+  max-height: min(38vh, calc(100% - 140px));
   margin: 0;
   overflow: auto;
-  padding: 16px 18px 18px;
+  padding: 12px 14px 14px;
   border-radius: var(--panel-radius);
 }
 
@@ -558,19 +576,26 @@ button {
 .catalog-challenges,
 .catalog-activities {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 16px;
 }
 
 .catalog-activities {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .catalog-rooms {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+}
+
+.catalog-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 14px;
 }
 
 .catalog-card,
@@ -580,9 +605,10 @@ button {
   flex-direction: column;
   align-items: flex-start;
   gap: 6px;
-  min-height: 132px;
-  padding: 12px;
+  min-height: 124px;
+  padding: 14px;
   position: relative;
+  border-radius: 18px;
 }
 
 .catalog-card > span:not(.icon-well),
@@ -764,8 +790,8 @@ button {
   top: calc(72px + var(--safe-top));
   bottom: auto;
   z-index: 5;
-  width: min(280px, calc(100% - 24px));
-  max-height: min(62vh, calc(100% - 160px));
+  width: min(268px, calc(100% - 24px));
+  max-height: min(70vh, calc(100% - 160px));
   overflow: auto;
   pointer-events: none;
 }
@@ -774,8 +800,8 @@ button {
 .inspect-card {
   pointer-events: auto;
   background: var(--bg-soft);
-  border: 1px solid var(--line);
-  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--amber) 40%, var(--line));
+  border-radius: 18px;
   padding: 8px;
   backdrop-filter: blur(14px);
 }
@@ -797,17 +823,35 @@ button {
 }
 
 .inspect-card {
-  padding: 12px;
+  padding: 14px 14px 12px;
 }
 
 .inspect-card h2 {
-  font-size: 20px;
+  font-size: 22px;
 }
 
 .inspect-lead {
   margin: 0 0 10px;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.45;
+}
+
+.inspect-atmo-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid color-mix(in srgb, var(--amber) 40%, transparent);
+  font-size: 13px;
+}
+
+.inspect-atmo-chip span {
+  color: var(--muted);
+  font-size: 11px;
 }
 
 .inspect-stats {
@@ -825,7 +869,7 @@ button {
 
 .inspect-stats strong {
   display: block;
-  font-size: 13px;
+  font-size: 14px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -852,10 +896,14 @@ button {
 }
 
 .inspect-facts li {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.4;
   padding-left: 10px;
   border-left: 2px solid var(--amber);
+}
+
+.inspect-more {
+  margin-top: 10px;
 }
 
 .inspect-card > .btn {
@@ -929,11 +977,51 @@ button {
   filter: drop-shadow(0 0 22px rgba(251, 191, 36, 0.75));
 }
 
-.sun-ask-fab {
+.explore-side {
   position: absolute;
   right: max(18px, var(--safe-right));
   bottom: 168px;
   z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.explore-side-pills {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.explore-side-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1.5px solid color-mix(in srgb, var(--amber) 45%, var(--line));
+  background: rgba(6, 12, 28, 0.88);
+  color: #fff8e1;
+  font: inherit;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.explore-side-pill.is-on {
+  border-color: var(--amber);
+  background: rgba(251, 191, 36, 0.22);
+}
+
+.sun-ask-fab {
+  position: static;
+  right: auto;
+  bottom: auto;
+  z-index: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1138,6 +1226,12 @@ button {
   margin: 0;
   font-size: 13px;
   font-weight: 700;
+}
+
+.bar-story {
+  margin: -4px 0 0;
+  font-size: 12px;
+  color: var(--muted);
 }
 
 .bar-pair {
@@ -1457,7 +1551,7 @@ button {
 }
 
 .orbit-board {
-  width: min(100%, 520px);
+  width: min(100%, 280px);
   justify-self: center;
   overflow: visible;
 }
@@ -1692,7 +1786,7 @@ select {
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -1843,8 +1937,8 @@ details summary {
   }
 
   .activity-hud {
-    width: min(860px, calc(100% - 24px));
-    max-width: min(860px, calc(100% - 24px));
+    width: min(520px, calc(100% - 24px));
+    max-width: min(520px, calc(100% - 24px));
   }
 
   .planet-strip {
@@ -1889,7 +1983,7 @@ details summary {
   }
 
   .orbit-board {
-    width: min(100%, 420px);
+    width: min(100%, 240px);
   }
 
   .explore-dock .dock-buttons,
@@ -1941,7 +2035,7 @@ details summary {
     background: linear-gradient(180deg, transparent, rgba(3, 7, 18, 0.94) 28%);
   }
 
-  .sun-ask-fab {
+  .explore-side {
     bottom: calc(138px + var(--safe-bottom));
     right: max(10px, var(--safe-right));
   }
@@ -1958,6 +2052,18 @@ details summary {
     gap: 6px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+  }
+
+  .dock-home {
+    flex: 0 0 auto;
+  }
+
+  .dock-home-tools .btn {
+    min-width: 0;
+    flex-direction: row;
+    min-height: 32px;
+    padding: 4px 8px;
+    font-size: 10px;
   }
 
   .dock-buttons::-webkit-scrollbar {
@@ -2070,11 +2176,11 @@ details summary {
 
   .catalog-challenges,
   .catalog-activities {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .catalog-rooms {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .catalog-card,
@@ -2115,7 +2221,7 @@ details summary {
     transform: none;
     width: auto;
     max-width: none;
-    max-height: min(68vh, calc(100% - 24px));
+    max-height: min(42vh, calc(100% - 24px));
   }
 
   .activity-hud .row-actions {

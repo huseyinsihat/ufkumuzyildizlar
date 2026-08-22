@@ -79,7 +79,7 @@ export function auToScene(au: Vec3, mode: ScaleMode): Vec3 {
 
 export function scaleExplanation(mode: ScaleMode): string {
   if (isTrueScale(mode)) {
-    return 'Gerçek ölçekte çaplar ve mesafeler gerçek oranlara yaklaşır. Gezegenler neredeyse kaybolur; uzayın ne kadar boş olduğunu bu yüzden anlarız.'
+    return 'Gezegenler gerçek boyutta. Uzay çok boş kalır.'
   }
-  return 'Eğitimsel görünümde gezegenler görünür büyüklüktedir. Sıra ve göreli uzaklık korunur; gerçek çap-mesafe oranı kullanılmaz. Aksi halde Dünya bir nokta olurdu.'
+  return 'Gezegenler görünür büyüklükte. Sıra doğru; çaplar eğitim için büyütülmüştür.'
 }

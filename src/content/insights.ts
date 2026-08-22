@@ -21,7 +21,7 @@ export const INSIGHTS: Insight[] = [
   {
     id: 'moon-face',
     bodies: ['moon', 'earth'],
-    text: 'Ay’ı hep aynı yüzünden görürüz çünkü dönme süresi ile Dünya etrafındaki dolanma süresi neredeyse eşittir.',
+    text: 'Ay’ı hep aynı yüzünden görürüz. Dönmesi ile Dünya etrafındaki turu neredeyse aynı sürer.',
   },
   {
     id: 'sun-star',
@@ -61,7 +61,7 @@ export const INSIGHTS: Insight[] = [
   {
     id: 'jupiter-gas',
     bodies: ['jupiter'],
-    text: 'Jüpiter gaz devidir. Dünya gibi üzerinde yürünecek katı bir yüzeyi yoktur. Büyük olduğu için daha yükseğe zıplanmaz; yerçekimi daha güçlüdür.',
+    text: 'Jüpiter gaz devidir. Üzerinde yürünecek katı bir yüzeyi yoktur. Yerçekimi Dünya’dan daha güçlüdür.',
   },
   {
     id: 'saturn-rings',
@@ -366,7 +366,7 @@ export const FACTS: FactCard[] = [
     id: 'earendel',
     stage: 'stars',
     title: 'Earendel',
-    text: 'Şimdiye kadar görülen en uzak tek yıldızlardan biridir. Işığı bize milyarlarca yılda gelir.',
+    text: 'Şimdiye kadar görülen en uzak tek yıldızlardan biridir. Işığı milyarlarca yıldır yoldadır.',
     wonderId: 'earendel',
   },
 ]

@@ -212,22 +212,19 @@ export function MassWeightLab() {
             <input type="range" min={15} max={55} value={kg} onChange={(e) => setKg(Number(e.target.value))} />
             <strong>{kg} kg</strong>
           </label>
+          <p className="muted">Kütlen {kg} kg. Bu sayı Ay’da da aynı kalır.</p>
           <ul className="stats">
             <li>
-              <span>Kütlem</span>
-              <strong>{kg} kg (değişmez)</strong>
+              <span>Dünya’da his</span>
+              <strong>{earth.kgf.toFixed(0)} kilo gibi</strong>
             </li>
             <li>
-              <span>Dünya</span>
-              <strong>{earth.kgf.toFixed(0)} kgf</strong>
+              <span>Ay’da his</span>
+              <strong>{moon.kgf.toFixed(0)} kilo gibi</strong>
             </li>
             <li>
-              <span>Ay</span>
-              <strong>{moon.kgf.toFixed(0)} kgf</strong>
-            </li>
-            <li>
-              <span>Jüpiter</span>
-              <strong>{jupiter.kgf.toFixed(0)} kgf</strong>
+              <span>Jüpiter’de his</span>
+              <strong>{jupiter.kgf.toFixed(0)} kilo gibi</strong>
             </li>
           </ul>
           <button type="button" className="btn" onClick={() => getScene()?.playSurfaceLab()}>
@@ -240,7 +237,7 @@ export function MassWeightLab() {
       ) : null}
       {step === 'result' ? (
         <p>
-          {correct ? <strong className="success">Doğru.</strong> : <span>Tekrar bak:</span>} Kütle aynı kalır; ağırlık yerçekimine göre değişir.
+          {correct ? <strong className="success">Doğru.</strong> : <span>Tekrar bak:</span>} Kütlen aynı kalır; Ay’da daha hafif hissedersin.
         </p>
       ) : null}
     </div>
@@ -449,16 +446,16 @@ export function ArrangeOrbitsLab() {
         {Array.from({ length: ARRANGE_LIVES }, (_, index) => (
           <i key={index} className={`life-dot ${index >= lives ? 'is-gone' : ''}`} />
         ))}
-        <span>{dead ? 'Can bitti' : `${lives} can`}</span>
+        <span>{dead ? 'Can bitti' : `${placed}/8 · ${lives} can`}</span>
       </p>
       <p className="muted">
         {dead
-          ? 'Yanlış halkalar canını bitirdi. Yeniden dene.'
+          ? 'Yanlış halka can götürür. Yeniden dene.'
           : ready
-            ? `Sıra: ${ORDER_LABEL}`
+            ? ORDER_LABEL
             : pick
-              ? `${getBody(pick).name} için 3B’deki doğru halkaya veya tahtaya dokun.`
-              : 'Karışık pullardan birini seç, sonra halkaya bırak.'}
+              ? `${getBody(pick).name}: doğru halkaya dokun.`
+              : 'Bir gezegen seç, sonra halkaya bırak.'}
       </p>
       <svg className="orbit-board" viewBox="0 0 260 240" aria-label="Yörünge tahtası">
         <circle cx="120" cy="120" r="11" fill="#F7C14A" />
@@ -515,11 +512,9 @@ export function ArrangeOrbitsLab() {
       </svg>
       {ready && elapsed !== null ? (
         <p className="success">
-          8/8 · {elapsed.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} sn
+          Tamam · {elapsed.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} sn
         </p>
-      ) : (
-        <p className="muted">{placed}/8 halka doldu</p>
-      )}
+      ) : null}
       <div className="choice-row planet-pills">
         {pool.map((id) => {
           const body = getBody(id)
@@ -735,10 +730,10 @@ export function SpaceMissionLab() {
   const selected = useSimulationStore((s) => s.selectedBodyId)
   const orbits = useSimulationStore((s) => s.showOrbits)
   const steps = [
-    'Mars’ı seç ve yörüngesini aç.',
-    'Mars’ın bir yılının neden daha uzun olduğunu düşün — sonra Dünya yılı simülasyonuna bak.',
-    'Ay’a git ve dolunay hizasını dene.',
-    'Ay’daki yerçekimini zıplama simülasyonunda gör.',
+    'Mars’ı seç. Yılı Dünya’dan uzundur.',
+    'Dünya’nın bir yılını izle.',
+    'Ay’da dolunay hizasını dene.',
+    'Ay’da nasıl zıplanır, gör.',
   ]
   const ready =
     (index === 0 && selected === 'mars' && orbits) ||
@@ -906,9 +901,9 @@ const HEAT_GUESSES = [
 ] as const
 
 const HEAT_TEMP: Record<(typeof HEAT_GUESSES)[number]['id'], number> = {
-  mercury: 167,
-  venus: 464,
-  earth: 15,
+  mercury: getBody('mercury').meanTempC,
+  venus: getBody('venus').meanTempC,
+  earth: getBody('earth').meanTempC,
 }
 
 export function ClosestHottestLab() {
@@ -945,18 +940,9 @@ export function ClosestHottestLab() {
       ) : null}
       {step === 'simulate' && prediction ? (
         <div>
-          <div className="heat-cards">
-            {HEAT_GUESSES.map((item) => (
-              <div key={item.id} className={`heat-card ${prediction === item.id ? 'is-on' : ''}`}>
-                <strong>{item.label}</strong>
-                <span>Yüzey ≈ {HEAT_TEMP[item.id]}°C</span>
-                <div className="heat-bar">
-                  <i style={{ width: `${Math.max(8, (HEAT_TEMP[item.id] / 464) * 100)}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="muted">Venüs’ün kalın atmosferi ısıyı tutar. Güneş’e en yakın gezegen en sıcak olmak zorunda değildir.</p>
+          <p className="muted">
+            Venüs ≈ {HEAT_TEMP.venus}°C · Merkür ≈ {HEAT_TEMP.mercury}°C. Kalın atmosfer ısıyı tutar.
+          </p>
           <div className="row-actions">
             <button
               type="button"
@@ -986,7 +972,7 @@ export function ClosestHottestLab() {
       ) : null}
       {step === 'result' ? (
         <p>
-          {correct ? <strong className="success">Doğru.</strong> : <strong>Yanlış.</strong>} En yakın ≠ en sıcak. Merkür Güneş’e en yakındır ama en sıcak yüzey Venüs’tedir.
+          {correct ? <strong className="success">Doğru.</strong> : <strong>Yanlış.</strong>} En yakın ≠ en sıcak. En sıcak yüzey Venüs’tedir.
         </p>
       ) : null}
     </div>
@@ -1137,6 +1123,15 @@ export function EclipseAlignLab() {
 }
 
 const URSA = ['dubhe', 'merak', 'phecda', 'megrez', 'alioth', 'mizar', 'alcaid'] as const
+const URSA_NAME: Record<(typeof URSA)[number], string> = {
+  dubhe: 'Kepçe ucu',
+  merak: 'Kepçe kenarı',
+  phecda: 'Kepçe dibi',
+  megrez: 'Sap başı',
+  alioth: 'Sap 1',
+  mizar: 'Sap 2',
+  alcaid: 'Sap ucu',
+}
 
 export function UrsaHuntLab() {
   const found = useLabStore((s) => s.huntStars)
@@ -1151,7 +1146,7 @@ export function UrsaHuntLab() {
           <ul className="stats">
             {URSA.map((id) => (
               <li key={id}>
-                <span>{id}</span>
+                <span>{URSA_NAME[id]}</span>
                 <strong>{found.includes(id) ? 'Bulundu' : '…'}</strong>
               </li>
             ))}

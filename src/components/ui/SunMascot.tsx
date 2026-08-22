@@ -37,14 +37,16 @@ export function SunMascot({ size = 'md' }: { size?: 'md' | 'lg' }) {
   )
 }
 
-export function SunAskFab() {
-  const open = useUiStore((s) => s.sunChatOpen)
-  if (open) return null
+export function ExploreSideTools() {
+  const chatOpen = useUiStore((s) => s.sunChatOpen)
+  if (chatOpen) return null
 
   return (
-    <button type="button" className="sun-ask-fab" onClick={() => askTheSun()}>
-      <SunMascot size="lg" />
-      <span className="sun-ask-fab-label">Güneş’e sor</span>
-    </button>
+    <div className="explore-side">
+      <button type="button" className="sun-ask-fab" onClick={() => askTheSun()}>
+        <SunMascot size="lg" />
+        <span className="sun-ask-fab-label">Güneş’e sor</span>
+      </button>
+    </div>
   )
 }

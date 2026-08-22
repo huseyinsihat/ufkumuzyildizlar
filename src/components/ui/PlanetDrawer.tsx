@@ -1,5 +1,5 @@
 import { BODIES } from '../../astronomy/planetData'
-import { focusBody, lookAtSolarSystem } from '../../features/planetExplorer/focus'
+import { focusBody } from '../../features/planetExplorer/focus'
 import { NOTABLE_STARS } from '../../content/skyWonders'
 import { useLabStore } from '../../store/labStore'
 import { useSimulationStore } from '../../store/simulationStore'
@@ -20,28 +20,45 @@ export function ExploreDock() {
   const openLab = useLabStore((s) => s.openLab)
   const selected = useSimulationStore((s) => s.selectedBodyId)
   const selectedWonder = useSimulationStore((s) => s.selectedWonderId)
-  const showOrbits = useSimulationStore((s) => s.showOrbits)
-  const setShowOrbits = useSimulationStore((s) => s.setShowOrbits)
-  const showAxes = useSimulationStore((s) => s.showAxes)
-  const setShowAxes = useSimulationStore((s) => s.setShowAxes)
-  const showLabels = useSimulationStore((s) => s.showLabels)
-  const setShowLabels = useSimulationStore((s) => s.setShowLabels)
 
   return (
     <div className="explore-dock">
       <nav className="dock-buttons" aria-label="Keşif">
-        <button
-          type="button"
-          className="btn primary"
-          onClick={() => {
-            useVoiceStore.getState().play('mode-lab')
-            setMode('lab')
-            openLab()
-          }}
-        >
-          <Icon name="flask" />
-          <span className="dock-label">{TEAM.home}</span>
-        </button>
+        <div className="dock-home">
+          <button
+            type="button"
+            className="btn primary"
+            onClick={() => {
+              useVoiceStore.getState().play('mode-lab')
+              setMode('lab')
+              openLab()
+            }}
+          >
+            <Icon name="flask" />
+            <span className="dock-label">{TEAM.home}</span>
+          </button>
+          <div className="dock-home-tools" role="group" aria-label="Karşılaştır ve ayarlar">
+            <button
+              type="button"
+              className={`btn ${panel === 'compare' ? 'is-on' : ''}`}
+              onClick={() => {
+                if (panel !== 'compare') useVoiceStore.getState().play('ui-compare')
+                setPanel(panel === 'compare' ? 'none' : 'compare')
+              }}
+            >
+              <Icon name="compare" />
+              <span className="dock-label">Karşılaştır</span>
+            </button>
+            <button
+              type="button"
+              className={`btn ${panel === 'settings' ? 'is-on' : ''}`}
+              onClick={() => setPanel(panel === 'settings' ? 'none' : 'settings')}
+            >
+              <Icon name="gear" />
+              <span className="dock-label">Ayarlar</span>
+            </button>
+          </div>
+        </div>
         <button type="button" className={`btn ${planetOpen ? 'is-on' : ''}`} onClick={() => {
           if (!planetOpen) useVoiceStore.getState().play('ui-planets')
           setPlanetOpen(!planetOpen)
@@ -62,40 +79,6 @@ export function ExploreDock() {
         }}>
           <Icon name="book" />
           <span className="dock-label">Bilgiler</span>
-        </button>
-        <button type="button" className={`btn ${panel === 'compare' ? 'is-on' : ''}`} onClick={() => {
-          if (panel !== 'compare') useVoiceStore.getState().play('ui-compare')
-          setPanel(panel === 'compare' ? 'none' : 'compare')
-        }}>
-          <Icon name="compare" />
-          <span className="dock-label">Karşılaştır</span>
-        </button>
-        <button type="button" className={`btn ${panel === 'settings' ? 'is-on' : ''}`} onClick={() => setPanel(panel === 'settings' ? 'none' : 'settings')}>
-          <Icon name="gear" />
-          <span className="dock-label">Ayarlar</span>
-        </button>
-      </nav>
-      <nav className="view-tools" aria-label="Görünüm">
-        <button type="button" className="btn emergency" onClick={lookAtSolarSystem}>
-          <Icon name="sun" />
-          <span className="dock-label">Güneşe Dön</span>
-        </button>
-        <button
-          type="button"
-          className={`btn ${showOrbits ? 'is-on' : ''}`}
-          aria-pressed={showOrbits}
-          onClick={() => setShowOrbits(!showOrbits)}
-        >
-          <Icon name="orbit" />
-          <span className="dock-label">Yörünge</span>
-        </button>
-        <button type="button" className={`btn ${showAxes ? 'is-on' : ''}`} aria-pressed={showAxes} onClick={() => setShowAxes(!showAxes)}>
-          <Icon name="ruler" />
-          <span className="dock-label">Eksen</span>
-        </button>
-        <button type="button" className={`btn ${showLabels ? 'is-on' : ''}`} aria-pressed={showLabels} onClick={() => setShowLabels(!showLabels)}>
-          <Icon name="spark" />
-          <span className="dock-label">Etiket</span>
         </button>
       </nav>
       {planetOpen ? (

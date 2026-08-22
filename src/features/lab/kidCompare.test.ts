@@ -36,4 +36,12 @@ describe('kidCompare', () => {
     expect(temp?.bValue).toBeGreaterThan(temp?.aValue ?? 0)
     expect(temp?.aText).toContain('°C')
   })
+
+  it('shows gravity as Earth multiples, not m/s²', () => {
+    const rows = kidCompare('moon', 'earth')
+    const gravity = rows.find((row) => row.label === 'Yerçekimi')
+    expect(gravity?.aText).toContain('× Dünya')
+    expect(gravity?.bText).toBe('1 × Dünya')
+    expect(gravity?.aText).not.toContain('m/s')
+  })
 })

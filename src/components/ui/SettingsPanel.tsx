@@ -20,6 +20,8 @@ const VOICE_LANGS: { id: VoiceLang; label: string }[] = [
 export function SettingsPanel() {
   const scaleMode = useSimulationStore((s) => s.scaleMode)
   const setScaleMode = useSimulationStore((s) => s.setScaleMode)
+  const showOrbits = useSimulationStore((s) => s.showOrbits)
+  const setShowOrbits = useSimulationStore((s) => s.setShowOrbits)
   const showLabels = useSimulationStore((s) => s.showLabels)
   const setShowLabels = useSimulationStore((s) => s.setShowLabels)
   const showAxes = useSimulationStore((s) => s.showAxes)
@@ -48,7 +50,7 @@ export function SettingsPanel() {
           ×
         </button>
       </header>
-      <p className="nav-label">Görüntüleme ölçeği</p>
+      <p className="nav-label">Görünüm</p>
       {MODES.map((mode) => (
         <button
           key={mode.id}
@@ -62,15 +64,19 @@ export function SettingsPanel() {
       <p className="muted">{scaleExplanation(scaleMode)}</p>
       <label className="check">
         <input type="checkbox" checked={leftOpen} onChange={(e) => setLeftOpen(e.target.checked)} />
-        Seçim kartı
+        Gezegen kartı
+      </label>
+      <label className="check">
+        <input type="checkbox" checked={showOrbits} onChange={(e) => setShowOrbits(e.target.checked)} />
+        Yörünge çizgileri
       </label>
       <label className="check">
         <input type="checkbox" checked={showLabels} onChange={(e) => setShowLabels(e.target.checked)} />
-        Etiketler
+        İsim etiketleri
       </label>
       <label className="check">
         <input type="checkbox" checked={showAxes} onChange={(e) => setShowAxes(e.target.checked)} />
-        Eksenleri göster
+        Eksen çizgileri
       </label>
       <label className="check">
         <input type="checkbox" checked={showConstellations} onChange={(e) => setShowConstellations(e.target.checked)} />

@@ -68,6 +68,7 @@ export function ComparePanel() {
                 <Icon name={ROW_ICONS[row.label] ?? 'spark'} />
                 {row.label}
               </p>
+              <p className="bar-story">{row.story}</p>
               <div className="bar-pair">
                 <div className="bar-line">
                   <div className="bar-track">

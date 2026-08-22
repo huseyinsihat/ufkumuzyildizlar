@@ -1,7 +1,7 @@
+import { useEffect, useState } from 'react'
 import { getBody } from '../../astronomy/planetData'
 import { findWonder } from '../../content/skyWonders'
 import { earthRelativeWeight } from '../../features/lab/gravityMath'
-import { askTheSun } from '../../features/planetExplorer/focus'
 import { formatAu, formatDays, formatHours, formatKm, formatNumberTr } from '../../utils/formatting'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
@@ -25,15 +25,40 @@ function Stat({ label, value }: { label: string; value: string }) {
   )
 }
 
-function planetRows(body: PlanetDefinition): { label: string; value: string }[] {
+function firstSentence(text: string): string {
+  const match = text.match(/^[^.!?]+[.!?]/)
+  return (match ? match[0] : text).trim()
+}
+
+export function atmosphereChip(body: PlanetDefinition): string {
+  if (body.category === 'star') return 'Plazma'
+  const text = body.atmosphere.toLocaleLowerCase('tr-TR')
+  if (text.includes('plazma')) return 'Plazma'
+  if (text.includes('neredeyse yok')) return 'Yok'
+  if (text.includes('çok kalın') || text.includes('kalın')) return 'Kalın'
+  if (text.includes('ince')) return 'İnce'
+  if (body.category === 'gasGiant' || body.category === 'iceGiant') return 'Kalın'
+  return 'Var'
+}
+
+function vsEarthText(body: PlanetDefinition): string {
   const vsEarth = earthRelativeWeight(1, body.id).vsEarth
-  const rows: { label: string; value: string }[] = [
-    { label: 'Tür', value: KIND[body.category] },
-    { label: 'Gün', value: formatHours(body.rotationPeriodHours) },
-  ]
+  return body.id === 'earth' ? '1 × Dünya' : `${formatNumberTr(vsEarth, 2)} × Dünya`
+}
+
+function coreRows(body: PlanetDefinition): { label: string; value: string }[] {
+  const rows: { label: string; value: string }[] = [{ label: 'Gün', value: formatHours(body.rotationPeriodHours) }]
   if (body.orbitalPeriodDays > 0) {
     rows.push({ label: 'Yıl', value: formatDays(body.orbitalPeriodDays) })
   }
+  rows.push({ label: 'Çap', value: formatKm(body.radiusKm * 2) })
+  rows.push({ label: 'Yerçekimi', value: vsEarthText(body) })
+  rows.push({ label: 'Sıcaklık', value: `${formatNumberTr(body.meanTempC, 0)} °C` })
+  return rows
+}
+
+function extraRows(body: PlanetDefinition): { label: string; value: string }[] {
+  const rows: { label: string; value: string }[] = []
   if (body.category !== 'star' && body.category !== 'moon') {
     rows.push({ label: 'Uydu', value: formatNumberTr(body.moons) })
   }
@@ -43,13 +68,10 @@ function planetRows(body: PlanetDefinition): { label: string; value: string }[] 
   if (body.category === 'moon') {
     rows.push({ label: 'Dünya’ya uzaklık', value: formatAu(body.orbitalRadiusAu) })
   }
-  rows.push({ label: 'Çap', value: formatKm(body.radiusKm * 2) })
   rows.push({
-    label: 'Yerçekimi',
-    value: body.id === 'earth' ? '1 × Dünya' : `${formatNumberTr(vsEarth, 2)} × Dünya`,
+    label: 'Eksen eğikliği',
+    value: `${formatNumberTr(body.axialTiltDeg, body.axialTiltDeg < 1 ? 2 : 1)}°`,
   })
-  rows.push({ label: 'Sıcaklık', value: `${formatNumberTr(body.meanTempC, 0)} °C` })
-  rows.push({ label: 'Eksen eğikliği', value: `${formatNumberTr(body.axialTiltDeg, body.axialTiltDeg < 1 ? 2 : 1)}°` })
   if (body.orbitalPeriodDays > 0) {
     rows.push({ label: 'Yörünge eğikliği', value: `${formatNumberTr(body.inclinationDeg, 2)}°` })
   }
@@ -61,6 +83,11 @@ export function InspectRail() {
   const leftOpen = useUiStore((s) => s.leftOpen)
   const bodyId = useSimulationStore((s) => s.selectedBodyId)
   const wonderId = useSimulationStore((s) => s.selectedWonderId)
+  const [more, setMore] = useState(false)
+
+  useEffect(() => {
+    setMore(false)
+  }, [bodyId, wonderId])
 
   if (!leftOpen) return null
 
@@ -84,26 +111,33 @@ export function InspectRail() {
               ×
             </button>
           </header>
-          <p className="inspect-lead">{body.description}</p>
+          <p className="inspect-lead">{more ? body.description : firstSentence(body.description)}</p>
+          <p className="inspect-atmo-chip">
+            <span>Atmosfer</span>
+            <strong>{atmosphereChip(body)}</strong>
+          </p>
           <div className="inspect-stats">
-            {planetRows(body).map((row) => (
+            {coreRows(body).map((row) => (
               <Stat key={row.label} label={row.label} value={row.value} />
             ))}
+            {more
+              ? extraRows(body).map((row) => <Stat key={row.label} label={row.label} value={row.value} />)
+              : null}
           </div>
-          <p className="inspect-atmo">
-            <span>Atmosfer</span>
-            {body.atmosphere}
-          </p>
+          {more ? (
+            <p className="inspect-atmo">
+              <span>Atmosfer</span>
+              {body.atmosphere}
+            </p>
+          ) : null}
           <ul className="inspect-facts">
-            {body.facts.map((fact) => (
+            {(more ? body.facts : body.facts.slice(0, 1)).map((fact) => (
               <li key={fact}>{fact}</li>
             ))}
           </ul>
-          {body.id === 'sun' ? (
-            <button type="button" className="btn primary" onClick={() => askTheSun()}>
-              Güneş’e sor
-            </button>
-          ) : null}
+          <button type="button" className="text-link inspect-more" onClick={() => setMore((open) => !open)}>
+            {more ? 'Daha az' : 'Daha fazla'}
+          </button>
         </div>
       ) : null}
       {!body && wonder ? (

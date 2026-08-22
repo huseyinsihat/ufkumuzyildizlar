@@ -49,6 +49,25 @@ export function LabHome() {
           </p>
           <h2>{currentRoom ? currentRoom.title : TEAM.home}</h2>
           <p className="muted">{currentRoom ? currentRoom.blurb : 'Tahmin et, izle, nedenini gör.'}</p>
+          {!room ? (
+            <div className="catalog-tools">
+              <button
+                type="button"
+                className="btn"
+                onClick={() => {
+                  useVoiceStore.getState().play('ui-compare')
+                  useUiStore.getState().setActivePanel('compare')
+                }}
+              >
+                <Icon name="compare" />
+                Karşılaştır
+              </button>
+              <button type="button" className="btn" onClick={() => useUiStore.getState().setActivePanel('settings')}>
+                <Icon name="gear" />
+                Ayarlar
+              </button>
+            </div>
+          ) : null}
         </div>
         <div className="row-actions">
           {room ? (
@@ -56,10 +75,6 @@ export function LabHome() {
               Tümüne dön
             </button>
           ) : null}
-          <button type="button" className="btn" onClick={() => useLabStore.getState().resetProgress()}>
-            <Icon name="reset" />
-            Sıfırla
-          </button>
           <button
             type="button"
             className="btn"
@@ -70,6 +85,9 @@ export function LabHome() {
             }}
           >
             Keşfe dön
+          </button>
+          <button type="button" className="text-link" onClick={() => useLabStore.getState().resetProgress()}>
+            Sıfırla
           </button>
         </div>
       </header>
