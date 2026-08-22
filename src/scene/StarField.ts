@@ -16,9 +16,12 @@ export function createStarField(count: number, radius = 420): Points {
     positions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta)
 
     const tint = random()
-    if (tint < 0.18) color.setRGB(0.32, 0.4, 0.58)
-    else if (tint < 0.32) color.setRGB(0.48, 0.38, 0.28)
-    else color.setRGB(0.38, 0.4, 0.46)
+    if (tint < 0.12) color.setRGB(0.62, 0.78, 1)
+    else if (tint < 0.22) color.setRGB(1, 0.78, 0.52)
+    else if (tint < 0.3) color.setRGB(1, 0.92, 0.72)
+    else color.setRGB(0.92, 0.94, 1)
+    const bright = 0.55 + random() * 0.45
+    color.multiplyScalar(bright)
     color.toArray(colors, i * 3)
   }
 
@@ -27,10 +30,10 @@ export function createStarField(count: number, radius = 420): Points {
   geometry.setAttribute('color', new Float32BufferAttribute(colors, 3))
 
   const material = new PointsMaterial({
-    size: 0.85,
+    size: 1.15,
     vertexColors: true,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.82,
     depthWrite: false,
     blending: NormalBlending,
     sizeAttenuation: true,

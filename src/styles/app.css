@@ -104,13 +104,17 @@ a {
 
 .planet-label,
 .city-label {
-  color: #f4fbff;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-shadow: 0 0 8px #030712;
+  color: #fff8e8;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 2px #000, 0 0 10px #030712;
   white-space: nowrap;
   pointer-events: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(4, 10, 22, 0.78);
+  border: 1px solid rgba(255, 248, 220, 0.28);
 }
 
 .planet-label.is-hidden,
@@ -129,14 +133,17 @@ a {
 }
 
 .sky-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #c4b896;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffe9b8;
+  border-color: rgba(255, 214, 120, 0.35);
 }
 
 .planet-label.is-selected {
-  color: var(--cyan);
-  font-weight: 700;
+  color: #fff8e1;
+  font-weight: 800;
+  border-color: var(--amber);
+  background: rgba(40, 28, 8, 0.88);
 }
 
 .top-bar {

@@ -7,13 +7,13 @@ export interface SceneLights {
 }
 
 export function addLighting(scene: Scene): SceneLights {
-  const ambient = new AmbientLight(0x3a4a66, 0.045)
+  const ambient = new AmbientLight(0x4a3a28, 0.1)
   scene.add(ambient)
 
-  const sky = new HemisphereLight(0x8eb4ff, 0x08060c, 0.08)
+  const sky = new HemisphereLight(0xffe4c4, 0x0c0912, 0.16)
   scene.add(sky)
 
-  const sun = new PointLight(0xfff1c4, 7.2, 0, 0)
+  const sun = new PointLight(0xfff3d2, 4.6, 0, 0)
   sun.position.set(0, 0, 0)
   sun.castShadow = false
   scene.add(sun)
@@ -22,6 +22,6 @@ export function addLighting(scene: Scene): SceneLights {
 }
 
 export function setFillLight(lights: SceneLights, dim: boolean): void {
-  lights.ambient.intensity = dim ? 0.02 : 0.045
-  lights.sky.intensity = dim ? 0.03 : 0.08
+  lights.ambient.intensity = dim ? 0.04 : 0.1
+  lights.sky.intensity = dim ? 0.06 : 0.16
 }

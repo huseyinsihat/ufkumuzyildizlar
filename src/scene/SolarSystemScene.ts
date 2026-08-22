@@ -29,7 +29,7 @@ import { useLabStore } from '../store/labStore'
 import { useSimulationStore } from '../store/simulationStore'
 import { useUiStore } from '../store/uiStore'
 import { onSunSelected } from '../features/planetExplorer/focus'
-import { capPixelRatio } from '../utils/performance'
+import { capPixelRatio, starCountForDevice } from '../utils/performance'
 import { AsteroidBelt } from './AsteroidBelt'
 import { CameraController } from './CameraController'
 import { CityPins } from './CityPins'
@@ -119,14 +119,14 @@ export class SolarSystemScene {
     this.renderer.setClearColor(new Color('#030712'), 1)
     this.renderer.setPixelRatio(capPixelRatio(window.devicePixelRatio || 1))
     this.renderer.outputColorSpace = SRGBColorSpace
-    this.renderer.toneMappingExposure = 1.18
+    this.renderer.toneMappingExposure = 1.05
 
     this.scene = new Scene()
     this.camera = new CameraController(canvas)
     this.lights = addLighting(this.scene)
 
     this.starRoot = new Group()
-    this.stars = createStarField(typeof navigator !== 'undefined' ? 4200 : 3000)
+    this.stars = createStarField(starCountForDevice())
     this.starRoot.add(this.stars)
     this.scene.add(this.starRoot)
 

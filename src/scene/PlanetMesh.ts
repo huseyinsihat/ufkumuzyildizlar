@@ -45,12 +45,17 @@ export class PlanetMesh {
     this.tiltGroup.rotation.z = body.axialTiltDeg * DEG2RAD
     this.group.add(this.tiltGroup)
 
-    const texture = createBodyTexture(body.id, body.color, body.id === 'earth' || body.id === 'jupiter' ? 768 : 512)
+    const texture = createBodyTexture(
+      body.id,
+      body.color,
+      body.id === 'earth' || body.id === 'jupiter' || body.id === 'saturn' ? 768 : 512,
+    )
     const gas = body.category === 'gasGiant' || body.category === 'iceGiant'
+    const rocky = body.id === 'moon' || body.id === 'mercury'
     const material = new MeshStandardMaterial({
       map: texture,
-      roughness: body.id === 'earth' ? 0.46 : body.id === 'venus' ? 0.34 : body.id === 'moon' || body.id === 'mercury' ? 0.97 : gas ? 0.52 : 0.84,
-      metalness: body.id === 'earth' ? 0.08 : 0.02,
+      roughness: body.id === 'earth' ? 0.46 : body.id === 'venus' ? 0.4 : rocky ? 0.97 : gas ? 0.84 : 0.8,
+      metalness: 0,
       emissive: '#000000',
       emissiveIntensity: 0,
     })
@@ -82,18 +87,20 @@ export class PlanetMesh {
     this.axis.raycast = () => {}
     this.tiltGroup.add(this.axis)
 
-    if (body.id === 'earth' || body.id === 'venus') {
+    if (body.id === 'earth' || body.id === 'venus' || gas) {
+      const tint =
+        body.id === 'earth' ? '#6ec8ff' : body.id === 'venus' ? '#f0c27a' : body.id === 'jupiter' ? '#e0c089' : body.id === 'saturn' ? '#ead7a4' : body.id === 'uranus' ? '#9fe4e2' : '#6ea4ff'
       this.atmosphere = new Mesh(
         HIGH_GEO,
         new MeshBasicMaterial({
-          color: body.id === 'earth' ? '#6ec8ff' : '#f0c27a',
+          color: tint,
           transparent: true,
-          opacity: body.id === 'earth' ? 0.16 : 0.22,
+          opacity: body.id === 'earth' ? 0.16 : body.id === 'venus' ? 0.22 : gas ? 0.1 : 0.12,
           blending: AdditiveBlending,
           depthWrite: false,
         }),
       )
-      this.atmosphere.scale.setScalar(1.045)
+      this.atmosphere.scale.setScalar(gas ? 1.03 : 1.045)
       this.atmosphere.raycast = () => {}
       this.tiltGroup.add(this.atmosphere)
     }
@@ -170,7 +177,7 @@ export class PlanetMesh {
     const radius = Math.max(visualRadius(this.body.id, mode), 0.012)
     this.mesh.scale.setScalar(radius)
     this.glow.scale.setScalar(radius * 1.14)
-    this.atmosphere?.scale.setScalar(radius * 1.045)
+    this.atmosphere?.scale.setScalar(radius * (this.body.category === 'gasGiant' || this.body.category === 'iceGiant' ? 1.03 : 1.045))
     this.clouds?.scale.setScalar(radius * 1.018)
     this.axis.scale.setScalar(radius)
     this.northCap?.position.set(0, radius * 1.02, 0)
