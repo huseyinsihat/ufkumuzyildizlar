@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   CANNED_PROMPTS,
+  matchCanned,
   pickCannedAnswer,
   pickChipCount,
   pickChipQuestions,
@@ -27,6 +28,11 @@ describe('canned sun questions', () => {
     const chips = pickChipQuestions(asked, () => 0.2)
     expect(chips).toHaveLength(2)
     expect(chips.some((item) => item.id === 'sun-yellow')).toBe(false)
+  })
+
+  it('matches kid phrasing like kaç yıldız vardı', () => {
+    expect(matchCanned('kaç yıldız vardı')?.id).toBe('how-many-stars')
+    expect(pickCannedAnswer('Kaç gezegen var?', () => 0)).toContain('8')
   })
 
   it('returns one of the three same-fact answers for a chip', () => {

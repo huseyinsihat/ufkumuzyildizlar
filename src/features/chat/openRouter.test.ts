@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { requestMessages, toApiMessages, trimTurns, visibleMessages, type StoredChatMessage } from './messages'
-import { extractAssistantContent, cleanAssistantReply, friendlyChatError, OPENROUTER_MODEL, openRouterChatUrl, passReasoningDetails } from './openRouter'
+import { extractAssistantContent, cleanAssistantReply, friendlyChatError, OPENROUTER_MODEL, openRouterChatUrl, passReasoningDetails, buildCompletionBody } from './openRouter'
 import { buildSceneSummary, CANNED_PROMPTS, systemPrompt, WELCOME_TEXT } from './prompt'
 
 function msg(
@@ -104,6 +104,13 @@ describe('sun chat history', () => {
 
   it('talks to OpenRouter through a same-origin proxy in development', () => {
     expect(openRouterChatUrl()).toBe('/api/openrouter')
+  })
+
+  it('enables capped reasoning so the final answer still arrives', () => {
+    const body = buildCompletionBody([{ role: 'user', content: 'Merhaba' }])
+    expect(body.model).toBe(OPENROUTER_MODEL)
+    expect(body.reasoning).toEqual({ enabled: true, max_tokens: 200 })
+    expect(body.max_tokens).toBe(1200)
   })
 
   it('strips markdown so kids see plain Turkish', () => {

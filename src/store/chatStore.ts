@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { type CannedPrompt, pickCannedAnswer, pickChipQuestions } from '../features/chat/canned'
+import { matchCanned, pickCannedAnswer, pickChipQuestions, type CannedPrompt } from '../features/chat/canned'
 import { requestMessages, type StoredChatMessage } from '../features/chat/messages'
 import { completeChat, friendlyChatError, hasOpenRouterKey } from '../features/chat/openRouter'
 import { buildSceneSummary, systemPrompt, WELCOME_TEXT } from '../features/chat/prompt'
@@ -62,6 +62,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
   send: async (text) => {
     const content = text.trim()
     if (!content || get().busy) return
+    if (matchCanned(content)) {
+      get().askChip(content)
+      return
+    }
     if (!hasOpenRouterKey()) {
       set({ error: 'Sohbet şimdilik kapalı.' })
       return

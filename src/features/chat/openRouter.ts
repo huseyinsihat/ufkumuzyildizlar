@@ -96,40 +96,44 @@ interface OpenRouterResponse {
   error?: { message?: string; code?: number | string; metadata?: unknown }
 }
 
-export async function completeChat(
-  messages: Array<{ role: string; content: string; reasoning_details?: unknown }>,
-  signal?: AbortSignal,
-): Promise<AssistantReply> {
-  const apiKey = readApiKey()
-  if (!apiKey) {
-    throw new Error('missing-key')
-  }
+export type ChatTurn = { role: string; content: string; reasoning_details?: unknown }
 
-  const payload = messages.map((item) => {
-    const next: { role: string; content: string; reasoning_details?: unknown } = {
-      role: item.role,
-      content: item.content,
-    }
+export function toOpenRouterMessages(messages: ChatTurn[]): ChatTurn[] {
+  return messages.map((item) => {
+    const next: ChatTurn = { role: item.role, content: item.content }
     if (item.role === 'assistant' && item.reasoning_details !== undefined) {
       next.reasoning_details = item.reasoning_details
     }
     return next
   })
+}
 
+export function buildCompletionBody(messages: ChatTurn[], reasoningEnabled = true): Record<string, unknown> {
+  const body: Record<string, unknown> = {
+    model: OPENROUTER_MODEL,
+    messages: toOpenRouterMessages(messages),
+    max_tokens: 1200,
+  }
+  if (reasoningEnabled) {
+    body.reasoning = { enabled: true, max_tokens: 200 }
+  }
+  return body
+}
+
+async function postChat(
+  apiKey: string,
+  body: Record<string, unknown>,
+  signal?: AbortSignal,
+): Promise<AssistantReply> {
   const response = await fetch(openRouterChatUrl(), {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
       'HTTP-Referer': REFERER,
-      'X-OpenRouter-Title': TITLE,
       'X-Title': TITLE,
     },
-    body: JSON.stringify({
-      model: OPENROUTER_MODEL,
-      messages: payload,
-      reasoning: { enabled: true },
-    }),
+    body: JSON.stringify(body),
     signal,
   })
 
@@ -156,6 +160,26 @@ export async function completeChat(
     reply.reasoning_details = message.reasoning_details
   }
   return reply
+}
+
+export async function completeChat(
+  messages: ChatTurn[],
+  signal?: AbortSignal,
+): Promise<AssistantReply> {
+  const apiKey = readApiKey()
+  if (!apiKey) {
+    throw new Error('missing-key')
+  }
+
+  try {
+    return await postChat(apiKey, buildCompletionBody(messages, true), signal)
+  } catch (error) {
+    if (signal?.aborted) throw error
+    if (error instanceof Error && error.message === 'empty-reply') {
+      return postChat(apiKey, buildCompletionBody(messages, false), signal)
+    }
+    throw error
+  }
 }
 
 export function passReasoningDetails(details: unknown): unknown {

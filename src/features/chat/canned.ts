@@ -2,6 +2,7 @@ export interface CannedPrompt {
   id: string
   question: string
   answers: readonly [string, string, string]
+  aliases?: readonly string[]
 }
 
 export const CANNED_PROMPTS: readonly CannedPrompt[] = [
@@ -35,10 +36,11 @@ export const CANNED_PROMPTS: readonly CannedPrompt[] = [
   {
     id: 'how-many-planets',
     question: 'Kaç gezegen var?',
+    aliases: ['kaç tane gezegen var', 'gezegen sayısı kaç'],
     answers: [
-      'Güneş Sistemi’nde 8 gezegen vardır. Merkür’den Neptün’e kadar sıralanırlar. Plüton artık cüce gezegendir.',
-      'Sekiz tane: Merkür, Venüs, Dünya, Mars, Jüpiter, Satürn, Uranüs, Neptün.',
-      'Sekiz gezegen dolanır. Plüton küçük kaldığı için gezegen sayılmaz.',
+      'Güneş Sistemi’nde 8 gezegen vardır: Merkür, Venüs, Dünya, Mars, Jüpiter, Satürn, Uranüs ve Neptün. Plüton cüce gezegendir.',
+      'Sekiz tane. Plüton artık gezegen değil; yörüngesini paylaştığı için cüce gezegen sayılır.',
+      'Sekiz gezegen dolanır. Plüton küçük bir cüce gezegendir, sekizli listeye girmez.',
     ],
   },
   {
@@ -143,6 +145,7 @@ export const CANNED_PROMPTS: readonly CannedPrompt[] = [
   {
     id: 'earth-year',
     question: 'Bir yıl ne demek?',
+    aliases: ['yıl nedir', 'bir yıl kaç gün', 'yıl ne demek'],
     answers: [
       'Dünya’nın benim etrafımda bir tur atmasıdır. Bu yaklaşık 365 gün sürer.',
       'Yıl, Dünya’nın Güneş turudur. Gün ise Dünya’nın kendi etrafında bir dönüşüdür.',
@@ -213,12 +216,13 @@ export const CANNED_PROMPTS: readonly CannedPrompt[] = [
     ],
   },
   {
-    id: 'black-hole',
-    question: 'Kara delik nedir?',
+    id: 'how-many-stars',
+    question: 'Gökyüzünde kaç yıldız var?',
+    aliases: ['kaç yıldız vardı', 'kaç yıldız var', 'kaç tane yıldız var', 'yıldız sayısı kaç'],
     answers: [
-      'Çok yoğun bir yerdir; ışık bile kaçamayacak kadar güçlü çeker. Ben kara delik değilim.',
-      'Yıldızın bazı hallerinde ortaya çıkabilir. Güneş Sistemi’nde kara delik yoktur.',
-      'Her şeyi yutan bir süpürge gibi düşünme. Çok uzak ve çok yoğundur; bizden uzaktır.',
+      'Samanyolu’nda yüz milyarlarca yıldız vardır; ben de onlardan biriyim. Çıplak gözle gece birkaç bin tanesini görürsün.',
+      'Gökada milyarlarca yıldız barındırır. Şehir ışığı yoksa binlercesini sayabilirsin; hepsini değil.',
+      'Tek tek sayılmaz. Gökadamızda yüz milyarlarca yıldız vardır. Gözün gördüğü, çok küçük bir kısımdır.',
     ],
   },
   {
@@ -281,12 +285,30 @@ export function pickChipCount(): 2 {
   return 2
 }
 
+export function normalizeQuestion(text: string): string {
+  return text
+    .toLocaleLowerCase('tr-TR')
+    .replace(/[?!.,;:'’]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+export function matchCanned(text: string): CannedPrompt | undefined {
+  const needle = normalizeQuestion(text)
+  if (!needle) return undefined
+  return CANNED_PROMPTS.find((item) => {
+    if (normalizeQuestion(item.question) === needle) return true
+    return Boolean(item.aliases?.some((alias) => normalizeQuestion(alias) === needle))
+  })
+}
+
 export function pickChipQuestions(
   askedQuestions: ReadonlySet<string>,
   random = Math.random,
   count = pickChipCount(),
 ): CannedPrompt[] {
-  const pool = CANNED_PROMPTS.filter((item) => !askedQuestions.has(item.question))
+  const asked = new Set([...askedQuestions].map(normalizeQuestion))
+  const pool = CANNED_PROMPTS.filter((item) => !asked.has(normalizeQuestion(item.question)))
   const shuffled = [...pool]
   for (let i = shuffled.length - 1; i > 0; i -= 1) {
     const j = Math.floor(random() * (i + 1))
@@ -300,12 +322,12 @@ export function pickChipQuestions(
 }
 
 export function pickCannedAnswer(question: string, random = Math.random): string | null {
-  const item = CANNED_PROMPTS.find((entry) => entry.question === question || entry.id === question)
+  const item = matchCanned(question)
   if (!item) return null
   const index = Math.min(item.answers.length - 1, Math.floor(random() * item.answers.length))
   return item.answers[index] ?? item.answers[0]
 }
 
 export function findCanned(question: string): CannedPrompt | undefined {
-  return CANNED_PROMPTS.find((entry) => entry.question === question || entry.id === question)
+  return matchCanned(question)
 }

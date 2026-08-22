@@ -13,6 +13,8 @@ export default defineConfig({
         target: 'https://openrouter.ai',
         changeOrigin: true,
         secure: true,
+        timeout: 120_000,
+        proxyTimeout: 120_000,
         rewrite: () => '/api/v1/chat/completions',
       },
     },
