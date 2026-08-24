@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react'
 import { getBody } from '../../astronomy/planetData'
 import { CRAFT_KIND_LABEL, findEarthCraft } from '../../content/earthCrafts'
-import { findWonder } from '../../content/skyWonders'
+import {
+  findConstellation,
+  projectConstellationFigure,
+  type Constellation,
+} from '../../content/constellations'
+import { findWonder, starDisplayName, wonderKindLabel } from '../../content/skyWonders'
+import { wonderDetailStats, wonderFactList, wonderHasDetail, wonderPreviewStats } from '../../content/wonderScience'
 import { displayEventStatus, EVENT_STATUS_LABEL, eventHasMore, getSelectableEvent } from '../../content/astroEvents'
 import { earthRelativeWeight } from '../../features/lab/gravityMath'
 import { formatAu, formatDays, formatHours, formatKm, formatNumberTr } from '../../utils/formatting'
@@ -25,6 +31,37 @@ function Stat({ label, value }: { label: string; value: string }) {
       <span>{label}</span>
       <strong>{value}</strong>
     </div>
+  )
+}
+
+function ConstellationSilhouette({ constellation }: { constellation: Constellation }) {
+  const figure = projectConstellationFigure(constellation)
+  const byId = new Map(figure.points.map((point) => [point.id, point]))
+  return (
+    <svg
+      className="constellation-figure"
+      viewBox={`0 0 ${figure.width} ${figure.height}`}
+      role="img"
+      aria-label={`${constellation.name} şekli: ${constellation.shape}`}
+    >
+      {figure.lines.map(([fromId, toId]) => {
+        const from = byId.get(fromId)
+        const to = byId.get(toId)
+        if (!from || !to) return null
+        return (
+          <line
+            key={`${fromId}-${toId}`}
+            x1={from.x}
+            y1={from.y}
+            x2={to.x}
+            y2={to.y}
+          />
+        )
+      })}
+      {figure.points.map((point) => (
+        <circle key={point.id} cx={point.x} cy={point.y} r={2.1} />
+      ))}
+    </svg>
   )
 }
 
@@ -105,8 +142,9 @@ export function InspectRail() {
   const body = bodyId ? getBody(bodyId) : null
   const craft = findEarthCraft(wonderId)
   const wonder = craft ? undefined : findWonder(wonderId)
+  const constellation = craft || wonder ? undefined : findConstellation(wonderId)
   const event = getSelectableEvent(eventId)
-  if (!body && !wonder && !craft && !event) return null
+  if (!body && !wonder && !craft && !event && !constellation) return null
   const eventStatus = event ? displayEventStatus(event.targetMs, simMs, Date.now()) : 'now'
   const jumped =
     event?.targetMs != null && event.targetMs > Date.now() && simMs >= event.targetMs
@@ -132,14 +170,14 @@ export function InspectRail() {
               {eventStatus === 'happened'
                 ? `${event.dateLabel} tarihinde oldu`
                 : jumped
-                  ? `Simülasyon ${event.dateLabel} tarihine gitti`
+                  ? `Zaman ${event.dateLabel} tarihine alındı`
                   : event.dateLabel}
               {event.where ? ` — ${event.where}` : ''}
             </p>
           ) : null}
           <p className="inspect-lead">{event.lead}</p>
           <p className="inspect-see">
-            <span>Sahnede</span>
+            <span>Görüntüde</span>
             {event.see}
           </p>
           {!moreEvent ? (
@@ -268,12 +306,57 @@ export function InspectRail() {
           </button>
         </div>
       ) : null}
-      {!body && !craft && wonder ? (
+      {!body && constellation ? (
         <div className="inspect-card">
           <header className="panel-head">
             <div>
-              <p className="eyebrow">{wonder.kind === 'star' ? 'Yıldız' : 'Küçük cisim'}</p>
-              <h2>{wonder.name}</h2>
+              <p className="eyebrow">Takımyıldız · {constellation.season}</p>
+              <h2>{constellation.name}</h2>
+            </div>
+            <button type="button" className="icon-btn" onClick={() => useSimulationStore.getState().selectWonder(null)} aria-label="Kapat">
+              ×
+            </button>
+          </header>
+          <p className="inspect-atmo-chip">
+            <span>Şekil</span>
+            <strong>{constellation.shape}</strong>
+          </p>
+          <p className="inspect-lead">{constellation.description}</p>
+          <ConstellationSilhouette constellation={constellation} />
+          <div className="inspect-stats">
+            <Stat label="En parlak" value={constellation.brightest} />
+            <Stat label="Mevsim" value={constellation.season} />
+            <Stat label="Yıldız" value={String(constellation.stars.length)} />
+          </div>
+          <p className="inspect-see">
+            <span>Sahnede</span>
+            {constellation.see}
+          </p>
+          {more ? (
+            <ul className="inspect-facts">
+              {constellation.facts.map((fact) => (
+                <li key={fact}>{fact}</li>
+              ))}
+              <li>Parlak yıldızlar: {constellation.stars.map((star) => star.name).join(' · ')}</li>
+            </ul>
+          ) : (
+            <ul className="inspect-facts">
+              {constellation.facts.slice(0, 2).map((fact) => (
+                <li key={fact}>{fact}</li>
+              ))}
+            </ul>
+          )}
+          <button type="button" className="text-link inspect-more" onClick={() => setMore((open) => !open)}>
+            {more ? 'Daha az' : 'Daha fazla'}
+          </button>
+        </div>
+      ) : null}
+      {!body && !craft && !constellation && wonder ? (
+        <div className="inspect-card">
+          <header className="panel-head">
+            <div>
+              <p className="eyebrow">{wonderKindLabel(wonder.kind)}</p>
+              <h2>{starDisplayName(wonder)}</h2>
             </div>
             <button type="button" className="icon-btn" onClick={() => useSimulationStore.getState().selectWonder(null)} aria-label="Kapat">
               ×
@@ -281,9 +364,27 @@ export function InspectRail() {
           </header>
           <p className="inspect-lead">{wonder.fact}</p>
           <div className="inspect-stats">
-            <Stat label="Tür" value={wonder.kind === 'star' ? 'Yıldız' : 'Küçük cisim'} />
-            <Stat label="Özellik" value={wonder.tag} />
+            {wonderPreviewStats(wonder).map((row) => (
+              <Stat key={row.label} label={row.label} value={row.value} />
+            ))}
+            {more
+              ? wonderDetailStats(wonder).map((row) => (
+                  <Stat key={row.label} label={row.label} value={row.value} />
+                ))
+              : null}
           </div>
+          {more && wonderFactList(wonder, true).length > 0 ? (
+            <ul className="inspect-facts">
+              {wonderFactList(wonder, true).map((fact) => (
+                <li key={fact}>{fact}</li>
+              ))}
+            </ul>
+          ) : null}
+          {wonderHasDetail(wonder) ? (
+            <button type="button" className="text-link inspect-more" onClick={() => setMore((open) => !open)}>
+              {more ? 'Daha az' : 'Daha fazla'}
+            </button>
+          ) : null}
         </div>
       ) : null}
     </aside>

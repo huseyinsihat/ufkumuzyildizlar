@@ -3,7 +3,7 @@ import { CSS2DObject, CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer
 import type { BodyId } from '../types/planet'
 import { getBody } from '../astronomy/planetData'
 import type { PlanetDefinition } from '../types/planet'
-import { labelPriority, overlappingLabelIds } from './proximityVisibility'
+import { isAnchorLabel, labelPriority, overlappingLabelIds, shouldOccludeBodyLabel } from './proximityVisibility'
 
 export interface LabelOccluder {
   id: string
@@ -90,27 +90,29 @@ export class LabelLayer {
 
     camera.getWorldPosition(this.camPos)
 
-    const candidates: { id: string; x: number; y: number; priority: number }[] = []
+    const candidates: { id: string; x: number; y: number; priority: number; persistent?: boolean }[] = []
     const baseWant = new Map<string, boolean>()
 
     for (const [id, label] of this.labels) {
+      const category = getBody(id as BodyId).category
+      const persistent = isAnchorLabel(category)
       label.getWorldPosition(this.world)
       this.camLocal.copy(this.world).applyMatrix4(camera.matrixWorldInverse)
       const inFront = this.camLocal.z < -0.35
       this.ndc.copy(this.world).project(camera)
-      const onScreen = Math.abs(this.ndc.x) < 1.32 && Math.abs(this.ndc.y) < 1.32
+      const onScreen = Math.abs(this.ndc.x) < 1.45 && Math.abs(this.ndc.y) < 1.45
       const distance = this.camPos.distanceTo(this.world)
-      const nearOk = distance > 3.8
-      const farOk = distance < 360
-      const blocked = this.isOccluded(id, occluders)
-      const want = inFront && onScreen && nearOk && farOk && !blocked && !hiddenIds.has(id)
+      const nearOk = persistent || distance > 3.8
+      const blocked = shouldOccludeBodyLabel(category) && this.isOccluded(id, occluders)
+      const want = inFront && onScreen && nearOk && !blocked && !hiddenIds.has(id)
       baseWant.set(id, want)
       if (want) {
         candidates.push({
           id,
           x: this.ndc.x,
           y: this.ndc.y,
-          priority: labelPriority(id, selectedId, getBody(id as BodyId).category),
+          priority: labelPriority(id, selectedId, category),
+          persistent,
         })
       }
     }

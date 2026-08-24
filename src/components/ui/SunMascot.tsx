@@ -39,14 +39,13 @@ export function SunMascot({ size = 'md' }: { size?: 'md' | 'lg' }) {
 
 export function ExploreSideTools() {
   const chatOpen = useUiStore((s) => s.sunChatOpen)
-  const panel = useUiStore((s) => s.activePanel)
-  if (chatOpen || panel !== 'none') return null
+  if (chatOpen) return null
 
   return (
     <div className="explore-side">
       <button type="button" className="sun-ask-fab" onClick={() => askTheSun()}>
         <SunMascot size="lg" />
-        <span className="sun-ask-fab-label">Güneş’e sor</span>
+        <span className="sun-ask-fab-label">Güneş’e Sor</span>
       </button>
     </div>
   )

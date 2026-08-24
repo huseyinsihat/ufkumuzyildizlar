@@ -15,7 +15,7 @@ import {
   type Material,
 } from 'three'
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js'
-import { EARTH_CRAFTS, type EarthCraft, type EarthCraftModel } from '../content/earthCrafts'
+import { EARTH_CRAFT_RINGS, EARTH_CRAFTS, earthCraftLocalPosition, type EarthCraft, type EarthCraftModel } from '../content/earthCrafts'
 
 interface CraftNode {
   craft: EarthCraft
@@ -53,8 +53,8 @@ export class EarthCrafts {
 
   constructor() {
     this.group.name = 'earth-crafts'
-    this.addOrbitRing(1.37, 0.88, '#8ec5ff')
-    this.addOrbitRing(2.17, 0.05, '#f4b942')
+    this.addOrbitRing(EARTH_CRAFT_RINGS.leo.orbit, EARTH_CRAFT_RINGS.leo.tilt, EARTH_CRAFT_RINGS.leo.color)
+    this.addOrbitRing(EARTH_CRAFT_RINGS.geo.orbit, EARTH_CRAFT_RINGS.geo.tilt, EARTH_CRAFT_RINGS.geo.color)
     for (const craft of EARTH_CRAFTS) {
       const model = this.buildModel(craft.model, craft.color)
       mark(model, craft.id)
@@ -113,11 +113,8 @@ export class EarthCrafts {
   update(dt: number): void {
     for (const node of this.nodes) {
       node.angle += node.craft.speed * dt
-      const r = this.earthRadius * node.craft.orbit
-      const c = Math.cos(node.angle)
-      const s = Math.sin(node.angle)
-      const tilt = node.craft.tilt
-      node.group.position.set(c * r, s * r * Math.sin(tilt), s * r * Math.cos(tilt))
+      const p = earthCraftLocalPosition(node.craft.orbit, node.craft.tilt, node.angle, this.earthRadius)
+      node.group.position.set(p.x, p.y, p.z)
       node.group.lookAt(0, 0, 0)
     }
   }
@@ -154,10 +151,10 @@ export class EarthCrafts {
     const segs = 96
     const positions = new Float32Array((segs + 1) * 3)
     for (let i = 0; i <= segs; i += 1) {
-      const a = (i / segs) * Math.PI * 2
-      positions[i * 3] = Math.cos(a)
-      positions[i * 3 + 1] = 0
-      positions[i * 3 + 2] = Math.sin(a)
+      const p = earthCraftLocalPosition(1, tilt, (i / segs) * Math.PI * 2, 1)
+      positions[i * 3] = p.x
+      positions[i * 3 + 1] = p.y
+      positions[i * 3 + 2] = p.z
     }
     const geo = this.track(new BufferGeometry())
     geo.setAttribute('position', new Float32BufferAttribute(positions, 3))
@@ -168,7 +165,6 @@ export class EarthCrafts {
     })
     this.materials.push(mat)
     const line = new Line(geo, mat)
-    line.rotation.x = tilt
     line.userData.orbitMul = radiusMul
     line.scale.setScalar(this.earthRadius * radiusMul)
     line.raycast = () => {}

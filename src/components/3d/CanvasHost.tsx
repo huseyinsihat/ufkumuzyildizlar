@@ -24,7 +24,7 @@ export function CanvasHost() {
 
   return (
     <div className="canvas-host" ref={hostRef}>
-      <canvas ref={canvasRef} className="space-canvas" aria-label="3B Güneş Sistemi sahnesi" />
+      <canvas ref={canvasRef} className="space-canvas" aria-label="3B Güneş Sistemi görünümü" />
     </div>
   )
 }

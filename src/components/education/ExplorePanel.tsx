@@ -21,7 +21,7 @@ export function ExplorePanel() {
       <p className="muted">{prompt.answer}</p>
       <div className="row-actions">
         <button type="button" className="btn primary" onClick={() => applyExploreTarget(prompt.targetId)}>
-          Konuya git
+          Konuma git
         </button>
         <button
           type="button"

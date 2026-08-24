@@ -40,7 +40,7 @@ export function TimeControls() {
           {formatSimulationDate(displayed)}
         </p>
       </div>
-      <div className="time-speeds" role="group" aria-label="Simülasyon hızı">
+      <div className="time-speeds" role="group" aria-label="Zaman hızı">
         {TIME_PRESETS.map((preset) => (
           <button
             key={preset.id}

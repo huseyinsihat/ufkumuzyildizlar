@@ -47,7 +47,7 @@ export function IntroScreen() {
             <span className="icon-well">
               <Icon name="planet" />
             </span>
-            <strong>Güneş Sistemini Gez</strong>
+            <strong>Güneş Sistemini Keşfet</strong>
             <span>Gezegenlere Bak</span>
           </button>
           <button

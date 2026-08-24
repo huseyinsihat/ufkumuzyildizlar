@@ -25,7 +25,7 @@ export const MISSIONS: Mission[] = [
     id: 'find-jupiter',
     title: 'Görev 3 — Jüpiter’i bul',
     instruction: 'En büyük gezegeni seç.',
-    hint: 'Mars’tan sonra, asteroid kuşağının hemen ötesinde.',
+    hint: 'Mars’tan sonra, asteroit kuşağının hemen ötesinde.',
     points: 50,
   },
   {
@@ -46,7 +46,7 @@ export const MISSIONS: Mission[] = [
     id: 'earth-year',
     title: 'Görev 6 — Bir Dünya yılı gözle',
     instruction: 'Zaman makinesiyle en az 1 yıl ileri git ve gezegenlerin turunu izle.',
-    hint: 'Alttan “1 yıl atla”ya bas veya 1 yıl/sn hızını dene.',
+    hint: 'Alttan “1 Yıl Atla”ya bas veya 1 yıl/sn hızını dene.',
     points: 100,
   },
   {
@@ -63,7 +63,7 @@ export const BADGES = [
   { id: 'mars-explorer', name: 'Mars Kaşifi', description: 'Mars’ı inceledin.' },
   { id: 'planet-expert', name: 'Gezegen Uzmanı', description: 'Birden fazla gezegeni keşfettin.' },
   { id: 'orbit-master', name: 'Yörünge Ustası', description: 'Yörünge sırasını veya yılı gördün.' },
-  { id: 'kepler-slice', name: 'Pizza Kuralı', description: 'Güneş’e yakınken gezegenin hızlandığını gördün.' },
+  { id: 'kepler-slice', name: 'Yakınken hızlanır', description: 'Güneş’e yakınken gezegenin hızlandığını gördün.' },
   { id: 'tilt-explorer', name: 'Eksen Kaşifi', description: 'Mevsimlerin eğiklikten geldiğini gördün.' },
   { id: 'ring-observer', name: 'Halka Gözlemcisi', description: 'Satürn’ün buz halkalarına baktın.' },
   { id: 'full-moon', name: 'Dolunay Ustası', description: 'Ay’ın aydınlık dilimini hizaladın.' },

@@ -290,6 +290,7 @@ export const useLabStore = create<LabState>((set, get) => ({
     sim.setTimeScale(TIME_PRESETS.find((item) => item.id === 'day')?.scale ?? 86_400)
     sim.setPlaying(true)
     getScene()?.clearWatches()
+    getScene()?.selectConstellation(null)
     getScene()?.focusOverview()
     set({
       kidMassKg: 30,

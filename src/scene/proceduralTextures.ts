@@ -1,4 +1,5 @@
 import { CanvasTexture, SRGBColorSpace } from 'three'
+import { blackbodyRgb } from '../astronomy/starSpectrum'
 import type { BodyId } from '../types/planet'
 
 function hash(n: number): number {
@@ -351,20 +352,159 @@ export function createBodyPortraitUrl(id: BodyId, color: string, size = 168): st
 }
 
 export function createStarGlowTexture(): CanvasTexture {
-  const size = 64
+  const size = 256
   const canvas = document.createElement('canvas')
   canvas.width = size
   canvas.height = size
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Yıldız ışıması oluşturulamadı')
-  const glow = ctx.createRadialGradient(32, 32, 1, 32, 32, 30)
-  glow.addColorStop(0, 'rgba(255,252,240,1)')
-  glow.addColorStop(0.18, 'rgba(255,244,210,0.85)')
-  glow.addColorStop(0.45, 'rgba(255,220,140,0.28)')
-  glow.addColorStop(1, 'rgba(255,200,80,0)')
+  const cx = size / 2
+  const glow = ctx.createRadialGradient(cx, cx, 0, cx, cx, cx)
+  glow.addColorStop(0, 'rgba(255,255,255,1)')
+  glow.addColorStop(0.05, 'rgba(255,255,255,0.96)')
+  glow.addColorStop(0.14, 'rgba(255,255,255,0.55)')
+  glow.addColorStop(0.32, 'rgba(255,255,255,0.16)')
+  glow.addColorStop(0.58, 'rgba(255,255,255,0.045)')
+  glow.addColorStop(1, 'rgba(255,255,255,0)')
   ctx.fillStyle = glow
   ctx.fillRect(0, 0, size, size)
   const texture = new CanvasTexture(canvas)
   texture.colorSpace = SRGBColorSpace
   return texture
 }
+
+export function createStarSpikeTexture(): CanvasTexture {
+  const size = 256
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Yıldız dikeni oluşturulamadı')
+  const cx = size / 2
+  ctx.clearRect(0, 0, size, size)
+  const stroke = (width: number, length: number, alpha: number) => {
+    const gradient = ctx.createLinearGradient(cx, cx - length, cx, cx + length)
+    gradient.addColorStop(0, 'rgba(255,255,255,0)')
+    gradient.addColorStop(0.42, `rgba(255,255,255,${alpha * 0.35})`)
+    gradient.addColorStop(0.5, `rgba(255,255,255,${alpha})`)
+    gradient.addColorStop(0.58, `rgba(255,255,255,${alpha * 0.35})`)
+    gradient.addColorStop(1, 'rgba(255,255,255,0)')
+    ctx.fillStyle = gradient
+    ctx.fillRect(cx - width / 2, cx - length, width, length * 2)
+  }
+  ctx.save()
+  stroke(1.6, 118, 0.62)
+  ctx.translate(cx, cx)
+  ctx.rotate(Math.PI / 2)
+  ctx.translate(-cx, -cx)
+  stroke(1.2, 96, 0.48)
+  ctx.restore()
+  ctx.save()
+  ctx.translate(cx, cx)
+  ctx.rotate(Math.PI / 4)
+  ctx.translate(-cx, -cx)
+  stroke(0.7, 42, 0.12)
+  ctx.restore()
+  const core = ctx.createRadialGradient(cx, cx, 0, cx, cx, 14)
+  core.addColorStop(0, 'rgba(255,255,255,0.85)')
+  core.addColorStop(1, 'rgba(255,255,255,0)')
+  ctx.fillStyle = core
+  ctx.fillRect(0, 0, size, size)
+  const texture = new CanvasTexture(canvas)
+  texture.colorSpace = SRGBColorSpace
+  return texture
+}
+
+export function createStarPointTexture(): CanvasTexture {
+  const size = 64
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d')
+  if (!ctx) throw new Error('Yıldız noktası oluşturulamadı')
+  const cx = size / 2
+  const glow = ctx.createRadialGradient(cx, cx, 0, cx, cx, cx)
+  glow.addColorStop(0, 'rgba(255,255,255,1)')
+  glow.addColorStop(0.18, 'rgba(255,255,255,0.7)')
+  glow.addColorStop(0.45, 'rgba(255,255,255,0.18)')
+  glow.addColorStop(1, 'rgba(255,255,255,0)')
+  ctx.fillStyle = glow
+  ctx.fillRect(0, 0, size, size)
+  const texture = new CanvasTexture(canvas)
+  texture.colorSpace = SRGBColorSpace
+  return texture
+}
+
+export function createNebulaTexture(): CanvasTexture {
+  const size = 256
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  if (!ctx) throw new Error('Bulutsu dokusu oluşturulamadı')
+  const image = ctx.createImageData(size, size)
+  const data = image.data
+  const cx = size / 2
+  for (let y = 0; y < size; y += 1) {
+    for (let x = 0; x < size; x += 1) {
+      const nx = (x - cx) / cx
+      const ny = (y - cx) / cx
+      const d = Math.hypot(nx * 0.82, ny * 1.25)
+      const n = fbm(x * 0.035, y * 0.04)
+      const n2 = fbm(x * 0.08 + 4, y * 0.07)
+      const wing = Math.exp(-((nx - 0.12) ** 2 * 3.2 + (ny + 0.08) ** 2 * 1.4))
+      const wing2 = Math.exp(-((nx + 0.18) ** 2 * 2.4 + (ny - 0.05) ** 2 * 2.1))
+      const density = Math.max(0, 0.72 - d) * (0.35 + n * 0.8) + wing * 0.45 + wing2 * 0.32
+      const alpha = Math.max(0, Math.min(1, density * 0.85 - n2 * 0.12))
+      const i = (y * size + x) * 4
+      const teal = n2 * 0.45
+      data[i] = clampByte(255 * (0.72 + n * 0.2))
+      data[i + 1] = clampByte(120 + teal * 90 + n * 40)
+      data[i + 2] = clampByte(180 + teal * 70)
+      data[i + 3] = clampByte(alpha * 220)
+    }
+  }
+  ctx.putImageData(image, 0, 0)
+  const texture = new CanvasTexture(canvas)
+  texture.colorSpace = SRGBColorSpace
+  return texture
+}
+
+export function createStarPhotosphereTexture(tempK: number, radiusSolar: number, size = 192): CanvasTexture {
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  if (!ctx) throw new Error('Fotosfer dokusu oluşturulamadı')
+  const image = ctx.createImageData(size, size)
+  const data = image.data
+  const base = blackbodyRgb(tempK)
+  const cool = tempK < 4500
+  const hot = tempK > 8500
+  const giant = radiusSolar >= 20
+  const cell = giant ? 3.2 : cool ? 6.5 : hot ? 16 : 10
+  const gran = cool ? (giant ? 0.55 : 0.38) : hot ? 0.1 : 0.22
+  const seed = tempK * 0.001 + radiusSolar * 0.02
+  for (let y = 0; y < size; y += 1) {
+    for (let x = 0; x < size; x += 1) {
+      const u = x / size
+      const v = y / size
+      const n = fbm(u * cell + seed, v * cell * 0.85)
+      const n2 = fbm(u * cell * 2.4 + 3, v * cell * 2.1)
+      const lane = cool ? Math.max(0, 0.55 - n) * 0.55 : 0
+      const spot = cool && giant && noise(u * 5 + seed, v * 5) > 0.86 ? 0.28 : 0
+      const flare = hot && n2 > 0.78 ? 0.12 : 0
+      const shade = 0.72 + n * gran - lane - spot + flare
+      const i = (y * size + x) * 4
+      data[i] = clampByte(base.r * 255 * shade * (cool ? 1.08 : 1))
+      data[i + 1] = clampByte(base.g * 255 * shade * (cool ? 0.92 : 1))
+      data[i + 2] = clampByte(base.b * 255 * shade * (hot ? 1.08 : 1))
+      data[i + 3] = 255
+    }
+  }
+  ctx.putImageData(image, 0, 0)
+  const texture = new CanvasTexture(canvas)
+  texture.colorSpace = SRGBColorSpace
+  return texture
+}
+

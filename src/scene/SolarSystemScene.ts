@@ -5,7 +5,6 @@ import {
   Mesh,
   MeshBasicMaterial,
   Plane,
-  Points,
   Raycaster,
   Scene,
   SRGBColorSpace,
@@ -22,7 +21,8 @@ import { TimeEngine } from '../astronomy/timeEngine'
 import { getHeliocentricEclipticAu, getSatelliteRelativeEclipticAu } from '../astronomy/coordinateSystems'
 import { placeBesideParent } from '../astronomy/satellitePlacement'
 import { auToScene, compressDistance, educationalOrbitRadius, visualMoonOrbitRadius, visualRadius, visualSatelliteOrbitRadius } from '../astronomy/visualScale'
-import { NAMED_ROCKS, NOTABLE_STARS } from '../content/skyWonders'
+import { findConstellation } from '../content/constellations'
+import { NAMED_ROCKS } from '../content/skyWonders'
 import { RAD2DEG } from '../astronomy/astronomyConstants'
 import { earthYearTours, eclipticLongitude, wrapDelta } from '../features/lab/orbitMath'
 import { eclipseKindFromPositions } from '../features/lab/eclipseMath'
@@ -51,6 +51,7 @@ import { UmbraMesh } from './UmbraMesh'
 import { LightPulse } from './LightPulse'
 import { NotableStars } from './NotableStars'
 import { OrbitRenderer } from './OrbitRenderer'
+import { closestScreenHit, resolveStarVsBody, worldRadiusToPixels, type ScreenPickTarget } from './skyPick'
 import { PlanetMesh } from './PlanetMesh'
 import { registerScene } from './sceneApi'
 import { SkyRocks } from './SkyRocks'
@@ -74,7 +75,7 @@ export class SolarSystemScene {
   private orbits: OrbitRenderer
   private asteroids: AsteroidBelt
   private constellations: ConstellationLayer
-  private stars: Points
+  private stars: Group
   private starRoot: Group
   private cityPins: CityPins
   private earthCrafts = new EarthCrafts()
@@ -82,6 +83,8 @@ export class SolarSystemScene {
   private raycaster = new Raycaster()
   private pointer = new Vector2()
   private world = new Vector3()
+  private ndc = new Vector3()
+  private view = new Vector3()
   private hit = new Vector3()
   private plane = new Plane()
   private frame = 0
@@ -212,6 +215,7 @@ export class SolarSystemScene {
         this.orbits.rebuild(state.scaleMode, new Date(this.engine.simulationTimeMs))
         this.asteroids.rebuild(state.scaleMode)
         this.skyRocks.setScaleMode(state.scaleMode)
+        this.notableStars.setScaleMode(state.scaleMode)
         this.camera.setFar(state.scaleMode === 'trueScale' ? 2200 : 1400)
         const keep = state.selectedBodyId
         if (keep && keep !== 'sun') {
@@ -222,6 +226,13 @@ export class SolarSystemScene {
       }
       this.orbits.setVisible(state.showOrbits)
       this.constellations.setVisible(state.showConstellations)
+      if (!state.showConstellations) {
+        this.constellations.select(null)
+      } else if (findConstellation(state.selectedWonderId)) {
+        this.constellations.select(state.selectedWonderId)
+      } else if (useLabStore.getState().activityId !== 'ursa-hunt') {
+        this.constellations.select(null)
+      }
       this.labels.setVisible(state.showLabels)
       this.cityPins.setVisible(state.cityPinsVisible)
       for (const planet of this.planets.values()) {
@@ -252,6 +263,7 @@ export class SolarSystemScene {
 
     this.earthCrafts.setEarthRadius(visualRadius('earth', this.scaleMode))
     this.earthCrafts.setVisible(this.scaleMode === 'educational')
+    this.notableStars.setScaleMode(this.scaleMode)
     this.resize()
     registerScene(this)
     void loadBodyTextures().then((maps) => {
@@ -533,7 +545,7 @@ export class SolarSystemScene {
     const date = new Date(this.engine.simulationTimeMs)
 
     this.updateBodies(date, dtSim, sim.freezeRotation, sim.freezeRevolution, sim.moonDragEnabled)
-    this.orbits.followParents(this.planets)
+    this.orbits.followParents(this.planets, date)
     this.updateSatelliteLod(sim)
     const astro = useEventStore.getState()
     this.events.update(
@@ -547,6 +559,7 @@ export class SolarSystemScene {
     this.asteroids.update(dtSim / 86_400)
     this.skyRocks.update(dt, dtSim / 86_400)
     this.notableStars.update(dt)
+    this.notableStars.setSelected(sim.selectedWonderId)
     this.earthCrafts.update(dt)
     this.earthCrafts.setSelected(sim.selectedWonderId)
     const followId = sim.selectedBodyId
@@ -577,9 +590,9 @@ export class SolarSystemScene {
       hiddenMoonLabels,
     )
     const camDist = this.camera.camera.position.length()
-    const starSelected = NOTABLE_STARS.some((star) => star.id === sim.selectedWonderId)
-    const skyLabels = sim.skyCamera || starSelected || camDist > 180
-    this.notableStars.setLabelsVisible(!hideLabels && sim.showLabels && skyLabels)
+    this.notableStars.updateLabels(this.camera.camera, !hideLabels && sim.showLabels)
+    this.constellations.setLabelsVisible(!hideLabels && sim.showConstellations)
+    this.constellations.updateLabels(this.camera.camera)
     const beltR = compressDistance(2.7, this.scaleMode)
     const nearBelt =
       Math.abs(camDist - beltR) < 22 || NAMED_ROCKS.some((rock) => rock.id === sim.selectedWonderId)
@@ -809,7 +822,17 @@ export class SolarSystemScene {
     this.camera.stopFollow()
     const pos = new Vector3()
     target.getWorldPosition(pos)
-    this.camera.focusOn(pos, 6, false)
+    const core = this.notableStars.coreRadius(id)
+    this.camera.focusOn(pos, Math.max(6, (core ?? 2.5) * 2.4), false)
+  }
+
+  private focusConstellation(id: string): void {
+    const pos = this.constellations.centroidWorld(id)
+    if (!pos) return
+    useSimulationStore.getState().selectWonder(id)
+    this.constellations.select(id)
+    this.camera.stopFollow()
+    this.camera.nudgeLook(pos)
   }
 
   private onPointerDown = (event: PointerEvent): void => {
@@ -875,21 +898,29 @@ export class SolarSystemScene {
       }
       return
     }
-    const skyHits = this.raycaster.intersectObjects([...this.notableStars.meshes, ...this.skyRocks.meshes], false)
-    const wonderId = skyHits[0]?.object.userData.wonderId as string | undefined
-    if (wonderId) {
-      useSimulationStore.getState().selectWonder(wonderId)
-      this.camera.stopFollow()
-      const target = skyHits[0]?.object
-      if (target) this.camera.focusOn(target.position.clone(), 6, false)
+    const picked = this.pickStarOrBody()
+    if (picked?.kind === 'star') {
+      this.focusWonder(picked.id)
       return
     }
-    const picked = this.pickBodyOrOrbit()
-    if (!picked.bodyId) return
-    useSimulationStore.getState().selectBody(picked.bodyId)
-    useEducationStore.getState().notifySelection(picked.bodyId)
-    this.focusBody(picked.bodyId)
-    if (picked.bodyId === 'sun') onSunSelected()
+    if (picked?.kind === 'body') {
+      this.selectPickedBody(picked.id as BodyId)
+      return
+    }
+    const constellationId = this.pickConstellation()
+    if (constellationId) {
+      this.focusConstellation(constellationId)
+      return
+    }
+    const rockHits = this.raycaster.intersectObjects(this.skyRocks.meshes, false)
+    const rockId = rockHits[0]?.object.userData.wonderId as string | undefined
+    if (rockId) {
+      this.focusWonder(rockId)
+      return
+    }
+    const orbit = this.pickBodyOrOrbit()
+    if (!orbit.bodyId) return
+    this.selectPickedBody(orbit.bodyId)
   }
 
   private onPointerMove = (event: PointerEvent): void => {
@@ -934,18 +965,78 @@ export class SolarSystemScene {
     this.orbits.setHover(null)
   }
 
+  private pickStarOrBody(): { kind: 'star' | 'body'; id: string } | undefined {
+    const width = this.canvas.clientWidth || 1
+    const height = this.canvas.clientHeight || 1
+    const viewport = { width, height }
+    const starHit = closestScreenHit(
+      this.pointer,
+      viewport,
+      this.notableStars.pickTargets(this.camera.camera, width, height),
+    )
+    const bodyHit = closestScreenHit(this.pointer, viewport, this.bodyPickTargets(width, height), 0)
+    const winner = resolveStarVsBody(starHit, bodyHit)
+    if (winner === 'star' && starHit) return { kind: 'star', id: starHit.target.id }
+    if (winner === 'body' && bodyHit) return { kind: 'body', id: bodyHit.target.id }
+    return undefined
+  }
+
+  private pickConstellation(): string | undefined {
+    const sim = useSimulationStore.getState()
+    if (!sim.showConstellations) return undefined
+    if (useLabStore.getState().activityId === 'ursa-hunt') return undefined
+    const width = this.canvas.clientWidth || 1
+    const height = this.canvas.clientHeight || 1
+    return closestScreenHit(
+      this.pointer,
+      { width, height },
+      this.constellations.pickTargets(this.camera.camera, width, height),
+    )?.target.id
+  }
+
+  private bodyPickTargets(_width: number, height: number): ScreenPickTarget[] {
+    const camera = this.camera.camera
+    camera.updateMatrixWorld()
+    const targets: ScreenPickTarget[] = []
+    const add = (id: string, object: Mesh, radius: number, visible: boolean): void => {
+      if (!visible) return
+      object.getWorldPosition(this.world)
+      this.view.copy(this.world).applyMatrix4(camera.matrixWorldInverse)
+      this.ndc.copy(this.world).project(camera)
+      targets.push({
+        id,
+        ndcX: this.ndc.x,
+        ndcY: this.ndc.y,
+        radiusPx: worldRadiusToPixels(radius, this.world.distanceTo(camera.position), camera.fov, height),
+        behindCamera: this.view.z > 0,
+      })
+    }
+    add('sun', this.sun.mesh, visualRadius('sun', this.scaleMode), true)
+    for (const planet of this.planets.values()) {
+      add(planet.body.id, planet.mesh, visualRadius(planet.body.id, this.scaleMode), planet.group.visible)
+    }
+    return targets
+  }
+
+  private selectPickedBody(bodyId: BodyId): void {
+    useSimulationStore.getState().selectBody(bodyId)
+    useEducationStore.getState().notifySelection(bodyId)
+    this.focusBody(bodyId)
+    if (bodyId === 'sun') onSunSelected()
+  }
+
   /** Planets win over orbits so a globe click is never stolen by a fat ring. */
   private pickBodyOrOrbit(): { bodyId: BodyId | undefined; fromOrbit: boolean } {
     const meshes: Mesh[] = [this.sun.mesh]
-    for (const planet of this.planets.values()) meshes.push(planet.mesh)
+    for (const planet of this.planets.values()) {
+      if (!planet.group.visible) continue
+      meshes.push(planet.mesh)
+    }
     const hits = this.raycaster.intersectObjects(meshes, false)
     const bodyId = hits[0]?.object.userData.bodyId as BodyId | undefined
     if (bodyId) return { bodyId, fromOrbit: false }
     if (!this.orbits.group.visible) return { bodyId: undefined, fromOrbit: false }
-    const orbitHits = this.raycaster.intersectObjects(
-      this.orbits.pickMeshes.filter((mesh) => mesh.visible),
-      false,
-    )
+    const orbitHits = this.raycaster.intersectObjects(this.orbits.visiblePickMeshes(), false)
     const orbitId = orbitHits[0]?.object.userData.bodyId as BodyId | undefined
     return { bodyId: orbitId, fromOrbit: Boolean(orbitId) }
   }
@@ -953,9 +1044,26 @@ export class SolarSystemScene {
   private updatePointerHover(event: PointerEvent): void {
     this.setPointer(event)
     this.raycaster.setFromCamera(this.pointer, this.camera.camera)
-    const picked = this.pickBodyOrOrbit()
-    this.canvas.style.cursor = picked.bodyId ? 'pointer' : ''
-    this.orbits.setHover(picked.fromOrbit ? picked.bodyId ?? null : null)
+    const picked = this.pickStarOrBody()
+    if (picked) {
+      this.canvas.style.cursor = 'pointer'
+      this.orbits.setHover(null)
+      return
+    }
+    if (this.pickConstellation()) {
+      this.canvas.style.cursor = 'pointer'
+      this.orbits.setHover(null)
+      return
+    }
+    const rockHits = this.raycaster.intersectObjects(this.skyRocks.meshes, false)
+    if (rockHits[0]?.object.userData.wonderId) {
+      this.canvas.style.cursor = 'pointer'
+      this.orbits.setHover(null)
+      return
+    }
+    const body = this.pickBodyOrOrbit()
+    this.canvas.style.cursor = body.bodyId ? 'pointer' : ''
+    this.orbits.setHover(body.fromOrbit ? body.bodyId ?? null : null)
   }
 
   private onPointerUp = (event: PointerEvent): void => {
@@ -1009,6 +1117,7 @@ export class SolarSystemScene {
     this.composer.setSize(width, height)
     this.bloom.setSize(width, height)
     this.orbits.setResolution(width, height)
+    this.constellations.setResolution(width, height)
   }
 
   dispose(): void {

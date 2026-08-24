@@ -1,7 +1,7 @@
 import { BODIES } from '../../astronomy/planetData'
 import { focusBody, openCompare } from '../../features/planetExplorer/focus'
-import { NOTABLE_STARS } from '../../content/skyWonders'
-import { EVENT_STATUS_LABEL, eventsForDrawer } from '../../content/astroEvents'
+import { starsAlphabetical, starDisplayName } from '../../content/skyWonders'
+import { EVENT_STATUS_LABEL, eventsForDrawer, getAstroEvent } from '../../content/astroEvents'
 import { focusEvent } from '../../features/astroEvents/focusEvent'
 import { useEventStore } from '../../store/eventStore'
 import { useLabStore } from '../../store/labStore'
@@ -48,7 +48,7 @@ export function ExploreListStrip() {
       ) : null}
       {starOpen ? (
         <ul className="planet-drawer star-drawer" aria-label="Yıldızlar">
-          {NOTABLE_STARS.map((star) => (
+          {starsAlphabetical().map((star) => (
             <li key={star.id}>
               <button
                 type="button"
@@ -58,8 +58,12 @@ export function ExploreListStrip() {
                   setStarOpen(false)
                 }}
               >
-                <i className="body-swatch" style={{ background: star.color }} aria-hidden="true" />
-                {star.name}
+                <i
+                  className={`body-swatch is-star${star.kind === 'nebula' ? ' is-nebula' : ''}${star.kind === 'cluster' ? ' is-cluster' : ''}`}
+                  style={{ background: star.color, color: star.color }}
+                  aria-hidden="true"
+                />
+                {starDisplayName(star)}
               </button>
             </li>
           ))}
@@ -148,6 +152,7 @@ export function ExploreDock() {
   const panel = useUiStore((s) => s.activePanel)
   const setMode = useUiStore((s) => s.setAppMode)
   const openLab = useLabStore((s) => s.openLab)
+  const liveEvent = getAstroEvent(useEventStore((s) => s.activeEventId))
 
   function openPlanets() {
     if (!planetOpen) useVoiceStore.getState().play('ui-planets')
@@ -183,26 +188,60 @@ export function ExploreDock() {
     openCompare()
   }
 
+  function openTeam() {
+    if (panel !== 'team') useVoiceStore.getState().play('ui-team')
+    setPanel(panel === 'team' ? 'none' : 'team')
+  }
+
+  function openSettings() {
+    setPanel(panel === 'settings' ? 'none' : 'settings')
+  }
+
   return (
     <div className="explore-dock">
       <nav className="dock-buttons" aria-label="Keşif">
         <div className="dock-explore">
+          <button type="button" className={`btn ${starOpen ? 'is-on' : ''}`} onClick={openStars} aria-expanded={starOpen}>
+            <Icon name="spark" />
+            <span className="dock-label">Yıldızlar</span>
+          </button>
           <button type="button" className={`btn ${planetOpen ? 'is-on' : ''}`} onClick={openPlanets} aria-expanded={planetOpen}>
             <Icon name="planet" />
             <span className="dock-label">Gezegenler</span>
           </button>
-          <button type="button" className={`btn ${starOpen ? 'is-on' : ''}`} onClick={openStars} aria-expanded={starOpen}>
-            <Icon name="spark" />
-            <span className="dock-label">Yıldızlar</span>
+          <button
+            type="button"
+            className={`dock-live-event is-compare${panel === 'compare' ? ' is-on' : ''}`}
+            onClick={toggleCompare}
+            aria-pressed={panel === 'compare'}
+            title="Gezegenleri karşılaştır"
+          >
+            Karşılaştır
           </button>
           <button type="button" className={`btn ${eventOpen ? 'is-on' : ''}`} onClick={openEvents} aria-expanded={eventOpen}>
             <Icon name="orbit" />
             <span className="dock-label">Olaylar</span>
           </button>
+          <button
+            type="button"
+            className={`dock-live-event${liveEvent ? '' : ' is-idle'}`}
+            onClick={() => (liveEvent ? focusEvent(liveEvent.id) : openEvents())}
+            title={liveEvent ? liveEvent.title : 'Aktif olay yok'}
+          >
+            {liveEvent ? liveEvent.shortName : 'Aktif Olay Yok'}
+          </button>
           <button type="button" className={`btn ${panel === 'facts' ? 'is-on' : ''}`} onClick={openFacts}>
             <Icon name="book" />
             <span className="dock-label">Bilgiler</span>
             <span className="dock-label-short">Bilgi</span>
+          </button>
+          <button type="button" className={`btn ${panel === 'team' ? 'is-on' : ''}`} onClick={openTeam}>
+            <Icon name="people" />
+            <span className="dock-label">Takım</span>
+          </button>
+          <button type="button" className={`btn ${panel === 'settings' ? 'is-on' : ''}`} onClick={openSettings}>
+            <Icon name="gear" />
+            <span className="dock-label">Ayarlar</span>
           </button>
         </div>
         <div className="dock-actions">
@@ -210,10 +249,6 @@ export function ExploreDock() {
             <Icon name="flask" />
             <span className="dock-label">{TEAM.home}</span>
             <span className="dock-label-short">Etkinlik</span>
-          </button>
-          <button type="button" className={`btn ${panel === 'compare' ? 'is-on' : ''}`} onClick={toggleCompare}>
-            <Icon name="compare" />
-            <span className="dock-label">Karşılaştır</span>
           </button>
         </div>
       </nav>

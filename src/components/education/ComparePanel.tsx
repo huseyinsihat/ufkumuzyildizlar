@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { BODIES } from '../../astronomy/planetData'
+import { bodiesInFamilyOrder, compareOptionLabel, getBody } from '../../astronomy/planetData'
 import { kidCompare } from '../../features/lab/kidCompare'
 import { insightFor } from '../../content/insights'
 import { createBodyPortraitUrl } from '../../scene/proceduralTextures'
@@ -38,6 +38,8 @@ function PlanetOrb({ body }: { body: PlanetDefinition }) {
   )
 }
 
+const COMPARE_OPTIONS = bodiesInFamilyOrder()
+
 function PickCard({
   body,
   value,
@@ -53,9 +55,9 @@ function PickCard({
     <label className={`compare-pick-card is-${tone}`}>
       <PlanetOrb body={body} />
       <select value={value} onChange={(event) => onChange(event.target.value as BodyId)} aria-label={tone === 'a' ? 'Birinci gök cismi' : 'İkinci gök cismi'}>
-        {BODIES.map((item) => (
+        {COMPARE_OPTIONS.map((item) => (
           <option key={item.id} value={item.id}>
-            {item.name}
+            {compareOptionLabel(item)}
           </option>
         ))}
       </select>
@@ -70,10 +72,9 @@ export function ComparePanel() {
   const setCompare = useSimulationStore((s) => s.setCompare)
   const rows = kidCompare(a, b)
   const close = () => useUiStore.getState().setActivePanel('none')
-  const bodyA = BODIES.find((item) => item.id === a)
-  const bodyB = BODIES.find((item) => item.id === b)
+  const bodyA = getBody(a)
+  const bodyB = getBody(b)
   const tip = insightFor([a, b])
-  if (!bodyA || !bodyB) return null
 
   return (
     <aside className="hud-sheet compare-sheet" aria-label="Karşılaştırma">

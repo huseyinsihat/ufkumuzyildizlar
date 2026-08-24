@@ -1,6 +1,6 @@
 import type { PlanetDefinition } from '../types/planet'
 import type { Vec3 } from '../types/simulation'
-import { sampleOrbit } from './orbitalCalculations'
+import { getSatelliteRelativeEclipticAu } from './coordinateSystems'
 
 /** Map an ecliptic AU delta into Y-up scene direction (same remap as auToScene). */
 export function eclipticDeltaToSceneDir(delta: Vec3): Vec3 {
@@ -19,22 +19,22 @@ export function placeBesideParent(parent: Vec3, relativeEcliptic: Vec3, orbitRad
   }
 }
 
-/** Local scene-space ring matching placeBesideParent (inclined, parent-centered). */
-export function sampleSatelliteOrbitLocal(body: PlanetDefinition, orbitRadius: number, samples = 96): Vec3[] {
-  const points = sampleOrbit(
-    {
-      semiMajorAxisAu: 1,
-      eccentricity: 0,
-      inclinationDeg: body.inclinationDeg,
-      longitudeAscendingNodeDeg: body.longitudeAscendingNodeDeg,
-      argumentPeriapsisDeg: body.argumentPeriapsisDeg,
-    },
-    samples,
-  )
-  return points.map((point) => {
-    const dir = eclipticDeltaToSceneDir(point)
-    const length = Math.hypot(dir.x, dir.y, dir.z) || 1
-    const scale = orbitRadius / length
-    return { x: dir.x * scale, y: dir.y * scale, z: dir.z * scale }
-  })
+/**
+ * Local scene-space ring matching placeBesideParent.
+ * Samples the same parent-relative ephemeris the satellite rides, so the body stays on the line.
+ */
+export function sampleSatelliteOrbitLocal(
+  body: PlanetDefinition,
+  orbitRadius: number,
+  samples = 96,
+  date: Date = new Date(),
+): Vec3[] {
+  const origin = { x: 0, y: 0, z: 0 }
+  const periodMs = Math.max(body.orbitalPeriodDays, 1) * 86_400_000
+  const points: Vec3[] = []
+  for (let i = 0; i <= samples; i += 1) {
+    const relative = getSatelliteRelativeEclipticAu(body.id, new Date(date.getTime() + (i / samples) * periodMs))
+    points.push(placeBesideParent(origin, relative, orbitRadius))
+  }
+  return points
 }

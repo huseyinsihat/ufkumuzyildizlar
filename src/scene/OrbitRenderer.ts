@@ -1,4 +1,5 @@
 import { Color, Group, Vector2 } from 'three'
+import { isAncestorVisible } from './skyPick'
 import { Line2 } from 'three/addons/lines/Line2.js'
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js'
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js'
@@ -42,6 +43,9 @@ export class OrbitRenderer {
   private selectedId: BodyId | null = null
   private hoverId: BodyId | null = null
   private resolution = new Vector2(1, 1)
+  private lastMode: ScaleMode = 'educational'
+  private lastSatelliteMs = 0
+  private lastMoonSyncReal = 0
 
   constructor() {
     this.group = new Group()
@@ -55,6 +59,8 @@ export class OrbitRenderer {
   }
 
   rebuild(mode: ScaleMode, date: Date = new Date()): void {
+    this.lastMode = mode
+    this.lastSatelliteMs = date.getTime()
     this.disposeLines()
     for (const planet of getPlanets()) {
       const points = sampleHeliocentricOrbitAu(planet.id, date, 192)
@@ -80,7 +86,7 @@ export class OrbitRenderer {
       for (const moon of getMoonsOf(planet.id)) {
         const radius = visualSatelliteOrbitRadius(moon.id, mode)
         const positions: number[] = []
-        for (const point of sampleSatelliteOrbitLocal(moon, radius, 96)) {
+        for (const point of sampleSatelliteOrbitLocal(moon, radius, 96, date)) {
           positions.push(point.x, point.y, point.z)
         }
         const visual = this.makeLine(
@@ -111,18 +117,43 @@ export class OrbitRenderer {
     this.applyTints()
   }
 
-  followParents(planets: Map<BodyId, PlanetMesh>): void {
+  followParents(planets: Map<BodyId, PlanetMesh>, date?: Date): void {
     for (const holder of this.satelliteHolders.values()) {
       const parentId = holder.userData.parentId as BodyId | undefined
       const parent = parentId ? planets.get(parentId) : undefined
       if (!parent) continue
       holder.position.copy(parent.group.position)
     }
+    if (date) this.syncMoonOrbit(date)
+  }
+
+  /** Keep the Moon ring on the live ephemeris path when time jumps or warps. */
+  private syncMoonOrbit(date: Date): void {
+    if (Math.abs(date.getTime() - this.lastSatelliteMs) < 2 * 86_400_000) return
+    const now = performance.now()
+    if (now - this.lastMoonSyncReal < 400) return
+    this.lastMoonSyncReal = now
+    const holder = this.satelliteHolders.get('moon')
+    if (!holder) return
+    const radius = visualSatelliteOrbitRadius('moon', this.lastMode)
+    const positions: number[] = []
+    for (const point of sampleSatelliteOrbitLocal(getBody('moon'), radius, 96, date)) {
+      positions.push(point.x, point.y, point.z)
+    }
+    const looped = closedLoop(positions)
+    for (const child of holder.children) {
+      if (child instanceof Line2) child.geometry.setPositions(looped)
+    }
+    this.lastSatelliteMs = date.getTime()
   }
 
   setSatelliteVisible(id: BodyId, visible: boolean): void {
     const holder = this.satelliteHolders.get(id)
     if (holder) holder.visible = visible
+  }
+
+  visiblePickMeshes(): Line2[] {
+    return this.pickMeshes.filter((mesh) => isAncestorVisible(mesh))
   }
 
   highlight(bodyId: BodyId | null): void {

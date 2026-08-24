@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { compareBodies } from '../features/comparison/compareBodies'
 import { comparePairFor } from '../features/comparison/pair'
-import { getBody, getMoonsOf } from './planetData'
+import { bodiesInFamilyOrder, compareOptionLabel, getBody, getMoonsOf } from './planetData'
 
 describe('planetData', () => {
   it('uses NASA-scale Earth values', () => {
@@ -16,6 +16,32 @@ describe('planetData', () => {
     expect(getMoonsOf('mars').map((item) => item.id)).toEqual(['phobos', 'deimos'])
     expect(getMoonsOf('jupiter').map((item) => item.id)).toEqual(['io', 'europa', 'ganymede', 'callisto'])
     expect(getMoonsOf('saturn').map((item) => item.id)).toEqual(['titan'])
+  })
+
+  it('nests moons under their planets for the compare picker', () => {
+    expect(bodiesInFamilyOrder().map((item) => item.id)).toEqual([
+      'sun',
+      'mercury',
+      'venus',
+      'earth',
+      'moon',
+      'mars',
+      'phobos',
+      'deimos',
+      'jupiter',
+      'io',
+      'europa',
+      'ganymede',
+      'callisto',
+      'saturn',
+      'titan',
+      'uranus',
+      'neptune',
+      'pluto',
+    ])
+    expect(compareOptionLabel(getBody('earth'))).toBe('Dünya')
+    expect(compareOptionLabel(getBody('moon'))).toBe('- Ay')
+    expect(compareOptionLabel(getBody('phobos'))).toBe('- Phobos')
   })
 })
 

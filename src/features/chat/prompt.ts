@@ -1,12 +1,13 @@
 import { getBody } from '../../astronomy/planetData'
 import { CRAFT_KIND_LABEL, findEarthCraft } from '../../content/earthCrafts'
-import { findWonder } from '../../content/skyWonders'
+import { findWonder, isNotableStar } from '../../content/skyWonders'
+import { starScienceLine } from '../../content/wonderScience'
 import { TEAM } from '../../content/team'
 import type { BodyId } from '../../types/planet'
 import type { ScaleMode } from '../../types/simulation'
 
 export const WELCOME_TEXT =
-  'Merhaba. Ben Güneş. Minik Dahiler beni TEKNOFEST 2026 için buraya koydu. Gökyüzü, gezegenler ve yıldızlar hakkında sor; en sade haliyle anlatayım.'
+  'Merhaba. Ben Güneş. Minik Dahiler beni TEKNOFEST 2026 için buraya yerleştirdi. Gökyüzü, gezegenler ve yıldızlar hakkında sor; en sade haliyle anlatayım.'
 
 export const WAITING_LINES = [
   'Düşünüyorum. Sana şimdi cevap vereceğim.',
@@ -15,7 +16,7 @@ export const WAITING_LINES = [
   'Sabrın güzel. Cevabı hazırlıyorum.',
   'Yıldızlara bir bakayım. Az sonra konuşurum.',
   'Dur, bunu sade sade anlatayım. Geliyor.',
-  'Isınıyorum. Sana güzel söyleyeceğim.',
+  'Biraz düşünüyorum. Az sonra anlatacağım.',
   'Bekle biraz. Cevabın yolda.',
 ] as const
 
@@ -34,12 +35,12 @@ const SCALE_LABEL: Record<ScaleMode, string> = {
 
 export function systemPrompt(): string {
   return [
-    `Sen Güneş’sin. ${TEAM.project} uygulamasında konuşan gökyüzü, Güneş Sistemi ve galaksi rehberisin.`,
+    `Sen Güneş’sin. ${TEAM.project} uygulamasında konuşan gökyüzü, Güneş Sistemi ve gökada rehberisin.`,
     `${TEAM.event} kapsamında ${TEAM.teamName} senin bu işi yapmanı sağladı. Bunu ilk selamda söyle. Her cevapta tekrar etme.`,
     'Karşındaki ilkokul ve ortaokul öğrencisidir. Türkçe konuş. Cümleler kısa, açık ve samimi olsun.',
     'Her cevap 2 ile 4 kısa cümle olsun. Soruyu tekrar yazma. Direkt cevap ver.',
     'Gerçek bilgi ver. Uydurma. Bilmiyorsan “emin değilim” de. Sayıları sade söyle: ışık Dünya’ya yaklaşık 8 dakika 20 saniyede gelir; Güneş Dünya’dan yaklaşık 109 kat geniştir.',
-    'Sahne özetindeki NASA kaynaklı rakamlara uy. Sayı uydurma.',
+    'Görüntü özetindeki NASA kaynaklı rakamlara uy. Sayı uydurma.',
     'Konu uzay, gezegen, yıldız, gökyüzü değilse nazikçe oraya çek. Zararlı veya yetişkin konu yok.',
     'Emoji kullanma. Süslü başlık, madde işareti ve yıldız işareti yazma. Markdown kullanma. En fazla bir kısa benzetme kullan.',
   ].join(' ')
@@ -50,7 +51,7 @@ export function buildSceneSummary(input: {
   wonderId: string | null
   scaleMode: ScaleMode
 }): string {
-  const lines = [`Sahne özeti. Ölçek: ${SCALE_LABEL[input.scaleMode]}.`]
+  const lines = [`Görüntü özeti. Ölçek: ${SCALE_LABEL[input.scaleMode]}.`]
   if (input.bodyId) {
     const body = getBody(input.bodyId)
     lines.push(`Şu an bakılan gök cismi: ${body.name} (${body.englishName}). ${body.description}`)
@@ -68,6 +69,12 @@ export function buildSceneSummary(input: {
       const wonder = findWonder(input.wonderId)
       if (wonder) {
         lines.push(`İşaretlenen gökyüzü cismi: ${wonder.name}. ${wonder.fact}`)
+        if (isNotableStar(wonder)) {
+          lines.push(starScienceLine(wonder))
+          lines.push(...wonder.facts.slice(0, 3))
+        } else if (wonder.facts) {
+          lines.push(...wonder.facts.slice(0, 3))
+        }
       }
     }
   }

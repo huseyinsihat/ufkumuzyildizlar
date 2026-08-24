@@ -13,7 +13,7 @@ export function EducationHub() {
           ×
         </button>
       </header>
-      <p>Görevlerle keşfet, karşılaştır ve ölçeği dene. Her adım bir astronomik fikri yaşatır.</p>
+      <p>Görevlerle keşfet, karşılaştır ve ölçeği dene. Her adım bir gökyüzü fikrini gösterir.</p>
       <button type="button" className="nav-btn" onClick={() => setPanel('missions')}>
         Görevler ve rozetler
       </button>

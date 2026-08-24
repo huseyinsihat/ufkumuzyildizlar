@@ -9,7 +9,7 @@ import { Icon, type IconName } from './Icon'
 import type { ScaleMode } from '../../types/simulation'
 
 const MODES: { id: ScaleMode; label: string }[] = [
-  { id: 'educational', label: 'Eğitimsel' },
+  { id: 'educational', label: 'Eğitim ölçeği' },
   { id: 'trueScale', label: 'Gerçek ölçek' },
 ]
 
@@ -82,7 +82,7 @@ export function SettingsPanel() {
       </div>
       <p className="settings-note">{scaleExplanation(scaleMode)}</p>
 
-      <p className="nav-label">Sahne</p>
+      <p className="nav-label">Görünüm</p>
       <div className="settings-toggles">
         <Chip on={leftOpen} label="Gezegen kartı" icon="planet" onToggle={setLeftOpen} />
         <Chip
@@ -126,9 +126,13 @@ export function SettingsPanel() {
       </div>
 
       <div className="settings-foot">
+        <button type="button" className="settings-chip" onClick={() => useUiStore.getState().setActivePanel('hardware')}>
+          <Icon name="chip" />
+          Deneyap Kart
+        </button>
         <button type="button" className="settings-chip" onClick={() => getScene()?.focusOverview()}>
           <Icon name="reset" />
-          Kamerayı sıfırla
+          Genel bakışa dön
         </button>
         <button type="button" className="settings-chip" onClick={() => useUiStore.getState().startDemo()}>
           <Icon name="play" />

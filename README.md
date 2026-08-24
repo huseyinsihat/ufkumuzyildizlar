@@ -3,7 +3,7 @@
 **Minik Dahiler** takımının **TEKNOFEST 2026** projesidir.  
 Kategori: Astronomi, Uzay Bilimleri ve Havacılık.
 
-Tarayıcıda 3B Güneş Sistemi açılır. Gezegenleri gez, Proje Etkinlikleri ile öğren, Güneş’e sor.
+Tarayıcıda 3B Güneş Sistemi açılır. Gezegenleri keşfet, Proje Etkinlikleri ile öğren, Güneş’e sor.
 
 Canlı site: https://huseyinsihat.github.io/ufkumuzyildizlar/
 
@@ -25,7 +25,7 @@ npm run build
 
 ## Deneyap Kart
 
-Sahne, kart olmadan da çalışır. USB ile Deneyap Kart 1A takılıysa Chrome veya Edge kartı kendiliğinden tanır. İlk kez eşlemek için **Kart → Bağlan**’a bas.
+Uygulama, kart olmadan da çalışır. USB ile Deneyap Kart 1A takılıysa Chrome veya Edge kartı kendiliğinden tanır. İlk kez eşlemek için **Kart → Bağlan**’a bas.
 
 Yazılım: `firmware/deneyapkart/ufkumuz.ino`  
 Arduino IDE’de kart: **Deneyap Kart 1A**. Baud: 115200.

@@ -9,7 +9,7 @@ import { useLabStore } from '../../store/labStore'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
 import type { BodyId } from '../../types/planet'
-import { NOTABLE_STARS } from '../../content/skyWonders'
+import { NOTABLE_STARS, starDisplayName } from '../../content/skyWonders'
 import { PhysicsCanvas } from './PhysicsCanvas'
 
 export function EarthYearLab() {
@@ -154,7 +154,7 @@ export function SpinOrbitLab() {
       ) : null}
       {step === 'result' ? (
         <p>
-          {correct ? <strong className="success">Doğru.</strong> : <strong>Tekrar bak.</strong>} Gece ve gündüz dönmeden olur; tur yıl yapar.
+          {correct ? <strong className="success">Doğru.</strong> : <strong>Tekrar bak.</strong>} Gece ve gündüz, Dünya’nın dönmesiyle olur. Güneş etrafındaki tur yılı yapar.
         </p>
       ) : null}
     </div>
@@ -365,7 +365,7 @@ export function RealScaleLab() {
                 getScene()?.focusOverview()
               }}
             >
-              Anlamak için büyük
+              Büyütülmüş model
             </button>
             <button
               type="button"
@@ -634,7 +634,7 @@ export function StarNamesLab() {
           <div className="choice-row">
             {options.map((star) => (
               <button key={star.id} type="button" className="chip" onClick={() => choose(star.id)}>
-                {star.name}
+                {starDisplayName(star)}
               </button>
             ))}
           </div>
@@ -656,7 +656,7 @@ export function SpaceMissionLab() {
   const step = useLabStore((s) => s.step)
   const moonDeg = useLabStore((s) => s.moonPhaseDeg)
   const steps = [
-    { title: 'Mars’a bak', body: 'Mars’ın yılı daha uzun durur.' },
+    { title: 'Mars’a bak', body: 'Mars’ın yılı daha uzun sürer.' },
     { title: 'Dolunayı hizala', body: 'Ay’ı Dünya’nın gece tarafına sürükle.' },
     { title: 'Ay’da zıpla', body: 'Ay’da zıplama daha yüksektir.' },
   ]
@@ -731,8 +731,8 @@ export function LightTravelLab() {
       {step === 'simulate' ? (
         <div className="lab-controls">
           <p className="muted">
-            Sahnede {LIGHT_SCENE_SEC[seconds > 800 ? 'jupiter' : 'earth']} sn
-            {arrived ? ' · Işık vardı.' : ''}
+            Görüntüde {LIGHT_SCENE_SEC[seconds > 800 ? 'jupiter' : 'earth']} sn
+            {arrived ? ' · Işık ulaştı.' : ''}
           </p>
           <p className="muted">Gerçekte {lightTravelLabel(seconds > 800 ? 'jupiter' : 'earth')} (Dünya ≈ 8 dk 20 sn · Jüpiter ≈ 43 dk)</p>
           <div className="choice-row">
@@ -1126,7 +1126,7 @@ export function LightDiaryLab() {
             </button>
           </div>
           {starRun ? (
-            <p className="muted">Proxima ~4,24 ışık yılı — ışık yaklaşık 4 yıl 3 ay. Sahnede foton gitmez; bu gerçek süredir.</p>
+            <p className="muted">Proxima ~4,24 ışık yılı — ışık yaklaşık 4 yıl 3 ay. Görüntüde foton gitmez; bu gerçek süredir.</p>
           ) : null}
           <button type="button" className="btn" disabled={!ready} onClick={() => setStep('result')}>
             {ready ? 'Karşılaştırdım' : 'Önce Dünya, sonra Proxima'}

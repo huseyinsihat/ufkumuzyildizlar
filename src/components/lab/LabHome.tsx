@@ -46,6 +46,15 @@ export function LabHome() {
               <Icon name="flask" />
             </span>
             {TEAM.home}
+            <button
+              type="button"
+              className="icon-btn catalog-reset"
+              onClick={() => useLabStore.getState().resetProgress()}
+              aria-label="Sıfırla"
+              title="Sıfırla"
+            >
+              <Icon name="reset" />
+            </button>
           </p>
           <h2>{currentRoom ? currentRoom.title : TEAM.home}</h2>
           <p className="muted">{currentRoom ? currentRoom.blurb : 'Önce düşün. Sonra bak.'}</p>
@@ -67,9 +76,6 @@ export function LabHome() {
           >
             Keşfe dön
           </button>
-          <button type="button" className="text-link" onClick={() => useLabStore.getState().resetProgress()}>
-            Sıfırla
-          </button>
         </div>
       </header>
       {badges.length ? (
@@ -84,7 +90,7 @@ export function LabHome() {
 
       {!room ? (
         <>
-          <p className="challenge-kicker section-kicker">Hızlı başla</p>
+          <p className="challenge-kicker section-kicker">Temel Etkinlikler</p>
           <div className="catalog-challenges">
             {CHALLENGE_ACTIVITIES.map((activity, index) => {
               const id = activity.id as ChallengeId
@@ -112,7 +118,7 @@ export function LabHome() {
               )
             })}
           </div>
-          <p className="challenge-kicker section-kicker">Odalar</p>
+          <p className="challenge-kicker section-kicker">Uzay Vatanı Keşfet</p>
           <div className="catalog-rooms">
             {LAB_ROOMS.map((item, index) => (
               <button

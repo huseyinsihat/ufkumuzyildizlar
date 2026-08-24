@@ -48,6 +48,7 @@ describe('sun chat prompt', () => {
     const summary = buildSceneSummary({ bodyId: null, wonderId: 'sirius', scaleMode: 'trueScale' })
     expect(summary).toContain('Sirius')
     expect(summary).toContain('gerçek ölçek')
+    expect(summary).toContain('ışık yılı')
   })
 
   it('grounds Earth crafts such as Crew Dragon when selected', () => {

@@ -264,7 +264,7 @@ export const BODIES: readonly PlanetDefinition[] = [
     description:
       'Jüpiter en kocaman gezegendir. Çok hızlı döner. Çok uydusu vardır.',
     facts: [
-      'Jüpiter gazdır; üzerinde yürünecek katı yer yoktur.',
+      'Jüpiter bir gaz devidir; üzerinde yürünecek katı yer yoktur.',
       'Büyük olduğu için daha yükseğe zıplanmaz; çekimi Dünya’dan daha güçlüdür.',
       'Bir günü yaklaşık 10 saattir; çok hızlı döner.',
     ],
@@ -553,4 +553,19 @@ export function getSelectableBodies(): PlanetDefinition[] {
 
 export function getMoonsOf(parentId: BodyId): PlanetDefinition[] {
   return BODIES.filter((body) => body.parentId === parentId).slice().sort((a, b) => a.orbitalRadiusAu - b.orbitalRadiusAu)
+}
+
+/** Sun and planets in solar order, each followed by its classroom moons. */
+export function bodiesInFamilyOrder(): PlanetDefinition[] {
+  const ordered: PlanetDefinition[] = []
+  for (const body of BODIES) {
+    if (body.category === 'moon') continue
+    ordered.push(body)
+    ordered.push(...getMoonsOf(body.id))
+  }
+  return ordered
+}
+
+export function compareOptionLabel(body: PlanetDefinition): string {
+  return body.category === 'moon' ? `- ${body.name}` : body.name
 }

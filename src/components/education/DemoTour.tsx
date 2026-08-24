@@ -16,7 +16,7 @@ export function DemoTour() {
   if (!current) {
     return (
       <div className="demo-card" role="status">
-        <p>Demo tamamlandı. Şimdi sen keşfet.</p>
+        <p>Kısa tur bitti. Şimdi sen keşfet.</p>
         <button type="button" className="btn" onClick={stop}>
           Kapat
         </button>
@@ -25,7 +25,7 @@ export function DemoTour() {
   }
 
   return (
-    <div className="demo-card" role="dialog" aria-label="Demo senaryosu">
+    <div className="demo-card" role="dialog" aria-label="Kısa tur">
       <p className="eyebrow">
         Adım {step + 1} / {DEMO_STEPS.length}
       </p>

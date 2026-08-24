@@ -4,7 +4,7 @@ import { focusBody } from '../../features/planetExplorer/focus'
 import { getScene } from '../../scene/sceneApi'
 import { useUiStore } from '../../store/uiStore'
 
-const PAGE_SIZE = 8
+const PAGE_SIZE = 5
 
 export function FactsPanel() {
   const [stage, setStage] = useState<FactStage>('general')
@@ -55,7 +55,7 @@ export function FactsPanel() {
                 else if (card.bodyId) focusBody(card.bodyId)
               }}
             >
-              Sahneye git
+              Konuma git
             </button>
           </li>
         ))}

@@ -1,12 +1,12 @@
 import type { LabActivity, LabActivityId, LabRoomId } from '../types/lab'
 
 export const LAB_ROOMS: { id: LabRoomId; title: string; blurb: string; tone: string }[] = [
-  { id: 'motion', title: 'Hareket', blurb: 'Dönme, tur, yıl', tone: 'var(--amber)' },
-  { id: 'earth', title: 'Dünya', blurb: 'Gece, gündüz, mevsim', tone: 'var(--cyan)' },
-  { id: 'gravity', title: 'Yerçekimi', blurb: 'Düşme, ağırlık, zıplama', tone: '#ff8a5b' },
-  { id: 'scale', title: 'Uzaklık', blurb: 'Boşluk, ısı, ışık', tone: '#b794f6' },
-  { id: 'build', title: 'Sıra ve Ay', blurb: 'Diz, dolunay, tutulma', tone: '#f6e05e' },
-  { id: 'sky', title: 'Gökyüzü', blurb: 'Yıldız, kepçe, kuyrukluyıldız', tone: '#7ee0ff' },
+  { id: 'motion', title: 'Hareket', blurb: 'Gezegenler nasıl döner ve tur atar? Yıl neden farklıdır?', tone: 'var(--amber)' },
+  { id: 'earth', title: 'Dünya', blurb: 'Gece, gündüz ve mevsimler nasıl oluşur?', tone: 'var(--cyan)' },
+  { id: 'gravity', title: 'Yerçekimi', blurb: 'Aynı top nerede önce düşer? Nerede daha yükseğe zıplarsın?', tone: '#ff8a5b' },
+  { id: 'scale', title: 'Uzaklık', blurb: 'Uzay neden boş? Işık anında mı gelir? En yakın en sıcak mı?', tone: '#b794f6' },
+  { id: 'build', title: 'Sıra ve Ay', blurb: '8 gezegeni diz. Dolunayı yakala. Her dolunay tutulma mı?', tone: '#f6e05e' },
+  { id: 'sky', title: 'Gökyüzü', blurb: 'Yıldızlar mı kayıyor? Kepçeyi bul. Kuyruk neden arkada değil?', tone: '#7ee0ff' },
 ]
 
 export const LAB_ACTIVITIES: LabActivity[] = [
@@ -53,7 +53,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
       { id: 'both', label: 'İkisi birden' },
     ],
     simulateLabel: 'Gördüm',
-    resultTitle: 'Dönme gece-gündüz yapar, tur yıl yapar.',
+    resultTitle: 'Dönme gece ve gündüzü yapar; tur yılı yapar.',
     explain: 'Kendi etrafında dönünce gece ve gündüz olur. Güneş etrafında tur atınca yıl olur.',
     uses3d: true,
   },
@@ -62,7 +62,7 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     room: 'earth',
     title: 'Gece ve gündüz nasıl olur?',
     question: 'İstanbul ve Diyarbakır geceye saatlerce ayrı mı girer?',
-    watchHint: 'Camgöbeği İstanbul, amber Diyarbakır. Güneş bir tarafı ısıtır. Dünya dönünce gece yer değiştirir.',
+    watchHint: 'Mavi nokta İstanbul, turuncu nokta Diyarbakır. Güneş bir tarafı ısıtır. Dünya dönünce gece yer değiştirir.',
     choices: [
       { id: 'same', label: 'Hayır, neredeyse birlikte' },
       { id: 'diff', label: 'Evet, saatlerce fark var' },
@@ -179,11 +179,11 @@ export const LAB_ACTIVITIES: LabActivity[] = [
     id: 'star-names',
     room: 'sky',
     title: 'Bu hangi yıldız?',
-    question: 'Kameranın baktığı yıldızı, rengine bakarak seç.',
+    question: 'Gördüğün yıldızı, rengine bakarak seç.',
     watchHint: 'Rengine ve kısa ipucuna bak, sonra adını seç.',
     simulateLabel: 'Yıldıza bak',
     resultTitle: 'Her yıldızın adı ve rengi ayrıdır.',
-    explain: 'Her yıldızın adı ve rengi farklıdır. Tıklayınca kamera o yıldıza gider.',
+    explain: 'Her yıldızın adı ve rengi farklıdır. Dokununca bakış o yıldıza gider.',
     uses3d: true,
   },
   {

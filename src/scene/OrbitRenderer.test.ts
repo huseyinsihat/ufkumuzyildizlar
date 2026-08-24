@@ -30,4 +30,17 @@ describe('OrbitRenderer', () => {
     }
     orbits.dispose()
   })
+
+  it('drops hidden satellite orbits from the pick list', () => {
+    const orbits = new OrbitRenderer()
+    orbits.rebuild('educational')
+    orbits.setSatelliteVisible('titan', false)
+    const ids = new Set(orbits.visiblePickMeshes().map((mesh) => mesh.userData.bodyId))
+    expect(ids.has('titan')).toBe(false)
+    expect(ids.has('saturn')).toBe(true)
+    orbits.setSatelliteVisible('titan', true)
+    const shown = new Set(orbits.visiblePickMeshes().map((mesh) => mesh.userData.bodyId))
+    expect(shown.has('titan')).toBe(true)
+    orbits.dispose()
+  })
 })

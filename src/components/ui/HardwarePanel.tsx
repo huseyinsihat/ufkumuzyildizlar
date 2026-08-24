@@ -46,7 +46,7 @@ function Pad({ pad, live }: { pad: BoardPad; live: boolean }) {
 }
 
 function statusText(status: string, message: string): string {
-  if (status === 'connected') return 'Kart bağlı. Bir pine bas, sahnede ne olduğunu gör.'
+  if (status === 'connected') return 'Kart bağlı. Bir pine bas, ekranda ne olduğunu gör.'
   if (status === 'unsupported') return 'USB için Chrome veya Edge gerekir.'
   if (status === 'error') return message || 'Kart koptu.'
   return 'USB tak, Bağlan’a bas. Pinlere dokunarak da deneyebilirsin.'
@@ -99,7 +99,7 @@ export function HardwarePanel() {
         <div className="board-core">
           <span className="board-usb">USB</span>
           <strong>Deneyap Kart 1A</strong>
-          <span>Sol ve sağ pinler sahneyi yönetir.</span>
+          <span>Sol ve sağ pinler görüntüyü yönetir.</span>
         </div>
         <div className="board-col" aria-label="Sağ pinler">
           {BOARD_RIGHT.map((pad) => (

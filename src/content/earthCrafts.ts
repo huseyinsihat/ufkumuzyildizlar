@@ -1,6 +1,28 @@
 export type EarthCraftKind = 'station' | 'satellite' | 'crew'
 export type EarthCraftModel = 'iss' | 'sat' | 'dragon'
 
+/** Shared classroom rings: crafts sit on these exact paths. */
+export const EARTH_CRAFT_RINGS = {
+  leo: { orbit: 1.37, tilt: 0.88, color: '#8ec5ff' },
+  geo: { orbit: 2.17, tilt: 0.05, color: '#f4b942' },
+} as const
+
+export function earthCraftLocalPosition(
+  orbitMul: number,
+  tilt: number,
+  angle: number,
+  earthRadius: number,
+): { x: number; y: number; z: number } {
+  const r = earthRadius * orbitMul
+  const c = Math.cos(angle)
+  const s = Math.sin(angle)
+  return {
+    x: c * r,
+    y: s * r * Math.sin(tilt),
+    z: s * r * Math.cos(tilt),
+  }
+}
+
 export interface EarthCraft {
   id: string
   name: string
@@ -32,10 +54,10 @@ export const EARTH_CRAFTS: EarthCraft[] = [
       'Alper Gezeravcı da 2024’te burada bilimsel deneyler yaptı.',
     ],
     color: '#dce7f5',
-    orbit: 1.34,
+    orbit: EARTH_CRAFT_RINGS.leo.orbit,
     speed: 0.22,
     phase: 0.4,
-    tilt: 0.9,
+    tilt: EARTH_CRAFT_RINGS.leo.tilt,
     model: 'iss',
   },
   {
@@ -52,10 +74,10 @@ export const EARTH_CRAFTS: EarthCraft[] = [
       'TÜBİTAK destekli deneyler ISS’te yapıldı.',
     ],
     color: '#f4f1ea',
-    orbit: 1.4,
+    orbit: EARTH_CRAFT_RINGS.leo.orbit,
     speed: 0.2,
     phase: 1.15,
-    tilt: 0.88,
+    tilt: EARTH_CRAFT_RINGS.leo.tilt,
     model: 'dragon',
   },
   {
@@ -72,10 +94,10 @@ export const EARTH_CRAFTS: EarthCraft[] = [
       'Yüksek yörünge burada eğitim için biraz yakına çekilmiştir.',
     ],
     color: '#e11d48',
-    orbit: 2.12,
+    orbit: EARTH_CRAFT_RINGS.geo.orbit,
     speed: 0.046,
     phase: 0.2,
-    tilt: 0.05,
+    tilt: EARTH_CRAFT_RINGS.geo.tilt,
     model: 'sat',
   },
   {
@@ -92,10 +114,10 @@ export const EARTH_CRAFTS: EarthCraft[] = [
       'Dünya’dan bakınca gökyüzünde neredeyse yerinde durur.',
     ],
     color: '#f59e0b',
-    orbit: 2.22,
+    orbit: EARTH_CRAFT_RINGS.geo.orbit,
     speed: 0.04,
     phase: 2.4,
-    tilt: 0.04,
+    tilt: EARTH_CRAFT_RINGS.geo.tilt,
     model: 'sat',
   },
 ]

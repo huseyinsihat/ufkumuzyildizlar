@@ -22,7 +22,7 @@ export function QuizPanel() {
       {done || !question ? (
         <div>
           <p>
-            Skorun: {score} / {QUIZ_QUESTIONS.length}
+            Puanın: {score} / {QUIZ_QUESTIONS.length}
           </p>
           <button type="button" className="btn" onClick={reset}>
             Yeniden dene

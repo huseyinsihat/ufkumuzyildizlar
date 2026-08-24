@@ -6,7 +6,7 @@ import { useEducationStore } from '../../store/educationStore'
 import { useSimulationStore } from '../../store/simulationStore'
 import { focusBody, openCompare } from '../../features/planetExplorer/focus'
 
-const TABS = ['Bilgi', 'Keşfet', 'Karşılaştır', 'Yörünge', 'Dönüş', 'Uydular'] as const
+const TABS = ['Bilgi', 'Keşfet', 'Karşılaştır', 'Yörünge', 'Dönme', 'Uydular'] as const
 
 export function PlanetInfoCard() {
   const id = useSimulationStore((s) => s.selectedBodyId)
@@ -97,7 +97,7 @@ export function PlanetInfoCard() {
             className="btn"
             onClick={() => openCompare(id)}
           >
-            Karşılaştırma aç
+            Karşılaştır
           </button>
         </p>
       ) : null}
@@ -122,7 +122,7 @@ export function PlanetInfoCard() {
           </ul>
         </div>
       ) : null}
-      {tab === 'Dönüş' ? (
+      {tab === 'Dönme' ? (
         <div>
           <p>
             <strong>Dönme</strong>, cismin kendi ekseni etrafındaki dönüşüdür. <strong>Dolanma</strong> ise Güneş etrafındaki yolculuğudur.
@@ -176,20 +176,20 @@ export function PlanetInfoCard() {
                     <li key={moon.id}>
                       <span>{moon.name}</span>
                       <button type="button" className="text-link" onClick={() => focusBody(moon.id)}>
-                        Git
+                        Oraya bak
                       </button>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="muted">Sahnede gösterilen büyük uydusu yok.</p>
+                <p className="muted">Burada gösterilen büyük uydusu yok.</p>
               )}
               {body.id === 'earth' ? (
                 <div>
                   <p>Ay neden hep aynı yüzünü gösteriyor?</p>
                   <p className="muted">
-                    Ay’ın kendi ekseni etrafında dönme süresi ile Dünya etrafındaki dolanma süresi eşittir. Buna gelgit
-                    kilidi denir.
+                    Ay’ın kendi ekseni etrafında dönme süresi ile Dünya etrafındaki dolanma süresi eşittir. Bu yüzden
+                    hep aynı yüzünü görürüz.
                   </p>
                 </div>
               ) : null}

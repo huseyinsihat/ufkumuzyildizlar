@@ -78,19 +78,19 @@ export default function App() {
       <div className="space-glow" />
       {webgl && !use2d ? <CanvasHost /> : <SolarSystem2D />}
       <TopBar />
+      {!intro ? <ExploreSideTools /> : null}
       {explore ? (
         <div className="explore-chrome">
           <ExploreDock />
           <ExploreListStrip />
           <CompactTimeBar />
-          {!intro ? <ExploreSideTools /> : null}
         </div>
       ) : null}
       {explore && scaleMode === 'trueScale' ? (
         <p className="scale-banner">Gezegenler gerçek boyutta — uzay çok boş.</p>
       ) : null}
       {explore ? <InspectRail /> : null}
-      {explore && !intro ? <SunChatPanel /> : null}
+      {!intro ? <SunChatPanel /> : null}
       {showLabHome ? <LabHome /> : null}
       {showActivity ? (
         <ActivityShell>

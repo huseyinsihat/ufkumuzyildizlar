@@ -22,7 +22,7 @@ tr-intro-explore.mp3  Gezegenlere bak. Bir gezegene dokun.
 en-intro-explore.mp3  Look at the planets. Tap a planet.
 
 intro-team — Takım
-tr-intro-team.mp3  Takım. Bizi Minik Dahiler yaptı.
+tr-intro-team.mp3  Takım. Takımımız Minik Dahiler.
 en-intro-team.mp3  The team. We are the Little Geniuses.
 
 ## Gezinme
@@ -55,8 +55,8 @@ ui-team — Takım paneli
 tr-ui-team.mp3  Takımımız Minik Dahiler. Danışmanımız Hüseyin SIHAT.
 en-ui-team.mp3  Our team is the Little Geniuses. Our advisor is Hüseyin Sıhat.
 
-ui-overview — Güneşe Dön
-tr-ui-overview.mp3  Güneşe Dön. Ortada Güneş, yanında gezegenler.
+ui-overview — Güneş’e dön
+tr-ui-overview.mp3  Güneş’e dön. Ortada Güneş, yanında gezegenler.
 en-ui-overview.mp3  Back to the Sun. The Sun is in the middle.
 
 ## Cisimler
@@ -116,7 +116,7 @@ tr-lab-watch.mp3  Şimdi bak.
 en-lab-watch.mp3  Now look.
 
 lab-why — neden
-tr-lab-why.mp3  İşte çünkü.
+tr-lab-why.mp3  İşte bu yüzden.
 en-lab-why.mp3  Here is why.
 
 lab-done — bitti

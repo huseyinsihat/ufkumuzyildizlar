@@ -25,8 +25,8 @@ export function RightActions() {
       <button type="button" className="nav-btn" onClick={() => focusBody('mars')} aria-label="Mars’a git">
         Mars’a git
       </button>
-      <button type="button" className="nav-btn" onClick={startDemo} aria-label="Demo senaryosunu başlat">
-        Demo
+      <button type="button" className="nav-btn" onClick={startDemo} aria-label="Kısa turu başlat">
+        Kısa tur
       </button>
     </div>
   )

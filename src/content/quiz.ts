@@ -12,7 +12,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     prompt: 'Dünya’nın Güneş etrafında tur atmasına ne denir?',
     options: ['Kendi etrafında dönme', 'Güneş etrafında tur', 'Ay’ın çekmesi', 'Yana yatmak'],
     correctIndex: 1,
-    explain: 'Güneş etrafında tur yıl yapar. Kendi etrafında dönme gece ve gündüz yapar.',
+    explain: 'Güneş etrafında tur atmak yılı yapar. Kendi etrafında dönme gece ve gündüz yapar.',
   },
   {
     id: 'q2',

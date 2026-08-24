@@ -1,4 +1,4 @@
-import { findWonder } from '../../content/skyWonders'
+import { findWonder, starDisplayName } from '../../content/skyWonders'
 import { useSimulationStore } from '../../store/simulationStore'
 
 export function WonderStrip() {
@@ -7,10 +7,10 @@ export function WonderStrip() {
   if (!wonder) return null
 
   return (
-    <aside className="planet-strip" aria-label={`${wonder.name} bilgisi`}>
+    <aside className="planet-strip" aria-label={`${starDisplayName(wonder)} bilgisi`}>
       <div>
         <p className="eyebrow">{wonder.tag}</p>
-        <h2>{wonder.name}</h2>
+        <h2>{starDisplayName(wonder)}</h2>
         <p>{wonder.fact}</p>
       </div>
       <div className="row-actions">

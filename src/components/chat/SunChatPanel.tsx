@@ -50,12 +50,12 @@ export function SunChatPanel() {
   }
 
   return (
-    <aside className="sun-chat" aria-label="Güneş’e sor">
+    <aside className="sun-chat" aria-label="Güneş’e Sor">
       <header className="panel-head">
         <div className="sun-chat-title">
           <SunMascot />
           <div>
-            <h2>Güneş’e sor</h2>
+            <h2>Güneş’e Sor</h2>
             <p className="eyebrow">
               {TEAM.teamName} · {TEAM.event}
             </p>
@@ -80,8 +80,7 @@ export function SunChatPanel() {
         ) : null}
       </div>
       {chips.length ? (
-        <div className="sun-chat-chips">
-          <p className="sun-chat-chips-label">Örnek sorular</p>
+        <div className="sun-chat-chips" aria-label="Örnek sorular">
           {chips.map((item) => (
             <button
               key={item.id}
