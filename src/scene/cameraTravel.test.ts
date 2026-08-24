@@ -21,7 +21,7 @@ describe('cameraTravelDuration', () => {
   it('scales nearby hops only a little, star hops much more', () => {
     const moonHop = cameraTravelDuration(14)
     const marsHop = cameraTravelDuration(42)
-    const vegaHop = cameraTravelDuration(260)
+    const vegaHop = cameraTravelDuration(520)
     expect(moonHop).toBeGreaterThanOrEqual(CAMERA_TRAVEL_MIN_SEC)
     expect(moonHop).toBeLessThan(1.4)
     expect(marsHop).toBeGreaterThan(moonHop)

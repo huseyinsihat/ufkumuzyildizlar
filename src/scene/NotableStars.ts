@@ -10,9 +10,8 @@ import {
 } from 'three'
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js'
 import { NOTABLE_STARS } from '../content/skyWonders'
+import { SKY_SPHERE_RADIUS } from '../astronomy/skyCoordinates'
 import { createStarGlowTexture } from './proceduralTextures'
-
-const SKY = 248
 
 export class NotableStars {
   readonly group: Group
@@ -27,15 +26,15 @@ export class NotableStars {
     const glowMap = createStarGlowTexture()
     for (const star of NOTABLE_STARS) {
       const length = Math.hypot(star.x, star.y, star.z) || 1
-      const x = (star.x / length) * SKY
-      const y = (star.y / length) * SKY
-      const z = (star.z / length) * SKY
+      const x = (star.x / length) * SKY_SPHERE_RADIUS
+      const y = (star.y / length) * SKY_SPHERE_RADIUS
+      const z = (star.z / length) * SKY_SPHERE_RADIUS
       const mesh = new Mesh(
         geometry,
         new MeshBasicMaterial({ color: star.color, transparent: true, opacity: 0.98 }),
       )
       mesh.position.set(x, y, z)
-      mesh.scale.setScalar(star.size * 2.4)
+      mesh.scale.setScalar(star.size * 0.55)
       mesh.userData.wonderId = star.id
       this.group.add(mesh)
       this.meshes.push(mesh)
@@ -50,7 +49,7 @@ export class NotableStars {
           depthWrite: false,
         }),
       )
-      glow.scale.setScalar(star.size * 7.5)
+      glow.scale.setScalar(star.size * 2.2)
       glow.position.copy(mesh.position)
       glow.raycast = () => {}
       this.group.add(glow)

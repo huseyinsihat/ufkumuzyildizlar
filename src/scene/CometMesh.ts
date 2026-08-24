@@ -1,5 +1,6 @@
 import {
   AdditiveBlending,
+  ConeGeometry,
   Group,
   Mesh,
   MeshBasicMaterial,
@@ -7,6 +8,8 @@ import {
   Vector3,
 } from 'three'
 import { cometTailAwayFromSun } from '../features/lab/wowMath'
+
+export const COMET_SUN_CLEARANCE = 2.5
 
 export class CometMesh {
   readonly group = new Group()
@@ -22,7 +25,7 @@ export class CometMesh {
     )
     this.nucleus.userData.comet = true
     this.tail = new Mesh(
-      new SphereGeometry(1, 10, 8),
+      new ConeGeometry(0.55, 4.2, 12, 1, true),
       new MeshBasicMaterial({
         color: '#9be7ff',
         transparent: true,
@@ -32,7 +35,6 @@ export class CometMesh {
       }),
     )
     this.tail.raycast = () => {}
-    this.tail.scale.set(0.35, 0.35, 3.8)
     this.group.add(this.nucleus)
     this.group.add(this.tail)
     this.group.visible = false
@@ -45,14 +47,22 @@ export class CometMesh {
     if (on) this.group.position.set(18, 0, 8)
   }
 
+  nudge(towardSun: boolean, sunRadius = 8): void {
+    const minRadius = sunRadius + COMET_SUN_CLEARANCE
+    const len = this.group.position.length() || 1
+    const next = Math.min(28, Math.max(minRadius, towardSun ? len * 0.62 : len * 1.4))
+    this.group.position.multiplyScalar(next / len)
+  }
+
   updateTail(sun: Vector3): void {
     if (!this.enabled) return
     this.sun.copy(sun)
     const dir = cometTailAwayFromSun(sun, this.group.position)
-    this.tail.position.set(dir.x * 2.2, dir.y * 2.2, dir.z * 2.2)
-    this.tail.lookAt(this.group.position.x + dir.x, this.group.position.y + dir.y, this.group.position.z + dir.z)
+    const away = new Vector3(dir.x, dir.y, dir.z)
+    this.tail.position.copy(away).multiplyScalar(2.1)
+    this.tail.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), away)
     const closeness = Math.max(0.35, Math.min(1.6, 22 / dir.length))
-    this.tail.scale.set(0.28 * closeness, 0.28 * closeness, 2.6 + closeness * 3.2)
+    this.tail.scale.set(0.85 * closeness, 0.7 + closeness * 0.55, 0.85 * closeness)
   }
 
   dispose(): void {

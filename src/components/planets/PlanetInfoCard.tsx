@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { getBody } from '../../astronomy/planetData'
+import { getBody, getMoonsOf } from '../../astronomy/planetData'
 import { formatAu, formatDays, formatHours, formatKm, formatNumberTr } from '../../utils/formatting'
 import { AU_KM } from '../../astronomy/astronomyConstants'
 import { useEducationStore } from '../../store/educationStore'
@@ -48,7 +48,7 @@ export function PlanetInfoCard() {
           <p>{body.description}</p>
           <ul className="stats">
             <li>
-              <span>Güneş’e uzaklığı</span>
+              <span>{body.category === 'moon' && body.parentId ? `${getBody(body.parentId).name}’e uzaklığı` : 'Güneş’e uzaklığı'}</span>
               <strong>{body.orbitalRadiusAu > 0 ? `${formatAu(body.orbitalRadiusAu)} (${formatKm(body.orbitalRadiusAu * AU_KM)})` : 'Merkez'}</strong>
             </li>
             <li>
@@ -147,27 +147,53 @@ export function PlanetInfoCard() {
               notifyAxes(next, id)
             }}
           >
-            {showAxes ? 'Ekseni gizle' : 'Eksenimi göster'}
+            {showAxes ? 'Yana yatmayı gizle' : 'Yana yatmayı göster'}
           </button>
         </div>
       ) : null}
       {tab === 'Uydular' ? (
         <div>
-          <p>
-            {body.name} cisminin bilinen uydu sayısı: <strong>{body.moons}</strong>.
-          </p>
-          {body.id === 'earth' ? (
-            <div>
-              <p>Ay neden hep aynı yüzünü gösteriyor?</p>
-              <p className="muted">
-                Ay’ın kendi ekseni etrafında dönme süresi ile Dünya etrafındaki dolanma süresi eşittir. Buna gelgit kilidi denir.
+          {body.category === 'moon' && body.parentId ? (
+            <>
+              <p>
+                {body.name}, {getBody(body.parentId).name}’in uydusudur.
               </p>
-              <button type="button" className="btn" onClick={() => focusBody('moon')}>
-                Ay’a git
+              <p className="muted">
+                Uzaklık: {formatKm(body.orbitalRadiusAu * AU_KM)} ({formatAu(body.orbitalRadiusAu)}).
+              </p>
+              <button type="button" className="btn" onClick={() => focusBody(body.parentId!)}>
+                {getBody(body.parentId).name}’e git
               </button>
-            </div>
+            </>
           ) : (
-            <p className="muted">İlerleyen sürümlerde Jüpiter ve Satürn uyduları eklenebilir.</p>
+            <>
+              <p>
+                {body.name} cisminin bilinen uydu sayısı: <strong>{formatNumberTr(body.moons)}</strong>.
+              </p>
+              {getMoonsOf(body.id).length > 0 ? (
+                <ul className="stats">
+                  {getMoonsOf(body.id).map((moon) => (
+                    <li key={moon.id}>
+                      <span>{moon.name}</span>
+                      <button type="button" className="text-link" onClick={() => focusBody(moon.id)}>
+                        Git
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="muted">Sahnede gösterilen büyük uydusu yok.</p>
+              )}
+              {body.id === 'earth' ? (
+                <div>
+                  <p>Ay neden hep aynı yüzünü gösteriyor?</p>
+                  <p className="muted">
+                    Ay’ın kendi ekseni etrafında dönme süresi ile Dünya etrafındaki dolanma süresi eşittir. Buna gelgit
+                    kilidi denir.
+                  </p>
+                </div>
+              ) : null}
+            </>
           )}
         </div>
       ) : null}

@@ -11,8 +11,6 @@ import {
   VOICE_CLIP_IDS,
 } from './clips'
 
-const BODIES_IDS = BODIES.map((body) => body.id)
-
 describe('voice clips', () => {
   it('names files as lang-code.mp3 under audio/', () => {
     expect(clipUrl('tr', 'body-earth')).toMatch(/audio\/tr-body-earth\.mp3$/)
@@ -20,10 +18,16 @@ describe('voice clips', () => {
   })
 
   it('covers every selectable body', () => {
-    for (const id of BODIES_IDS) {
-      expect(bodyClip(id as BodyId)).toBe(`body-${id}`)
+    for (const body of BODIES) {
+      const clip = bodyClip(body.id as BodyId)
+      expect(VOICE_CLIP_IDS).toContain(clip)
+      if (body.category === 'moon' && body.parentId && body.id !== 'moon') {
+        expect(clip).toBe(`body-${body.parentId}`)
+      } else {
+        expect(clip).toBe(`body-${body.id}`)
+      }
     }
-    expect(VOICE_CLIP_IDS.filter((id) => id.startsWith('body-'))).toHaveLength(BODIES_IDS.length)
+    expect(VOICE_CLIP_IDS.filter((id) => id.startsWith('body-'))).toHaveLength(11)
   })
 
   it('maps lab rooms and the five quick-start activities', () => {

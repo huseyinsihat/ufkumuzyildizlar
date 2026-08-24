@@ -8,16 +8,35 @@ import { getBody } from './planetData'
  */
 export const EDU_RADIUS: Record<BodyId, number> = {
   sun: 8,
-  mercury: 0.72,
-  venus: 1.12,
-  earth: 1.18,
-  moon: 0.34,
-  mars: 0.86,
-  jupiter: 4.15,
-  saturn: 3.55,
-  uranus: 2.15,
-  neptune: 2.08,
-  pluto: 0.48,
+  mercury: 1.05,
+  venus: 1.45,
+  earth: 1.52,
+  moon: 0.42,
+  mars: 1.22,
+  phobos: 0.14,
+  deimos: 0.1,
+  jupiter: 4.55,
+  io: 0.32,
+  europa: 0.28,
+  ganymede: 0.42,
+  callisto: 0.38,
+  saturn: 3.9,
+  titan: 0.44,
+  uranus: 2.5,
+  neptune: 2.42,
+  pluto: 0.78,
+}
+
+/** Educational moon-orbit radii: outside the parent disk, siblings unstacked. */
+const EDU_SAT_ORBIT: Partial<Record<BodyId, number>> = {
+  moon: EDU_RADIUS.earth * 3.35,
+  phobos: 1.25,
+  deimos: 1.85,
+  io: 5.6,
+  europa: 7.2,
+  ganymede: 9.2,
+  callisto: 11.6,
+  titan: 10.2,
 }
 
 const EDU_ORBIT_MIN = 16
@@ -51,8 +70,18 @@ export function visualRadius(bodyId: BodyId, mode: ScaleMode): number {
   return EDU_RADIUS[bodyId]
 }
 
-export function visualMoonOrbitRadius(): number {
-  return EDU_RADIUS.earth * 3.35
+export function visualMoonOrbitRadius(mode: ScaleMode = 'educational'): number {
+  return visualSatelliteOrbitRadius('moon', mode)
+}
+
+export function visualSatelliteOrbitRadius(satelliteId: BodyId, mode: ScaleMode = 'educational'): number {
+  const body = getBody(satelliteId)
+  if (isTrueScale(mode)) return body.orbitalRadiusAu * TRUE_SCALE_AU_UNITS
+  const packed = EDU_SAT_ORBIT[satelliteId]
+  if (packed != null) return packed
+  const parentId = body.parentId
+  if (!parentId) return EDU_RADIUS.earth * 3.35
+  return EDU_RADIUS[parentId] * 2.4
 }
 
 export function compressDistance(distanceAu: number, mode: ScaleMode): number {

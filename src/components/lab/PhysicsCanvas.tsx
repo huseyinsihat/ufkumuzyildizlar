@@ -12,11 +12,12 @@ const GROUND: Record<(typeof DROP_BODIES)[number], { sky: string; floor: string;
 }
 
 interface Props {
-  mode: 'drop' | 'jump'
+  mode: 'drop' | 'jump' | 'weight'
   running: boolean
   bodyId?: BodyId
   heightM?: number
   launchMs?: number
+  massKg?: number
 }
 
 function drawBall(ctx: CanvasRenderingContext2D, x: number, y: number, radius: number, color: string, light = -0.45) {
@@ -30,7 +31,7 @@ function drawBall(ctx: CanvasRenderingContext2D, x: number, y: number, radius: n
   ctx.fill()
 }
 
-export function PhysicsCanvas({ mode, running, bodyId = 'earth', heightM = 12, launchMs = 4.2 }: Props) {
+export function PhysicsCanvas({ mode, running, bodyId = 'earth', heightM = 12, launchMs = 4.2, massKg = 30 }: Props) {
   const ref = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -99,6 +100,39 @@ export function PhysicsCanvas({ mode, running, bodyId = 'earth', heightM = 12, l
           ctx.fillStyle = '#c5d4ee'
           ctx.fillText(look.note, px, h - 6)
         })
+      } else if (mode === 'weight') {
+        const ids = ['moon', 'earth', 'jupiter'] as const
+        const colW = w / ids.length
+        ids.forEach((id, index) => {
+          const look = GROUND[id]
+          const left = colW * index
+          ctx.fillStyle = look.sky
+          ctx.fillRect(left, 0, colW, h)
+          ctx.fillStyle = look.floor
+          if (id === 'jupiter') {
+            ctx.globalAlpha = 0.7
+            ctx.fillRect(left, h - 36, colW, 36)
+            ctx.globalAlpha = 1
+          } else {
+            ctx.fillRect(left, h - 22, colW, 22)
+          }
+          const vs = getBody(id).gravityMs2 / getBody('earth').gravityMs2
+          const squash = Math.min(1.35, Math.max(0.35, vs))
+          const px = left + colW / 2
+          const py = h - 70
+          ctx.save()
+          ctx.translate(px, py)
+          ctx.scale(1 / squash, squash)
+          drawBall(ctx, 0, 0, 16, '#e8eef8')
+          ctx.restore()
+          ctx.fillStyle = '#f4f7ff'
+          ctx.font = '600 13px Segoe UI'
+          ctx.textAlign = 'center'
+          ctx.fillText(getBody(id).name, px, 16)
+          ctx.font = '11px Segoe UI'
+          ctx.fillStyle = '#c5d4ee'
+          ctx.fillText(`${Math.round(massKg * vs)} kilo gibi`, px, h - 6)
+        })
       } else {
         const look = bodyId === 'moon' || bodyId === 'mars' || bodyId === 'jupiter' ? GROUND[bodyId] : GROUND.earth
         ctx.fillStyle = look.sky
@@ -123,7 +157,7 @@ export function PhysicsCanvas({ mode, running, bodyId = 'earth', heightM = 12, l
     }
     frame = requestAnimationFrame(draw)
     return () => cancelAnimationFrame(frame)
-  }, [mode, running, bodyId, heightM, launchMs])
+  }, [mode, running, bodyId, heightM, launchMs, massKg])
 
   return <canvas ref={ref} className="physics-canvas" width={720} height={240} aria-hidden="true" />
 }

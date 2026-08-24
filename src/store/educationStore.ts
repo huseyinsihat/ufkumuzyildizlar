@@ -25,6 +25,13 @@ interface EducationState {
   clearLastBadge: () => void
 }
 
+function applyMissionPresentation(id: string | null): void {
+  if (id !== 'find-mars-orbit') return
+  const sim = useSimulationStore.getState()
+  sim.setShowLabels(false)
+  sim.setShowOrbits(true)
+}
+
 function unlockForMission(missionId: string, badges: string[]): string[] {
   const next = new Set(badges)
   if (missionId === 'find-earth') next.add('first-discovery')
@@ -46,7 +53,10 @@ export const useEducationStore = create<EducationState>((set, get) => ({
   activeMissionId: MISSIONS[0]?.id ?? null,
   quizIndex: 0,
   quizScore: 0,
-  startMission: (id) => set({ activeMissionId: id }),
+  startMission: (id) => {
+    set({ activeMissionId: id })
+    applyMissionPresentation(id)
+  },
   completeMission: (id) => {
     const state = get()
     if (state.completedMissions.includes(id)) {
@@ -59,13 +69,15 @@ export const useEducationStore = create<EducationState>((set, get) => ({
     if (completed.length >= MISSIONS.length) {
       unlockedBadges.push('solar-sage')
     }
+    const nextId = MISSIONS.find((item) => !completed.includes(item.id))?.id ?? id
     set({
       completedMissions: completed,
       score: state.score + points,
       stars: state.stars + 1,
       unlockedBadges: [...new Set(unlockedBadges)],
-      activeMissionId: MISSIONS.find((item) => !completed.includes(item.id))?.id ?? id,
+      activeMissionId: nextId,
     })
+    applyMissionPresentation(nextId)
   },
   unlockBadge: (id) => {
     const state = get()

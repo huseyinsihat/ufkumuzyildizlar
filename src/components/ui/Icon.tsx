@@ -109,6 +109,19 @@ const ICONS: Record<string, ReactNode> = {
       <path d="M17.8 15.8A6.5 6.5 0 0 1 6 14.6" />
     </>
   ),
+  chip: (
+    <>
+      <rect x="7" y="7" width="10" height="10" rx="1.6" />
+      <path d="M9 4.5v2.5M12 4.5v2.5M15 4.5v2.5M9 17v2.5M12 17v2.5M15 17v2.5M4.5 9h2.5M4.5 12h2.5M4.5 15h2.5M17 9h2.5M17 12h2.5M17 15h2.5" />
+    </>
+  ),
+  more: (
+    <>
+      <circle cx="6" cy="12" r="1.7" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none" />
+      <circle cx="18" cy="12" r="1.7" fill="currentColor" stroke="none" />
+    </>
+  ),
   play: <path d="M8 6.5v11L18 12z" />,
   pause: (
     <>

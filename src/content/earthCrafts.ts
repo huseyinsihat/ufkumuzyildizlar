@@ -23,7 +23,7 @@ export const EARTH_CRAFTS: EarthCraft[] = [
     name: 'ISS',
     tag: 'Uzay istasyonu',
     kind: 'station',
-    fact: 'Uluslararası Uzay İstasyonu Dünya’nın yakınında dolanır. Astronotlar orada yaşar ve çalışır.',
+    fact: 'Uluslararası Uzay İstasyonu Dünya’nın yakınında döner. Astronotlar orada yaşar.',
     description:
       'ISS, birçok ülkenin birlikte kurduğu bir laboratuvardır. Yaklaşık 400 km yüksektedir. Bir turu yaklaşık 90 dakika sürer.',
     facts: [
@@ -43,7 +43,7 @@ export const EARTH_CRAFTS: EarthCraft[] = [
     name: 'Crew Dragon',
     tag: 'Alper Gezeravcı',
     kind: 'crew',
-    fact: 'Türkiye’nin ilk astronotu Alper Gezeravcı, 2024’te Crew Dragon ile ISS’e gitti.',
+    fact: 'Türkiye’nin ilk astronotu Alper Gezeravcı 2024’te bu araçla uzaya gitti.',
     description:
       'Crew Dragon, SpaceX’in insanlı kapsülüdür. Alper Gezeravcı Ax-3 görevinde Freedom kapsülüyle gitti. Yaklaşık 18 gün uzayda kaldı.',
     facts: [
@@ -63,7 +63,7 @@ export const EARTH_CRAFTS: EarthCraft[] = [
     name: 'Türksat 6A',
     tag: 'Türkiye uydusu',
     kind: 'satellite',
-    fact: 'Türksat 6A, Türkiye’de tasarlanıp üretilen ilk haberleşme uydusudur. 2024’te uzaya gitti.',
+    fact: 'Türksat 6A, Türkiye’de yapılan ilk haberleşme uydusudur. 2024’te uzaya gitti.',
     description:
       'Haberleşme uyduları televizyon ve internet sinyalini taşır. Türksat 6A yer sabit yörüngede durur; Dünya ile birlikte döner gibi görünür.',
     facts: [
@@ -83,7 +83,7 @@ export const EARTH_CRAFTS: EarthCraft[] = [
     name: 'Türksat 5B',
     tag: 'Türkiye uydusu',
     kind: 'satellite',
-    fact: 'Türksat 5B, Türkiye’nin güncel haberleşme uydularındandır. TV ve internet için çalışır.',
+    fact: 'Türksat 5B, Türkiye’nin haberleşme uydusudur. TV ve internet için çalışır.',
     description:
       'Türksat 5B 2021’de uzaya gitti. Ka-bant internet ve yayın hizmeti verir. Türksat 5A ile birlikte Türkiye’nin güncel uydu ailesindendir.',
     facts: [

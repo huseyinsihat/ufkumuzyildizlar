@@ -114,7 +114,7 @@ export function createBodyTexture(id: BodyId, color: string, size = 768): Canvas
         r = 255 * gran * flare
         g = 176 * gran
         b = 42 * gran
-      } else if (id === 'moon' || id === 'mercury') {
+      } else if (id === 'moon' || id === 'mercury' || id === 'phobos' || id === 'deimos' || id === 'callisto' || id === 'ganymede') {
         let shade = 0.58 + n * 0.28 + n2 * 0.1
         shade += crater(lon, lat, -40, 18, 22)
         shade += crater(lon, lat, 70, -12, 16)
@@ -122,9 +122,26 @@ export function createBodyTexture(id: BodyId, color: string, size = 768): Canvas
         shade += crater(lon, lat, -80, -36, 18)
         shade += crater(lon, lat, 120, 8, 10)
         const mare = id === 'moon' && inEllipse(lon, lat, -20, 10, 50, 32) > 0
-        r = (id === 'moon' ? (mare ? 150 : 208) : 176) * shade
-        g = (id === 'moon' ? (mare ? 148 : 206) : 166) * shade
-        b = (id === 'moon' ? (mare ? 146 : 210) : 152) * shade
+        const potato = id === 'phobos' || id === 'deimos'
+        const iceMoon = id === 'ganymede' || id === 'callisto'
+        r = (id === 'moon' ? (mare ? 150 : 208) : potato ? 168 : iceMoon ? (id === 'ganymede' ? 186 : 148) : 176) * shade
+        g = (id === 'moon' ? (mare ? 148 : 206) : potato ? 148 : iceMoon ? (id === 'ganymede' ? 174 : 136) : 166) * shade
+        b = (id === 'moon' ? (mare ? 146 : 210) : potato ? 128 : iceMoon ? (id === 'ganymede' ? 152 : 122) : 152) * shade
+      } else if (id === 'io') {
+        const vent = inEllipse(lon, lat, 20, -8, 28, 18)
+        r = mix(232, 196, n) * (0.78 + n2 * 0.2)
+        g = mix(176, 92, n2) * (0.7 + n * 0.18)
+        b = mix(64, 36, vent > 0 ? 0.6 : 0.2) * (0.62 + n * 0.16)
+      } else if (id === 'europa') {
+        const crack = Math.abs(Math.sin(lon * 0.12 + lat * 0.08 + n * 4))
+        r = mix(214, 168, crack) * (0.86 + n * 0.1)
+        g = mix(228, 196, crack) * (0.88 + n2 * 0.08)
+        b = mix(236, 210, crack) * (0.9 + n * 0.06)
+      } else if (id === 'titan') {
+        const band = 0.5 + 0.5 * Math.sin((lat / 90) * Math.PI * 3 + n * 1.4)
+        r = mix(214, 176, band) * (0.82 + n * 0.12)
+        g = mix(148, 110, band) * (0.78 + n2 * 0.1)
+        b = mix(72, 48, n) * (0.7 + band * 0.12)
       } else if (id === 'mars') {
         const ice = Math.abs(lat) > 74
         const highland = n > 0.62

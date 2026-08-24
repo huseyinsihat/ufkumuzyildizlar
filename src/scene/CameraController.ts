@@ -26,16 +26,22 @@ export class CameraController {
   private appliedPitch = 0
   private up = new Vector3(0, 1, 0)
   private right = new Vector3()
+  private nudgeFrom = new Vector3()
+  private nudgeTo = new Vector3()
+  private nudgeNdc = new Vector3()
+  private nudgeElapsed = 0
+  private nudging = false
+  private readonly nudgeDuration = 1.2
 
   constructor(canvas: HTMLCanvasElement) {
-    this.camera = new PerspectiveCamera(48, 1, 0.1, 800)
-    this.camera.position.set(0, 48, 118)
+    this.camera = new PerspectiveCamera(48, 1, 0.1, 1400)
+    this.camera.position.set(0, 42, 102)
 
     this.controls = new OrbitControls(this.camera, canvas)
     this.controls.enableDamping = true
     this.controls.dampingFactor = 0.06
     this.controls.minDistance = 4
-    this.controls.maxDistance = 280
+    this.controls.maxDistance = 360
     this.controls.enablePan = true
     this.controls.panSpeed = 0.45
     this.controls.rotateSpeed = 0.7
@@ -58,7 +64,7 @@ export class CameraController {
   focusOverview(trueScale = false): void {
     this.fromPos.copy(this.camera.position)
     this.fromTarget.copy(this.controls.target)
-    this.toPos.set(0, trueScale ? 72 : 48, trueScale ? 210 : 118)
+    this.toPos.set(0, trueScale ? 72 : 42, trueScale ? 210 : 102)
     this.toTarget.set(0, 0, 0)
     this.willFollow = false
     this.beginTween()
@@ -107,6 +113,22 @@ export class CameraController {
     this.followEnabled = false
   }
 
+  /** Softly pan the look target toward a world point. Never changes camera distance. */
+  nudgeLook(worldPosition: Vector3): void {
+    if (this.animating || this.nudging || this.followEnabled) return
+    this.nudgeNdc.copy(worldPosition).project(this.camera)
+    const onScreen =
+      this.nudgeNdc.z > 0 &&
+      this.nudgeNdc.z < 1 &&
+      Math.abs(this.nudgeNdc.x) < 0.72 &&
+      Math.abs(this.nudgeNdc.y) < 0.72
+    if (onScreen) return
+    this.nudgeFrom.copy(this.controls.target)
+    this.nudgeTo.copy(worldPosition)
+    this.nudgeElapsed = 0
+    this.nudging = true
+  }
+
   track(worldPosition: Vector3): void {
     if (this.animating) {
       this.followPos.copy(worldPosition)
@@ -145,6 +167,11 @@ export class CameraController {
         this.controls.enabled = true
         this.followEnabled = this.willFollow
       }
+    } else if (this.nudging) {
+      this.nudgeElapsed += dt
+      const t = easeInOutCubic(clamp(this.nudgeElapsed / this.nudgeDuration, 0, 1))
+      this.controls.target.lerpVectors(this.nudgeFrom, this.nudgeTo, t)
+      if (t >= 1) this.nudging = false
     }
     this.controls.update()
     if (this.animating) return
@@ -166,6 +193,7 @@ export class CameraController {
   private beginTween(): void {
     this.elapsed = 0
     this.animating = true
+    this.nudging = false
     this.followEnabled = false
     this.controls.enabled = false
     const distance = this.fromPos.distanceTo(this.toPos)

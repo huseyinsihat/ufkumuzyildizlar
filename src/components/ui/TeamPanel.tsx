@@ -47,15 +47,6 @@ export function TeamPanel() {
           <Badge key={member.name} name={member.name} role={member.role} />
         ))}
       </ul>
-      <ul className="team-links">
-        {TEAM.links.map((link) => (
-          <li key={link.href}>
-            <a href={link.href} target="_blank" rel="noreferrer">
-              {link.label}
-            </a>
-          </li>
-        ))}
-      </ul>
     </aside>
   )
 }

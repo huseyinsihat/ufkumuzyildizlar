@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { earthYearTours, isFullMoon, moonPhaseName, wrapDelta } from './orbitMath'
+import { earthYearTours, isFullMoon, kidTourLabel, moonPhaseName, wrapDelta } from './orbitMath'
 import { fallTimeSeconds, jumpHeightMeters, weightNewtons } from './gravityMath'
 
 describe('orbitMath', () => {
@@ -19,10 +19,19 @@ describe('orbitMath', () => {
     expect(moonPhaseName(185)).toBe('Dolunay')
     expect(isFullMoon(10)).toBe(false)
     expect(moonPhaseName(180)).toBe('Dolunay')
+    expect(moonPhaseName(0)).toBe('Yeniay')
+    expect(moonPhaseName(45)).toBe('Hilal')
+    expect(moonPhaseName(90)).toBe('Yarım')
   })
 
   it('wraps angle deltas across the branch cut', () => {
     expect(wrapDelta(3, -3)).toBeCloseTo(-6 + Math.PI * 2, 8)
+  })
+
+  it('uses kid tour labels', () => {
+    expect(kidTourLabel(4.15)).toBe('4 tur')
+    expect(kidTourLabel(1)).toBe('1 tur')
+    expect(kidTourLabel(0.08)).toBe('bitmedi')
   })
 })
 

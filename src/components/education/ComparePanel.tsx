@@ -30,7 +30,7 @@ function PlanetOrb({ body }: { body: PlanetDefinition }) {
     <span className={`compare-orb-wrap${body.hasRings ? ' has-rings' : ''}${body.id === 'sun' ? ' is-sun' : ''}`}>
       {body.hasRings ? <i className="compare-ring" aria-hidden="true" /> : null}
       {url ? (
-        <img className="compare-orb" src={url} alt={body.name} width={108} height={108} />
+        <img className="compare-orb" src={url} alt={body.name} width={72} height={72} />
       ) : (
         <span className="compare-orb" role="img" aria-label={body.name} style={{ backgroundColor: body.color }} />
       )}

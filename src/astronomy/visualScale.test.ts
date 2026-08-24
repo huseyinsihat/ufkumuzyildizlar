@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { compressDistance, educationalOrbitRadius, normalizeScaleMode, visualRadius } from './visualScale'
+import {
+  compressDistance,
+  educationalOrbitRadius,
+  normalizeScaleMode,
+  visualMoonOrbitRadius,
+  visualRadius,
+  visualSatelliteOrbitRadius,
+} from './visualScale'
 
 describe('visualScale', () => {
   it('keeps planet order in educational orbits', () => {
@@ -24,5 +31,35 @@ describe('visualScale', () => {
     expect(normalizeScaleMode('proportional')).toBe('trueScale')
     expect(normalizeScaleMode('astronomical')).toBe('trueScale')
     expect(normalizeScaleMode('educational')).toBe('educational')
+  })
+
+  it('shrinks the Moon orbit in true-scale mode', () => {
+    expect(visualMoonOrbitRadius('trueScale')).toBeLessThan(visualMoonOrbitRadius('educational') / 20)
+  })
+
+  it('keeps rocky planets larger than before while ordered by real size', () => {
+    expect(visualRadius('mercury', 'educational')).toBeGreaterThan(1)
+    expect(visualRadius('mercury', 'educational')).toBeLessThan(visualRadius('venus', 'educational'))
+    expect(visualRadius('venus', 'educational')).toBeLessThan(visualRadius('earth', 'educational'))
+    expect(visualRadius('mars', 'educational')).toBeLessThan(visualRadius('earth', 'educational'))
+    expect(visualRadius('jupiter', 'educational')).toBeGreaterThan(visualRadius('saturn', 'educational'))
+  })
+
+  it('keeps the Sun disk inside Mercury’s educational orbit', () => {
+    const gap =
+      educationalOrbitRadius(0.387) - visualRadius('sun', 'educational') - visualRadius('mercury', 'educational')
+    expect(gap).toBeGreaterThan(4)
+  })
+
+  it('packs Galilean orbits outside Jupiter without stacking', () => {
+    const io = visualSatelliteOrbitRadius('io', 'educational')
+    const europa = visualSatelliteOrbitRadius('europa', 'educational')
+    const ganymede = visualSatelliteOrbitRadius('ganymede', 'educational')
+    const callisto = visualSatelliteOrbitRadius('callisto', 'educational')
+    expect(io).toBeGreaterThan(visualRadius('jupiter', 'educational'))
+    expect(io).toBeLessThan(europa)
+    expect(europa).toBeLessThan(ganymede)
+    expect(ganymede).toBeLessThan(callisto)
+    expect(visualSatelliteOrbitRadius('titan', 'educational')).toBeGreaterThan(visualRadius('saturn', 'educational') * 2.28)
   })
 })

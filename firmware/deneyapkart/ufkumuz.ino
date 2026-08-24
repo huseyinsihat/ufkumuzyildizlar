@@ -28,6 +28,7 @@ const Binding BINDINGS[] = {
   {D12, "F:planets"},
   {D13, "F:stars"},
   {D14, "F:facts"},
+  {D15, "F:overview"},
 };
 
 const uint8_t COUNT = sizeof(BINDINGS) / sizeof(BINDINGS[0]);

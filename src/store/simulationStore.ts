@@ -48,6 +48,7 @@ interface SimulationState {
   addYears: (years: number) => void
   addDays: (days: number) => void
   setDateParts: (parts: { year: number; month: number; day: number; hour: number; minute: number }) => void
+  setTimeMs: (ms: number) => void
   tickFromScene: (timeMs: number) => void
   pushDisplayedTime: (timeMs: number) => void
   getEngine: () => TimeEngine
@@ -126,6 +127,10 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   setDateParts: ({ year, month, day, hour, minute }) => {
     const date = new Date(year, month - 1, day, hour, minute, 0, 0)
     engine.setDate(date)
+    set({ simulationTimeMs: engine.simulationTimeMs, displayedTimeMs: engine.simulationTimeMs })
+  },
+  setTimeMs: (ms) => {
+    engine.setDate(new Date(ms))
     set({ simulationTimeMs: engine.simulationTimeMs, displayedTimeMs: engine.simulationTimeMs })
   },
   tickFromScene: (timeMs) => {

@@ -1,4 +1,4 @@
-import { TIME_PRESETS } from '../astronomy/timeEngine'
+import { TIME_LADDER, timeScaleFromLadder } from '../astronomy/timeEngine'
 import { NOTABLE_STARS, NAMED_ROCKS } from '../content/skyWonders'
 import { focusBody, lookAtSolarSystem, openCompare } from '../features/planetExplorer/focus'
 import { getScene } from '../scene/sceneApi'
@@ -29,6 +29,7 @@ export type HardwareCommand =
   | { kind: 'play' }
   | { kind: 'day' }
   | { kind: 'year' }
+  | { kind: 'hour' }
   | { kind: 'second' }
   | { kind: 'now' }
   | { kind: 'overview' }
@@ -48,6 +49,8 @@ const FUNCTIONS: Record<string, Exclude<HardwareCommand['kind'], 'planet' | 'sta
   PAUSE: 'play',
   DAY: 'day',
   YEAR: 'year',
+  HOUR: 'hour',
+  SAAT: 'hour',
   SECOND: 'second',
   SEC: 'second',
   SN: 'second',
@@ -68,12 +71,7 @@ const FUNCTIONS: Record<string, Exclude<HardwareCommand['kind'], 'planet' | 'sta
 }
 
 export function timeScaleFromPot(t: number): number {
-  const u = Math.min(1, Math.max(0, t))
-  const second = 1
-  const day = 86_400
-  const year = 86_400 * 365.25
-  if (u < 0.5) return second * (day / second) ** (u / 0.5)
-  return day * (year / day) ** ((u - 0.5) / 0.5)
+  return timeScaleFromLadder(t)
 }
 
 export function parseHardwareLine(line: string): HardwareCommand | null {
@@ -125,9 +123,10 @@ export function applyHardwareCommand(command: HardwareCommand): void {
   const sim = useSimulationStore.getState()
   const ui = useUiStore.getState()
   const lab = useLabStore.getState()
-  const day = TIME_PRESETS.find((item) => item.id === 'day')?.scale ?? 86_400
-  const year = TIME_PRESETS.find((item) => item.id === 'year')?.scale ?? 86_400 * 365
-  const second = TIME_PRESETS.find((item) => item.id === '1')?.scale ?? 1
+  const second = TIME_LADDER.find((item) => item.id === '1')?.scale ?? 1
+  const hour = TIME_LADDER.find((item) => item.id === 'hour')?.scale ?? 3_600
+  const day = TIME_LADDER.find((item) => item.id === 'day')?.scale ?? 86_400
+  const year = TIME_LADDER.find((item) => item.id === 'year')?.scale ?? 86_400 * 365
 
   if (command.kind === 'planet') {
     enterExplore()
@@ -145,6 +144,7 @@ export function applyHardwareCommand(command: HardwareCommand): void {
   }
   if (command.kind === 'day') sim.setTimeScale(day)
   if (command.kind === 'year') sim.setTimeScale(year)
+  if (command.kind === 'hour') sim.setTimeScale(hour)
   if (command.kind === 'second') sim.setTimeScale(second)
   if (command.kind === 'now') {
     sim.goNowRealtime()
@@ -167,6 +167,7 @@ export function applyHardwareCommand(command: HardwareCommand): void {
       ui.setActivePanel('none')
       ui.setPlanetDrawerOpen(false)
       ui.setStarDrawerOpen(false)
+      ui.setEventDrawerOpen(false)
       ui.setAppMode('lab')
       lab.openLab()
     }

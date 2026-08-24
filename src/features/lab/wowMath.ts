@@ -6,6 +6,12 @@ export const LIGHT_TRAVEL_SEC: Record<'earth' | 'jupiter', number> = {
   jupiter: 2_620,
 }
 
+/** Wall-clock seconds used to play the compressed light pulse. */
+export const LIGHT_SCENE_SEC: Record<'earth' | 'jupiter', number> = {
+  earth: 6.2,
+  jupiter: 9,
+}
+
 export function lightTravelLabel(body: 'earth' | 'jupiter'): string {
   const sec = LIGHT_TRAVEL_SEC[body]
   const minutes = Math.floor(sec / 60)

@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { getBody } from '../../astronomy/planetData'
 import { CRAFT_KIND_LABEL, findEarthCraft } from '../../content/earthCrafts'
 import { findWonder } from '../../content/skyWonders'
+import { displayEventStatus, EVENT_STATUS_LABEL, eventHasMore, getSelectableEvent } from '../../content/astroEvents'
 import { earthRelativeWeight } from '../../features/lab/gravityMath'
 import { formatAu, formatDays, formatHours, formatKm, formatNumberTr } from '../../utils/formatting'
+import { useEventStore } from '../../store/eventStore'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
 import type { BodyCategory, PlanetDefinition } from '../../types/planet'
@@ -67,7 +69,8 @@ function extraRows(body: PlanetDefinition): { label: string; value: string }[] {
     rows.push({ label: 'Güneş’e uzaklık', value: formatAu(body.orbitalRadiusAu) })
   }
   if (body.category === 'moon') {
-    rows.push({ label: 'Dünya’ya uzaklık', value: formatAu(body.orbitalRadiusAu) })
+    const parentName = body.parentId ? getBody(body.parentId).name : 'Dünya'
+    rows.push({ label: `${parentName}’e uzaklık`, value: formatAu(body.orbitalRadiusAu) })
   }
   rows.push({
     label: 'Eksen eğikliği',
@@ -82,26 +85,115 @@ function extraRows(body: PlanetDefinition): { label: string; value: string }[] {
 
 export function InspectRail() {
   const leftOpen = useUiStore((s) => s.leftOpen)
-  const listOpen = useUiStore((s) => s.planetDrawerOpen || s.starDrawerOpen)
+  const listOpen = useUiStore((s) => s.planetDrawerOpen || s.starDrawerOpen || s.eventDrawerOpen)
   const chatOpen = useUiStore((s) => s.sunChatOpen)
   const panel = useUiStore((s) => s.activePanel)
   const bodyId = useSimulationStore((s) => s.selectedBodyId)
   const wonderId = useSimulationStore((s) => s.selectedWonderId)
+  const eventId = useEventStore((s) => s.selectedEventId)
+  const simMs = useSimulationStore((s) => s.simulationTimeMs)
   const [more, setMore] = useState(false)
+  const [moreEvent, setMoreEvent] = useState(false)
 
   useEffect(() => {
     setMore(false)
-  }, [bodyId, wonderId])
+    setMoreEvent(false)
+  }, [bodyId, wonderId, eventId])
 
-  if (!leftOpen || listOpen || chatOpen || panel !== 'none') return null
+  if (!leftOpen || listOpen || chatOpen || (panel !== 'none' && panel !== 'info')) return null
 
   const body = bodyId ? getBody(bodyId) : null
   const craft = findEarthCraft(wonderId)
   const wonder = craft ? undefined : findWonder(wonderId)
-  if (!body && !wonder && !craft) return null
+  const event = getSelectableEvent(eventId)
+  if (!body && !wonder && !craft && !event) return null
+  const eventStatus = event ? displayEventStatus(event.targetMs, simMs, Date.now()) : 'now'
+  const jumped =
+    event?.targetMs != null && event.targetMs > Date.now() && simMs >= event.targetMs
 
   return (
-    <aside className="inspect-rail" aria-label="Seçim bilgisi">
+    <aside className={`inspect-rail${event ? ' has-event' : ''}`} aria-label="Seçim bilgisi">
+      {event ? (
+        <div className="inspect-card inspect-event">
+          <header className="panel-head">
+            <div>
+              <p className="eyebrow">
+                Gösteri · {EVENT_STATUS_LABEL[eventStatus]}
+                {event.shortName !== event.title ? ` · ${event.shortName}` : ''}
+              </p>
+              <h2>{event.title}</h2>
+            </div>
+            <button type="button" className="icon-btn" onClick={() => useEventStore.getState().selectEvent(null)} aria-label="Kapat">
+              ×
+            </button>
+          </header>
+          {event.dateLabel ? (
+            <p className="inspect-soon">
+              {eventStatus === 'happened'
+                ? `${event.dateLabel} tarihinde oldu`
+                : jumped
+                  ? `Simülasyon ${event.dateLabel} tarihine gitti`
+                  : event.dateLabel}
+              {event.where ? ` — ${event.where}` : ''}
+            </p>
+          ) : null}
+          <p className="inspect-lead">{event.lead}</p>
+          <p className="inspect-see">
+            <span>Sahnede</span>
+            {event.see}
+          </p>
+          {!moreEvent ? (
+            <ul className="inspect-facts">
+              {event.facts.slice(0, 2).map((fact) => (
+                <li key={fact}>{fact}</li>
+              ))}
+            </ul>
+          ) : (
+            <>
+              {event.why ? (
+                <p className="inspect-why">
+                  <span>Neden</span>
+                  {event.why}
+                </p>
+              ) : null}
+              <ul className="inspect-facts">
+                {event.facts.map((fact) => (
+                  <li key={fact}>{fact}</li>
+                ))}
+              </ul>
+              {event.wrong ? (
+                <p className="inspect-wrong">
+                  <span>Yanlış kanı</span>
+                  {event.wrong}
+                </p>
+              ) : null}
+              {event.relatedBodyIds.length > 0 ? (
+                <p className="inspect-related">
+                  <span>İlgili cisimler</span>
+                  {event.relatedBodyIds.map((id) => getBody(id).name).join(' · ')}
+                </p>
+              ) : null}
+              {event.upcoming && !event.targetMs ? (
+                <>
+                  <p className="inspect-soon">Yakında: 1 Haziran 2030, Türkiye halkalı tutulması</p>
+                  <ul className="inspect-facts inspect-upcoming">
+                    {event.upcoming.map((row) => (
+                      <li key={row.date}>
+                        <strong>{row.date}</strong> {row.text}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : null}
+            </>
+          )}
+          {eventHasMore(event) ? (
+            <button type="button" className="text-link inspect-more" onClick={() => setMoreEvent((open) => !open)}>
+              {moreEvent ? 'Daha az' : 'Daha fazla'}
+            </button>
+          ) : null}
+        </div>
+      ) : null}
       {body ? (
         <div className="inspect-card">
           <header className="panel-head">

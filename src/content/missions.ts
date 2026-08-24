@@ -17,8 +17,8 @@ export const MISSIONS: Mission[] = [
   {
     id: 'find-mars-orbit',
     title: 'Görev 2 — Mars’ın yörüngesini göster',
-    instruction: 'Yörüngeleri aç ve Mars’ı seç.',
-    hint: 'Sol menüden Yörüngeler’i aç, sonra kızıl gezegene tıkla.',
+    instruction: 'Mars’ın yörüngesine dokunarak Kızıl Gezegen’i seç.',
+    hint: 'Etiketler kapalı; kalın yörünge halkalarından Mars’ı bul.',
     points: 60,
   },
   {
@@ -37,16 +37,16 @@ export const MISSIONS: Mission[] = [
   },
   {
     id: 'earth-tilt',
-    title: 'Görev 5 — Dünya’nın eksen eğikliğini göster',
-    instruction: 'Dünya’yı seç ve “Eksenimi göster”i aç.',
-    hint: 'Bilgi panelindeki Dönüş sekmesinden ekseni açabilirsin.',
+    title: 'Görev 5 — Dünya’nın yana yatık duruşunu göster',
+    instruction: 'Dünya’yı seç ve Ayarlar’dan Eksenler’i aç.',
+    hint: 'Ayarlar’daki Eksenler anahtarı Dünya seçiliyken görevi tamamlar.',
     points: 80,
   },
   {
     id: 'earth-year',
     title: 'Görev 6 — Bir Dünya yılı gözle',
-    instruction: 'Zaman makinesiyle en az 1 yıl ileri git ve gezegenlerin dolanımını izle.',
-    hint: 'Alttan “1 yıl sonra”ya bas veya 1 yıl/sn hızını dene.',
+    instruction: 'Zaman makinesiyle en az 1 yıl ileri git ve gezegenlerin turunu izle.',
+    hint: 'Alttan “1 yıl atla”ya bas veya 1 yıl/sn hızını dene.',
     points: 100,
   },
   {
@@ -59,7 +59,7 @@ export const MISSIONS: Mission[] = [
 ]
 
 export const BADGES = [
-  { id: 'first-discovery', name: 'İlk Keşif', description: 'İlk gezegenini seçtin.' },
+  { id: 'first-discovery', name: 'İlk Keşif', description: 'Dünya’yı buldun.' },
   { id: 'mars-explorer', name: 'Mars Kaşifi', description: 'Mars’ı inceledin.' },
   { id: 'planet-expert', name: 'Gezegen Uzmanı', description: 'Birden fazla gezegeni keşfettin.' },
   { id: 'orbit-master', name: 'Yörünge Ustası', description: 'Yörünge sırasını veya yılı gördün.' },
@@ -89,4 +89,13 @@ export const LAB_BADGES: Record<string, BadgeId> = {
   'ursa-hunt': 'bear-hunter',
   'light-diary': 'light-scribe',
   'light-travel': 'light-scribe',
+  'day-night': 'tilt-explorer',
+  'spin-vs-orbit': 'tilt-explorer',
+  'real-scale': 'orbit-master',
+  'comet-tail': 'orbit-master',
+  'mercury-long-day': 'orbit-master',
+  'stars-or-earth': 'bear-hunter',
+  'star-names': 'bear-hunter',
+  'space-mission': 'mars-explorer',
+  'closest-hottest': 'planet-expert',
 }

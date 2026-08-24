@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { useLabStore } from './labStore'
 import { useUiStore } from './uiStore'
 
 describe('ui overlays', () => {
@@ -7,6 +8,7 @@ describe('ui overlays', () => {
       activePanel: 'none',
       planetDrawerOpen: false,
       starDrawerOpen: false,
+      eventDrawerOpen: false,
       sunChatOpen: false,
     })
 
@@ -17,9 +19,34 @@ describe('ui overlays', () => {
     expect(useUiStore.getState().planetDrawerOpen).toBe(true)
     expect(useUiStore.getState().sunChatOpen).toBe(false)
 
+    useUiStore.getState().setEventDrawerOpen(true)
+    expect(useUiStore.getState().eventDrawerOpen).toBe(true)
+    expect(useUiStore.getState().planetDrawerOpen).toBe(false)
+    expect(useUiStore.getState().starDrawerOpen).toBe(false)
+
+    useUiStore.getState().setStarDrawerOpen(true)
+    expect(useUiStore.getState().starDrawerOpen).toBe(true)
+    expect(useUiStore.getState().eventDrawerOpen).toBe(false)
+
     useUiStore.getState().setActivePanel('facts')
     expect(useUiStore.getState().activePanel).toBe('facts')
     expect(useUiStore.getState().planetDrawerOpen).toBe(false)
     expect(useUiStore.getState().sunChatOpen).toBe(false)
+    expect(useUiStore.getState().eventDrawerOpen).toBe(false)
+  })
+})
+
+describe('lab and compare exclusivity', () => {
+  it('closes compare when lab opens', () => {
+    useUiStore.setState({ activePanel: 'compare' })
+    useLabStore.getState().openLab()
+    expect(useUiStore.getState().activePanel).toBe('none')
+    expect(useLabStore.getState().labOpen).toBe(true)
+  })
+
+  it('closes compare when an activity starts', () => {
+    useUiStore.setState({ activePanel: 'compare' })
+    useLabStore.getState().startActivity('who-faster')
+    expect(useUiStore.getState().activePanel).toBe('none')
   })
 })

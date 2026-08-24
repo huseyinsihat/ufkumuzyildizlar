@@ -16,10 +16,18 @@ const COLOR_FILES: Partial<Record<BodyId, string>> = {
   earth: 'earth.jpg',
   moon: 'moon.jpg',
   mars: 'mars.jpg',
+  phobos: 'phobos.jpg',
+  deimos: 'deimos.jpg',
   jupiter: 'jupiter.jpg',
+  io: 'io.jpg',
+  europa: 'europa.jpg',
+  ganymede: 'ganymede.jpg',
+  callisto: 'callisto.jpg',
   saturn: 'saturn.jpg',
+  titan: 'titan.jpg',
   uranus: 'uranus.jpg',
   neptune: 'neptune.jpg',
+  pluto: 'pluto.jpg',
 }
 
 function textureUrl(file: string): string {

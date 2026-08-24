@@ -4,8 +4,8 @@ import { clamp, lerp } from '../utils/math'
 export const CAMERA_TRAVEL_MIN_SEC = 1.15
 /** Ceiling for the longest hop the scene can make (opposite sky points). */
 export const CAMERA_TRAVEL_MAX_SEC = 8
-/** Scene-unit distance that maps to the 8s ceiling. Stars sit on a ~248 radius sphere. */
-export const CAMERA_TRAVEL_MAX_DIST = 496
+/** Scene-unit distance that maps to the 8s ceiling. Stars sit on a ~520 radius sphere. */
+export const CAMERA_TRAVEL_MAX_DIST = 1040
 
 export type Vec3Like = { x: number; y: number; z: number }
 

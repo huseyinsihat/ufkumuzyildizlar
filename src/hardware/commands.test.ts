@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { HARDWARE_BUTTONS } from './bindings'
+import { HARDWARE_BUTTONS, HARDWARE_EXTRAS } from './bindings'
 import { parseHardwareLine, timeScaleFromPot } from './commands'
 
 describe('parseHardwareLine', () => {
@@ -13,6 +13,8 @@ describe('parseHardwareLine', () => {
     expect(parseHardwareLine('F:play')).toEqual({ kind: 'play' })
     expect(parseHardwareLine('F:day')).toEqual({ kind: 'day' })
     expect(parseHardwareLine('F:year')).toEqual({ kind: 'year' })
+    expect(parseHardwareLine('F:hour')).toEqual({ kind: 'hour' })
+    expect(parseHardwareLine('F:saat')).toEqual({ kind: 'hour' })
     expect(parseHardwareLine('F:now')).toEqual({ kind: 'now' })
     expect(parseHardwareLine('F:overview')).toEqual({ kind: 'overview' })
     expect(parseHardwareLine('F:orbits')).toEqual({ kind: 'orbits' })
@@ -31,13 +33,17 @@ describe('parseHardwareLine', () => {
     expect(parseHardwareLine('R:earth')).toEqual({ kind: 'planet', id: 'earth' })
   })
 
-  it('maps the pot to day around the midpoint', () => {
+  it('maps the pot across second, hour, day, and year', () => {
     expect(timeScaleFromPot(0)).toBeCloseTo(1)
-    expect(timeScaleFromPot(0.5)).toBeCloseTo(86_400)
+    expect(timeScaleFromPot(1 / 3)).toBeCloseTo(3_600)
+    expect(timeScaleFromPot(2 / 3)).toBeCloseTo(86_400)
   })
 
   it('parses every wired classroom button line', () => {
     for (const item of HARDWARE_BUTTONS) {
+      expect(parseHardwareLine(item.line)).toBeTruthy()
+    }
+    for (const item of HARDWARE_EXTRAS) {
       expect(parseHardwareLine(item.line)).toBeTruthy()
     }
   })

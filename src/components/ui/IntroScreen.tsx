@@ -16,13 +16,14 @@ export function IntroScreen() {
         <p className="eyebrow section-kicker">{TEAM.event}</p>
         <h1 id="intro-title">{TEAM.project}</h1>
         <p className="intro-team">{TEAM.teamName}</p>
-        <p className="intro-lead">Güneş Sistemini canlı izle. Döndür, hızlandır, nedenini gör.</p>
+        <p className="intro-lead">Uzay Vatanda Millî Teknoloji Hamlesi</p>
         <div className="intro-grid">
           <button
             type="button"
             className="intro-tile primary"
             onClick={() => {
               useVoiceStore.getState().play('intro-lab')
+              setPanel('none')
               setIntro(false)
               setMode('lab')
               openLab()
@@ -32,7 +33,7 @@ export function IntroScreen() {
               <Icon name="flask" />
             </span>
             <strong>{TEAM.home}</strong>
-            <span>{TEAM.teamName}’in projesi</span>
+            <span>Oyna ve Öğren</span>
           </button>
           <button
             type="button"
@@ -47,7 +48,7 @@ export function IntroScreen() {
               <Icon name="planet" />
             </span>
             <strong>Güneş Sistemini Gez</strong>
-            <span>Serbest keşif</span>
+            <span>Gezegenlere Bak</span>
           </button>
           <button
             type="button"

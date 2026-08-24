@@ -1,3 +1,5 @@
+import { equatorialToSceneDir } from '../astronomy/skyCoordinates'
+
 export interface ConstellationStar {
   id: string
   name: string
@@ -14,9 +16,9 @@ export interface Constellation {
   lines: [string, string][]
 }
 
-function star(id: string, name: string, x: number, y: number, z: number): ConstellationStar {
-  const length = Math.hypot(x, y, z) || 1
-  return { id, name, x: x / length, y: y / length, z: z / length }
+function star(id: string, name: string, raHours: number, decDeg: number): ConstellationStar {
+  const dir = equatorialToSceneDir(raHours, decDeg)
+  return { id, name, x: dir.x, y: dir.y, z: dir.z }
 }
 
 export const CONSTELLATIONS: Constellation[] = [
@@ -25,13 +27,13 @@ export const CONSTELLATIONS: Constellation[] = [
     name: 'Büyük Ayı',
     description: 'Kuzey göğünün en tanınmış takımyıldızıdır. Kepçe biçimindeki yedi yıldızı kolayca bulunur.',
     stars: [
-      star('dubhe', 'Dubhe', 0.35, 0.88, 0.12),
-      star('merak', 'Merak', 0.28, 0.82, 0.22),
-      star('phecda', 'Phecda', 0.12, 0.8, 0.28),
-      star('megrez', 'Megrez', 0.02, 0.84, 0.22),
-      star('alioth', 'Alioth', -0.12, 0.86, 0.18),
-      star('mizar', 'Mizar', -0.24, 0.84, 0.12),
-      star('alcaid', 'Alcaid', -0.38, 0.78, 0.02),
+      star('dubhe', 'Dubhe', 11.0622, 61.751),
+      star('merak', 'Merak', 11.0307, 56.382),
+      star('phecda', 'Phecda', 11.8972, 53.695),
+      star('megrez', 'Megrez', 12.2571, 57.033),
+      star('alioth', 'Alioth', 12.9004, 55.96),
+      star('mizar', 'Mizar', 13.3987, 54.925),
+      star('alcaid', 'Alcaid', 13.7923, 49.313),
     ],
     lines: [
       ['dubhe', 'merak'],
@@ -48,11 +50,11 @@ export const CONSTELLATIONS: Constellation[] = [
     name: 'Küçük Ayı',
     description: 'Kutup Yıldızı (Polaris) bu takımyıldızdadır. Kuzeyi bulmak için kullanılır.',
     stars: [
-      star('polaris', 'Polaris', 0.02, 0.99, 0.04),
-      star('yildun', 'Yildun', 0.08, 0.94, 0.1),
-      star('epsilon-umi', 'ε UMi', 0.12, 0.9, 0.16),
-      star('kochab', 'Kochab', 0.18, 0.86, 0.22),
-      star('pherkad', 'Pherkad', 0.1, 0.84, 0.28),
+      star('polaris', 'Polaris', 2.5303, 89.2641),
+      star('yildun', 'Yildun', 17.5362, 86.586),
+      star('epsilon-umi', 'ε UMi', 16.7662, 82.037),
+      star('kochab', 'Kochab', 14.8451, 74.155),
+      star('pherkad', 'Pherkad', 15.3457, 71.834),
     ],
     lines: [
       ['polaris', 'yildun'],
@@ -67,13 +69,13 @@ export const CONSTELLATIONS: Constellation[] = [
     name: 'Orion',
     description: 'Avcı Orion. Kemerindeki üç yıldız ve parlak Betelgeuse ile Rigel kolay tanınır.',
     stars: [
-      star('betelgeuse', 'Betelgeuse', 0.72, 0.18, 0.55),
-      star('bellatrix', 'Bellatrix', 0.62, 0.22, 0.64),
-      star('alnitak', 'Alnitak', 0.66, 0.02, 0.62),
-      star('alnilam', 'Alnilam', 0.7, 0.02, 0.58),
-      star('mintaka', 'Mintaka', 0.74, 0.02, 0.54),
-      star('saiph', 'Saiph', 0.68, -0.18, 0.62),
-      star('rigel', 'Rigel', 0.78, -0.16, 0.5),
+      star('betelgeuse', 'Betelgeuse', 5.9195, 7.407),
+      star('bellatrix', 'Bellatrix', 5.4189, 6.35),
+      star('alnitak', 'Alnitak', 5.6794, -1.943),
+      star('alnilam', 'Alnilam', 5.6036, -1.202),
+      star('mintaka', 'Mintaka', 5.5334, -0.299),
+      star('saiph', 'Saiph', 5.796, -9.67),
+      star('rigel', 'Rigel', 5.2423, -8.2016),
     ],
     lines: [
       ['betelgeuse', 'bellatrix'],
@@ -91,11 +93,11 @@ export const CONSTELLATIONS: Constellation[] = [
     name: 'Cassiopeia',
     description: 'W harfine benzeyen beş parlak yıldız. Kuzey göğünde neredeyse her zaman görünür.',
     stars: [
-      star('schedar', 'Schedar', -0.22, 0.72, 0.58),
-      star('caph', 'Caph', -0.1, 0.68, 0.64),
-      star('gamma-cas', 'Navi', -0.32, 0.76, 0.5),
-      star('ruchbah', 'Ruchbah', -0.42, 0.7, 0.48),
-      star('segin', 'Segin', -0.52, 0.66, 0.44),
+      star('schedar', 'Schedar', 0.6751, 56.537),
+      star('caph', 'Caph', 0.1529, 59.15),
+      star('gamma-cas', 'Navi', 0.9453, 60.717),
+      star('ruchbah', 'Ruchbah', 1.4302, 60.235),
+      star('segin', 'Segin', 1.9066, 63.67),
     ],
     lines: [
       ['caph', 'schedar'],

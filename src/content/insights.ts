@@ -11,7 +11,7 @@ export const INSIGHTS: Insight[] = [
   {
     id: 'venus-hot',
     bodies: ['venus', 'mercury'],
-    text: 'Güneş’e en yakın gezegen Merkür’dür. Ama en sıcak gezegen Venüs’tür; kalın atmosferi ısıyı tutar.',
+    text: 'Güneş’e en yakın gezegen Merkür’dür. Ama en sıcak gezegen Venüs’tür; kalın havası ısıyı tutar.',
   },
   {
     id: 'years-differ',
@@ -36,12 +36,12 @@ export const INSIGHTS: Insight[] = [
   {
     id: 'day-night',
     bodies: ['earth'],
-    text: 'Gece ve gündüz, Dünya’nın Güneş etrafında dolanmasından değil kendi ekseni etrafında dönmesinden oluşur.',
+    text: 'Gece ve gündüz, Dünya kendi etrafında döndüğü için olur. Güneş etrafında tur yıl yapar.',
   },
   {
     id: 'seasons',
     bodies: ['earth'],
-    text: 'Yazın Dünya Güneş’e daha yakın olduğu için yaz olmaz. Mevsimlerin asıl nedeni eksen eğikliğidir.',
+    text: 'Yaz, Dünya Güneş’e daha yakın olduğu için olmaz. Dünya biraz yana yatıktır.',
   },
   {
     id: 'moon-light',
@@ -51,7 +51,7 @@ export const INSIGHTS: Insight[] = [
   {
     id: 'mass-weight',
     bodies: ['moon'],
-    text: 'Ay’da daha hafif hissedersin ama kütlen aynı kalır. Değişen şey yerçekiminin çekmesidir.',
+    text: 'Ay’da daha hafif hissedersin ama sen aynı çocuksun. Değişen şey çekimin gücüdür.',
   },
   {
     id: 'mercury-day',
@@ -61,32 +61,57 @@ export const INSIGHTS: Insight[] = [
   {
     id: 'jupiter-gas',
     bodies: ['jupiter'],
-    text: 'Jüpiter gaz devidir. Üzerinde yürünecek katı bir yüzeyi yoktur. Yerçekimi Dünya’dan daha güçlüdür.',
+    text: 'Jüpiter gazdır. Üzerinde yürünecek katı yer yoktur. Çekimi Dünya’dan daha güçlüdür.',
   },
   {
     id: 'saturn-rings',
     bodies: ['saturn'],
-    text: 'Satürn’ün halkaları tek parça değildir; buz, kaya ve tozdan oluşur. Diğer gaz devlerinin de ince halkaları vardır.',
+    text: 'Satürn’ün halkaları tek parça değildir; buz, kaya ve tozdan oluşur. Başka büyük gezegenlerin de ince halkası vardır.',
   },
   {
     id: 'uranus-tilt',
     bodies: ['uranus'],
-    text: 'Uranüs yana yatmış gibi durur çünkü ekseni çok eğiktir. Yine de döner ve Güneş’in etrafında dolanır.',
+    text: 'Uranüs yana yatmış gibi durur. Yine de döner ve Güneş’in etrafında tur atar.',
   },
   {
     id: 'mars-cold',
     bodies: ['mars'],
-    text: 'Mars’ın kırmızı rengi yüzeyindeki demir oksitten gelir. Atmosferi incedir ve Dünya’dan çok daha soğuktur.',
+    text: 'Mars’ın kırmızı rengi yüzeyindeki pastan gelir. Havası incedir ve Dünya’dan çok daha soğuktur.',
   },
   {
     id: 'pluto',
     bodies: ['pluto'],
-    text: 'Plüton bir cüce gezegendir. Güneş Sistemi Plüton’da bitmez; daha uzakta da gök cisimleri vardır.',
+    text: 'Plüton çok küçüktür. Güneş Sistemi Plüton’da bitmez; daha uzakta da gök cisimleri vardır.',
   },
   {
     id: 'neptune-edge',
     bodies: ['neptune'],
     text: 'Neptün en uzak gezegendir. Ama Güneş Sistemi orada bitmez; Plüton ve Kuiper Kuşağı daha ötede durur.',
+  },
+  {
+    id: 'io-hot',
+    bodies: ['io', 'jupiter'],
+    text: 'Io, Jüpiter’in çekimiyle ısınır. Bu yüzden Güneş Sistemi’nin en volkanik dünyalarındandır.',
+  },
+  {
+    id: 'europa-ice',
+    bodies: ['europa'],
+    text: 'Europa buzla kaplıdır. Buzun altında okyanus olabileceği düşünülür.',
+  },
+  {
+    id: 'ganymede-big',
+    bodies: ['ganymede'],
+    text: 'Ganimed, Güneş Sistemi’nin en büyük uydusudur. Merkür’den bile büyüktür.',
+  },
+  {
+    id: 'titan-air',
+    bodies: ['titan', 'saturn'],
+    text: 'Titan’ın kalın havası vardır. Yüzeyinde sıvı metan gölleri bulunur.',
+  },
+  {
+    id: 'mars-moons',
+    bodies: ['phobos', 'deimos', 'mars'],
+    text: 'Mars’ın iki küçük uydusu vardır: Phobos ve Deimos. İkisi de Ay kadar büyük değildir.',
   },
 ]
 
@@ -107,9 +132,9 @@ export function insightFor(ids: BodyId[]): Insight {
 }
 
 export const LAB_TIPS = [
-  'Bir gün dönmedir, bir yıl dolanımdır. İkisi farklı hareketlerdir.',
-  'Güneş bir yıldızdır; gezegenler onun çevresinde dolanır.',
-  'Mevsimler Güneş’e yakınlıktan değil, Dünya’nın eksen eğikliğinden doğar.',
+  'Bir gün dönmedir, bir yıl tur atmadır. İkisi farklı hareketlerdir.',
+  'Güneş bir yıldızdır; gezegenler onun çevresinde döner.',
+  'Mevsimler Güneş’e yakınlıktan değil, Dünya’nın yana yatık durmasından doğar.',
   'Ay’ın şekli değişmez; gördüğümüz aydınlık dilim değişir.',
 ]
 
@@ -136,7 +161,7 @@ export const FACTS: FactCard[] = [
     id: 'general-eight',
     stage: 'general',
     title: 'Sekiz gezegen vardır',
-    text: 'Güneş Sistemi’nde sekiz gezegen dolanır. Merkür en yakın, Neptün en uzaktır.',
+    text: 'Güneş Sistemi’nde sekiz gezegen döner. Merkür en yakın, Neptün en uzaktır.',
     bodyId: 'neptune',
   },
   {
@@ -150,7 +175,7 @@ export const FACTS: FactCard[] = [
     id: 'general-star',
     stage: 'general',
     title: 'Güneş bir yıldızdır',
-    text: 'Güneş gezegen değildir. Kendi ışığını üretir; gezegenler onun çevresinde dolanır.',
+    text: 'Güneş gezegen değildir. Kendi ışığını üretir; gezegenler onun çevresinde döner.',
     bodyId: 'sun',
   },
   {
@@ -171,7 +196,7 @@ export const FACTS: FactCard[] = [
     id: 'general-weight',
     stage: 'general',
     title: 'Kütle ve ağırlık',
-    text: 'Ay’da daha hafif hissedersin ama kütlen aynı kalır. Değişen yerçekimidir.',
+    text: 'Ay’da daha hafif hissedersin ama sen aynı çocuksun. Değişen çekimdir.',
     bodyId: 'moon',
   },
   {
@@ -185,7 +210,7 @@ export const FACTS: FactCard[] = [
     id: 'general-seasons',
     stage: 'general',
     title: 'Mevsimler eğiklikten gelir',
-    text: 'Yaz, Dünya Güneş’e yaklaştığı için olmaz. Asıl neden eksen eğikliğidir.',
+    text: 'Yaz, Dünya Güneş’e yaklaştığı için olmaz. Dünya biraz yana yatıktır.',
     bodyId: 'earth',
   },
   {
@@ -220,7 +245,7 @@ export const FACTS: FactCard[] = [
     id: 'venus-hot',
     stage: 'planets',
     title: 'Venüs en sıcak gezegendir',
-    text: 'Merkür Güneş’e daha yakındır. Ama Venüs’ün kalın atmosferi ısıyı tutar; yüzey orada daha sıcaktır.',
+    text: 'Merkür Güneş’e daha yakındır. Ama Venüs’ün kalın havası ısıyı tutar; yüzey orada daha sıcaktır.',
     bodyId: 'venus',
   },
   {
@@ -240,7 +265,7 @@ export const FACTS: FactCard[] = [
   {
     id: 'jupiter-gas',
     stage: 'planets',
-    title: 'Jüpiter gaz devidir',
+    title: 'Jüpiter gazdır',
     text: 'Jüpiter’in Dünya gibi yürünecek katı bir yüzeyi yoktur. Büyük olduğu için yerçekimi daha güçlüdür.',
     bodyId: 'jupiter',
   },
@@ -248,14 +273,14 @@ export const FACTS: FactCard[] = [
     id: 'saturn-rings',
     stage: 'planets',
     title: 'Satürn’ün halkaları',
-    text: 'Halkalar tek parça değildir. Buz, kaya ve tozdan oluşur. Diğer gaz devlerinin de ince halkaları vardır.',
+    text: 'Halkalar tek parça değildir. Buz, kaya ve tozdan oluşur. Başka büyük gezegenlerin de ince halkası vardır.',
     bodyId: 'saturn',
   },
   {
     id: 'uranus-tilt',
     stage: 'planets',
-    title: 'Uranüs’ün ekseni çok eğiktir',
-    text: 'Uranüs yana yatmış gibi durur. Yine de döner ve Güneş’in etrafında dolanır.',
+    title: 'Uranüs yana yatıktır',
+    text: 'Uranüs yana yatmış gibi durur. Yine de döner ve Güneş’in etrafında tur atar.',
     bodyId: 'uranus',
   },
   {
@@ -268,15 +293,15 @@ export const FACTS: FactCard[] = [
   {
     id: 'pluto-dwarf',
     stage: 'planets',
-    title: 'Plüton cüce gezegendir',
-    text: 'Plüton bir cüce gezegendir. Güneş Sistemi orada bitmez; daha uzakta da gök cisimleri vardır.',
+    title: 'Plüton çok küçüktür',
+    text: 'Plüton çok küçüktür. Güneş Sistemi orada bitmez; daha uzakta da gök cisimleri vardır.',
     bodyId: 'pluto',
   },
   {
     id: 'year-near',
     stage: 'planets',
     title: 'Yakın gezegenlerin yılı kısadır',
-    text: 'Güneş’e yakın gezegenler daha kısa yörüngede dolanır. Bu yüzden bir turları daha kısa sürer.',
+    text: 'Güneş’e yakın gezegenler daha kısa yolda döner. Bu yüzden bir turları daha kısa sürer.',
     bodyId: 'mercury',
   },
   {
@@ -290,14 +315,14 @@ export const FACTS: FactCard[] = [
     id: 'day-night',
     stage: 'earth',
     title: 'Gece ve gündüz nasıl oluşur?',
-    text: 'Gece ve gündüz, Güneş etrafında dolanmadan değil Dünya’nın kendi ekseni etrafında dönmesinden oluşur.',
+    text: 'Gece ve gündüz, Dünya kendi etrafında döndüğü için olur. Güneş etrafında tur yıl yapar.',
     bodyId: 'earth',
   },
   {
     id: 'seasons',
     stage: 'earth',
     title: 'Mevsimler neden olur?',
-    text: 'Yaz, Dünya Güneş’e yaklaştığı için olmaz. Asıl neden Dünya’nın eksen eğikliğidir.',
+    text: 'Yaz, Dünya Güneş’e yaklaştığı için olmaz. Dünya biraz yana yatıktır.',
     bodyId: 'earth',
   },
   {
@@ -311,14 +336,14 @@ export const FACTS: FactCard[] = [
     id: 'moon-face',
     stage: 'earth',
     title: 'Ay hep aynı yüzü gösterir',
-    text: 'Ay’ı hep aynı yüzünden görürüz. Dönme süresi ile Dünya etrafındaki dolanma süresi neredeyse eşittir.',
+    text: 'Ay’ı hep aynı yüzünden görürüz. Dönmesi ile Dünya etrafındaki turu neredeyse aynı sürer.',
     bodyId: 'moon',
   },
   {
     id: 'mass-weight',
     stage: 'earth',
-    title: 'Kütle ve ağırlık',
-    text: 'Ay’da daha hafif hissedersin ama kütlen aynı kalır. Değişen şey yerçekiminin çekmesidir.',
+    title: 'Sen ve ağırlığın',
+    text: 'Ay’da daha hafif hissedersin ama sen aynı çocuksun. Değişen şey çekimin gücüdür.',
     bodyId: 'moon',
   },
   {
@@ -353,7 +378,7 @@ export const FACTS: FactCard[] = [
     id: 'polaris',
     stage: 'stars',
     title: 'Polaris',
-    text: 'Kutup Yıldızı kuzey yönünü gösterir. Dünya’nın ekseni ona doğru baktığı için gökyüzünde pek yer değiştirmez.',
+    text: 'Kutup Yıldızı kuzey yönünü gösterir. Gökyüzünde pek yer değiştirmez.',
     wonderId: 'polaris',
   },
   {

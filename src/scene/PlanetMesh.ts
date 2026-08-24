@@ -15,6 +15,7 @@ import type { PlanetDefinition } from '../types/planet'
 import type { ScaleMode } from '../types/simulation'
 import { visualRadius } from '../astronomy/visualScale'
 import { createBodyTexture } from './proceduralTextures'
+import { siderealAngleRad } from '../astronomy/siderealSpin'
 import type { BodyTextureSet } from './loadBodyTextures'
 import { RingMesh } from './RingMesh'
 
@@ -51,7 +52,7 @@ export class PlanetMesh {
       body.id === 'earth' || body.id === 'jupiter' || body.id === 'saturn' ? 768 : 512,
     )
     const gas = body.category === 'gasGiant' || body.category === 'iceGiant'
-    const rocky = body.id === 'moon' || body.id === 'mercury'
+    const rocky = body.category === 'moon' || body.id === 'mercury'
     const material = new MeshStandardMaterial({
       map: texture,
       roughness: body.id === 'earth' ? 0.46 : body.id === 'venus' ? 0.4 : rocky ? 0.97 : gas ? 0.84 : 0.8,
@@ -87,20 +88,32 @@ export class PlanetMesh {
     this.axis.raycast = () => {}
     this.tiltGroup.add(this.axis)
 
-    if (body.id === 'earth' || body.id === 'venus' || gas) {
+    if (body.id === 'earth' || body.id === 'venus' || body.id === 'titan' || gas) {
       const tint =
-        body.id === 'earth' ? '#6ec8ff' : body.id === 'venus' ? '#f0c27a' : body.id === 'jupiter' ? '#e0c089' : body.id === 'saturn' ? '#ead7a4' : body.id === 'uranus' ? '#9fe4e2' : '#6ea4ff'
+        body.id === 'earth'
+          ? '#6ec8ff'
+          : body.id === 'venus'
+            ? '#f0c27a'
+            : body.id === 'titan'
+              ? '#e8a060'
+              : body.id === 'jupiter'
+                ? '#e0c089'
+                : body.id === 'saturn'
+                  ? '#ead7a4'
+                  : body.id === 'uranus'
+                    ? '#9fe4e2'
+                    : '#6ea4ff'
       this.atmosphere = new Mesh(
         HIGH_GEO,
         new MeshBasicMaterial({
           color: tint,
           transparent: true,
-          opacity: body.id === 'earth' ? 0.16 : body.id === 'venus' ? 0.22 : gas ? 0.1 : 0.12,
+          opacity: body.id === 'earth' ? 0.16 : body.id === 'venus' ? 0.22 : body.id === 'titan' ? 0.2 : gas ? 0.1 : 0.12,
           blending: AdditiveBlending,
           depthWrite: false,
         }),
       )
-      this.atmosphere.scale.setScalar(gas ? 1.03 : 1.045)
+      this.atmosphere.scale.setScalar(body.id === 'titan' ? 1.08 : gas ? 1.03 : 1.045)
       this.atmosphere.raycast = () => {}
       this.tiltGroup.add(this.atmosphere)
     }
@@ -125,7 +138,7 @@ export class PlanetMesh {
     }
 
     if (body.hasRings) {
-      this.rings = new RingMesh(body.ringInnerScale ?? 1.2, body.ringOuterScale ?? 2.1, body.id === 'uranus')
+      this.rings = new RingMesh(body.ringInnerScale ?? 1.2, body.ringOuterScale ?? 2.1, body.id === 'uranus' || body.id === 'neptune')
       this.tiltGroup.add(this.rings.mesh)
     }
 
@@ -223,16 +236,11 @@ export class PlanetMesh {
     this.rings?.setLod(next === 'high')
   }
 
-  update(dtSimSeconds: number): void {
-    const period = Math.abs(this.body.rotationPeriodHours) * 3600
-    if (period === 0) {
-      return
-    }
-    const sign = this.body.rotationPeriodHours < 0 ? -1 : 1
-    this.spin += sign * ((Math.PI * 2) / period) * dtSimSeconds
+  update(dtSimSeconds: number, simTimeMs = 0): void {
+    this.spin = siderealAngleRad(simTimeMs, this.body.rotationPeriodHours)
     this.mesh.rotation.y = this.spin
     if (this.clouds) {
-      this.cloudSpin += sign * ((Math.PI * 2) / period) * dtSimSeconds * 1.12
+      this.cloudSpin = this.spin * 1.12
       this.clouds.rotation.y = this.cloudSpin
     }
     this.rings?.update(dtSimSeconds)

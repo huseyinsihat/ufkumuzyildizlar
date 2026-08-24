@@ -8,11 +8,11 @@ import { speak } from '../../utils/speech'
 import { Icon } from '../ui/Icon'
 import type { LabActivity, LabStep } from '../../types/lab'
 
-const STEPS = ['Tahmin', 'İzle', 'Neden'] as const
+const STEPS = ['Tahmin', 'İzle', 'Sonuç', 'Neden'] as const
 
 function bubbleText(activity: LabActivity, step: LabStep): string {
   if (step === 'explain') return activity.explain
-  if (step === 'result') return 'Sahneyi gördün. Şimdi nedenine bak.'
+  if (step === 'result') return activity.resultTitle
   if (step === 'simulate') return activity.watchHint
   return activity.question
 }
@@ -38,7 +38,7 @@ export function ActivityShell({ children }: { children: ReactNode }) {
   }
 
   if (!id || !activity) return null
-  const index = step === 'predict' ? 1 : step === 'simulate' ? 2 : 3
+  const index = step === 'predict' ? 1 : step === 'simulate' ? 2 : step === 'result' ? 3 : 4
   const badge = BADGES.find((item) => item.id === lastBadge)
 
   return (
@@ -72,9 +72,6 @@ export function ActivityShell({ children }: { children: ReactNode }) {
       {step === 'simulate' ? children : null}
       {step === 'result' ? (
         <div className="activity-stage">
-          <p>
-            <strong>{activity.resultTitle}</strong>
-          </p>
           {children}
           <button type="button" className="btn primary" onClick={complete}>
             Nedenini gör

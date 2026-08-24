@@ -41,6 +41,5 @@ export interface LabActivity {
   simulateLabel: string
   resultTitle: string
   explain: string
-  featured?: boolean
   uses3d: boolean
 }

@@ -57,6 +57,14 @@ export function visualEccentricity(e: number, exaggerate: boolean): number {
   return Math.min(0.72, e * 2.35 + 0.1)
 }
 
+/** Keep perihelion outside a clearance radius: a(1-e) >= minRadius. */
+export function cappedVisualEccentricity(a: number, rawE: number, minRadius: number, exaggerate = true): number {
+  const e = visualEccentricity(rawE, exaggerate)
+  if (!(a > minRadius) || minRadius <= 0) return Math.min(e, 0.9)
+  const eMax = Math.max(0, 1 - minRadius / a)
+  return Math.min(e, eMax)
+}
+
 /** Relative orbital speed from the vis-viva shape (perihelion is fastest). */
 export function keplerSpeedFactor(eccentricity: number, trueAnomalyRad: number): number {
   const e = Math.max(0, Math.min(0.9, eccentricity))
@@ -68,15 +76,23 @@ export function orbitPointFlat(semiMajor: number, eccentricity: number, trueAnom
   return { x: r * Math.cos(trueAnomalyRad), z: r * Math.sin(trueAnomalyRad) }
 }
 
-/** Equal mean-anomaly span = equal time. Returns fan points including the focus at the origin. */
+/** Equal mean-anomaly span = equal time. First point sits on the inner radius (Sun surface), then the orbit arc. */
 export function equalTimeSector(
   semiMajor: number,
   eccentricity: number,
   meanCenterRad: number,
   halfWidthRad: number,
   samples = 18,
+  innerRadius = 0,
 ): { x: number; z: number }[] {
-  const points: { x: number; z: number }[] = [{ x: 0, z: 0 }]
+  const midNu = trueAnomalyFromMean(meanCenterRad, eccentricity)
+  const mid = orbitPointFlat(semiMajor, eccentricity, midNu)
+  const midLen = Math.hypot(mid.x, mid.z) || 1
+  const origin =
+    innerRadius > 0
+      ? { x: (mid.x / midLen) * innerRadius, z: (mid.z / midLen) * innerRadius }
+      : { x: 0, z: 0 }
+  const points: { x: number; z: number }[] = [origin]
   for (let n = 0; n <= samples; n += 1) {
     const mean = meanCenterRad - halfWidthRad + (n / samples) * halfWidthRad * 2
     const nu = trueAnomalyFromMean(mean, eccentricity)

@@ -11,8 +11,9 @@ import {
   IcosahedronGeometry,
 } from 'three'
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js'
-import { educationalOrbitRadius } from '../astronomy/visualScale'
+import { compressDistance } from '../astronomy/visualScale'
 import { NAMED_ROCKS } from '../content/skyWonders'
+import type { ScaleMode } from '../types/simulation'
 
 interface Meteor {
   line: Line
@@ -28,6 +29,7 @@ export class SkyRocks {
   private spawn = 0
   private meteorGeo: BufferGeometry
   private meteorMat: LineBasicMaterial
+  private scaleMode: ScaleMode = 'educational'
 
   constructor() {
     this.group = new Group()
@@ -72,7 +74,7 @@ export class SkyRocks {
     const mesh = this.meshes[index]
     if (!rock || !mesh) return
     this.angles[index] += rock.speed * dtDays
-    const radius = educationalOrbitRadius(rock.au)
+    const radius = compressDistance(rock.au, this.scaleMode)
     const angle = this.angles[index] ?? 0
     mesh.position.set(
       Math.cos(angle) * radius,
@@ -81,6 +83,11 @@ export class SkyRocks {
     )
     mesh.rotation.y += dtDays * 0.4
     mesh.rotation.x += dtDays * 0.15
+  }
+
+  setScaleMode(mode: ScaleMode): void {
+    this.scaleMode = mode
+    for (let i = 0; i < this.meshes.length; i += 1) this.place(i, 0)
   }
 
   setLabelsVisible(visible: boolean): void {

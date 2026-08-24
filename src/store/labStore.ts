@@ -1,9 +1,10 @@
 import { create } from 'zustand'
 import type { LabActivityId, LabRoomId, LabStep } from '../types/lab'
 import { useSimulationStore } from './simulationStore'
-import { TIME_PRESETS } from '../astronomy/timeEngine'
+import { TIME_PRESETS, labWatchScale } from '../astronomy/timeEngine'
 import { getScene } from '../scene/sceneApi'
 import { useEducationStore } from './educationStore'
+import { useUiStore } from './uiStore'
 import { getActivity } from '../content/labActivities'
 import { activityClip, roomClip } from '../features/voice/clips'
 import { useVoiceStore } from './voiceStore'
@@ -29,6 +30,7 @@ interface LabState {
   huntStars: string[]
   arrangePick: BodyId | null
   eclipseKind: 'none' | 'solar' | 'lunar'
+  cometMoved: boolean
   openLab: () => void
   closeLab: () => void
   leaveLab: () => void
@@ -49,6 +51,7 @@ interface LabState {
   addHuntStar: (id: string) => void
   setArrangePick: (id: BodyId | null) => void
   setEclipseKind: (kind: 'none' | 'solar' | 'lunar') => void
+  setCometMoved: (moved: boolean) => void
   resetActivityScene: () => void
 }
 
@@ -73,17 +76,22 @@ function applyActivityScene(id: LabActivityId): void {
     sim.selectBody('mercury')
     scene?.setKeplerOverlay('mercury', true)
     scene?.focusBody('mercury')
-    sim.setTimeScale(TIME_PRESETS.find((item) => item.id === 'year')?.scale ?? 86_400 * 365)
+    sim.setTimeScale(labWatchScale('kepler'))
     sim.setPlaying(true)
   }
   if (id === 'spin-vs-orbit' || id === 'day-night') {
     sim.selectBody('earth')
     scene?.focusBody('earth')
+    if (id === 'spin-vs-orbit') {
+      scene?.focusEarthSurface()
+      sim.setTimeScale(labWatchScale('dayNight'))
+      sim.setPlaying(true)
+    }
     if (id === 'day-night') {
       sim.setCityPinsVisible(true)
       sim.setFreezeRevolution(true)
       sim.setFreezeRotation(false)
-      sim.setTimeScale(TIME_PRESETS.find((item) => item.id === 'day')?.scale ?? 86_400)
+      sim.setTimeScale(labWatchScale('dayNight'))
       sim.setPlaying(true)
       scene?.focusEarthSurface()
     }
@@ -100,6 +108,8 @@ function applyActivityScene(id: LabActivityId): void {
   if (id === 'stars-or-earth') {
     sim.setSkyCamera(true)
     scene?.enterSkyView()
+    sim.setTimeScale(labWatchScale('skySpin'))
+    sim.setPlaying(false)
   }
   if (id === 'star-names') {
     sim.setSkyCamera(false)
@@ -120,6 +130,11 @@ function applyActivityScene(id: LabActivityId): void {
     sim.selectBody('venus')
     scene?.focusOverview()
   }
+  if (id === 'space-mission') {
+    sim.selectBody('mars')
+    sim.setShowOrbits(true)
+    scene?.focusBody('mars')
+  }
   if (id === 'comet-tail') {
     sim.setShowOrbits(true)
     scene?.setCometDemo(true)
@@ -130,7 +145,7 @@ function applyActivityScene(id: LabActivityId): void {
     scene?.focusBody('mercury')
   }
   if (id === 'drop-ball' || id === 'jump' || id === 'mass-weight') {
-    scene?.startSurfaceLab(id === 'drop-ball' ? 'drop' : 'jump')
+    scene?.startSurfaceLab(id === 'drop-ball' ? 'drop' : id === 'jump' ? 'jump' : 'weight')
   }
   if (id === 'arrange-orbits') {
     sim.setShowOrbits(true)
@@ -165,7 +180,11 @@ export const useLabStore = create<LabState>((set, get) => ({
   huntStars: [],
   arrangePick: null,
   eclipseKind: 'none',
-  openLab: () => set({ labOpen: true, activityId: null, room: null, step: 'predict' }),
+  cometMoved: false,
+  openLab: () => {
+    useUiStore.getState().setActivePanel('none')
+    set({ labOpen: true, activityId: null, room: null, step: 'predict' })
+  },
   closeLab: () => {
     get().resetActivityScene()
     get().leaveLab()
@@ -180,6 +199,7 @@ export const useLabStore = create<LabState>((set, get) => ({
     if (room) useVoiceStore.getState().play(roomClip(room))
   },
   startActivity: (id) => {
+    useUiStore.getState().setActivePanel('none')
     const activity = getActivity(id)
     set({
       activityId: id,
@@ -194,6 +214,8 @@ export const useLabStore = create<LabState>((set, get) => ({
       huntStars: [],
       arrangePick: null,
       eclipseKind: 'none',
+      cometMoved: false,
+      missionIndex: 0,
     })
     applyActivityScene(id)
     const hint = activityClip(id)
@@ -236,6 +258,7 @@ export const useLabStore = create<LabState>((set, get) => ({
       huntStars: [],
       arrangePick: null,
       eclipseKind: 'none',
+      cometMoved: false,
     })
   },
   setYearTours: (rows) => set({ yearTours: rows }),
@@ -245,11 +268,16 @@ export const useLabStore = create<LabState>((set, get) => ({
   setLightProgress: (progress, seconds) => set({ lightProgress: progress, lightSeconds: seconds }),
   setLightArrived: (arrived) => set({ lightArrived: arrived }),
   setMercuryBars: (year, day) => set({ mercuryYear: year, mercuryDay: day }),
-  setKidMassKg: (kg) => set({ kidMassKg: Math.min(80, Math.max(10, kg)) }),
+  setKidMassKg: (kg) => {
+    const next = Math.min(80, Math.max(10, kg))
+    set({ kidMassKg: next })
+    getScene()?.setSurfaceKidMass(next)
+  },
   addHuntStar: (id) =>
     set((state) => ({ huntStars: state.huntStars.includes(id) ? state.huntStars : [...state.huntStars, id] })),
   setArrangePick: (id) => set({ arrangePick: id }),
   setEclipseKind: (kind) => set({ eclipseKind: kind }),
+  setCometMoved: (moved) => set({ cometMoved: moved }),
   resetActivityScene: () => {
     const sim = useSimulationStore.getState()
     sim.setFreezeRotation(false)
@@ -263,5 +291,15 @@ export const useLabStore = create<LabState>((set, get) => ({
     sim.setPlaying(true)
     getScene()?.clearWatches()
     getScene()?.focusOverview()
+    set({
+      kidMassKg: 30,
+      raceWinner: null,
+      lightProgress: 0,
+      lightArrived: false,
+      mercuryYear: 0,
+      mercuryDay: 0,
+      cometMoved: false,
+      eclipseKind: 'none',
+    })
   },
 }))

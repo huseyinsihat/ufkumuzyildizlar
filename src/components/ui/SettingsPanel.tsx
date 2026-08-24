@@ -1,4 +1,5 @@
 import { getScene } from '../../scene/sceneApi'
+import { useEducationStore } from '../../store/educationStore'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
 import { useVoiceStore } from '../../store/voiceStore'
@@ -84,9 +85,25 @@ export function SettingsPanel() {
       <p className="nav-label">Sahne</p>
       <div className="settings-toggles">
         <Chip on={leftOpen} label="Gezegen kartı" icon="planet" onToggle={setLeftOpen} />
-        <Chip on={showOrbits} label="Yörüngeler" icon="orbit" onToggle={setShowOrbits} />
+        <Chip
+          on={showOrbits}
+          label="Yörüngeler"
+          icon="orbit"
+          onToggle={(value) => {
+            setShowOrbits(value)
+            useEducationStore.getState().notifyOrbitsVisible(value, useSimulationStore.getState().selectedBodyId)
+          }}
+        />
         <Chip on={showLabels} label="İsimler" icon="book" onToggle={setShowLabels} />
-        <Chip on={showAxes} label="Eksenler" icon="ruler" onToggle={setShowAxes} />
+        <Chip
+          on={showAxes}
+          label="Eksenler"
+          icon="ruler"
+          onToggle={(value) => {
+            setShowAxes(value)
+            useEducationStore.getState().notifyAxesVisible(value, useSimulationStore.getState().selectedBodyId)
+          }}
+        />
         <Chip on={showConstellations} label="Takımyıldız" icon="spark" onToggle={setShowConstellations} />
         <Chip on={largeText} label="Büyük yazı" icon="people" onToggle={setLargeText} />
       </div>
@@ -112,6 +129,10 @@ export function SettingsPanel() {
         <button type="button" className="settings-chip" onClick={() => getScene()?.focusOverview()}>
           <Icon name="reset" />
           Kamerayı sıfırla
+        </button>
+        <button type="button" className="settings-chip" onClick={() => useUiStore.getState().startDemo()}>
+          <Icon name="play" />
+          Kısa tur
         </button>
       </div>
     </aside>

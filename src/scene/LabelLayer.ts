@@ -1,6 +1,9 @@
 import { PerspectiveCamera, type Object3D, Vector3 } from 'three'
 import { CSS2DObject, CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js'
+import type { BodyId } from '../types/planet'
+import { getBody } from '../astronomy/planetData'
 import type { PlanetDefinition } from '../types/planet'
+import { labelPriority, overlappingLabelIds } from './proximityVisibility'
 
 export interface LabelOccluder {
   id: string
@@ -74,6 +77,7 @@ export class LabelLayer {
     hideAll = false,
     occluders: readonly LabelOccluder[] = [],
     selectedId: string | null = null,
+    hiddenIds: ReadonlySet<string> = new Set(),
   ): void {
     if (!this.show || hideAll) {
       for (const [id, label] of this.labels) {
@@ -86,6 +90,9 @@ export class LabelLayer {
 
     camera.getWorldPosition(this.camPos)
 
+    const candidates: { id: string; x: number; y: number; priority: number }[] = []
+    const baseWant = new Map<string, boolean>()
+
     for (const [id, label] of this.labels) {
       label.getWorldPosition(this.world)
       this.camLocal.copy(this.world).applyMatrix4(camera.matrixWorldInverse)
@@ -96,7 +103,22 @@ export class LabelLayer {
       const nearOk = distance > 3.8
       const farOk = distance < 360
       const blocked = this.isOccluded(id, occluders)
-      const want = inFront && onScreen && nearOk && farOk && !blocked
+      const want = inFront && onScreen && nearOk && farOk && !blocked && !hiddenIds.has(id)
+      baseWant.set(id, want)
+      if (want) {
+        candidates.push({
+          id,
+          x: this.ndc.x,
+          y: this.ndc.y,
+          priority: labelPriority(id, selectedId, getBody(id as BodyId).category),
+        })
+      }
+    }
+
+    const overlapped = overlappingLabelIds(candidates)
+
+    for (const [id, label] of this.labels) {
+      const want = baseWant.get(id) === true && !overlapped.has(id)
       const current = this.shown.get(id) === true
       const skipHold = selectedId === id && want
 

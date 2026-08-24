@@ -18,12 +18,14 @@ export function SolarSystem2D() {
   const selected = useSimulationStore((s) => s.selectedBodyId)
   const selectBody = useSimulationStore((s) => s.selectBody)
   const scaleMode = useSimulationStore((s) => s.scaleMode)
+  const showOrbits = useSimulationStore((s) => s.showOrbits)
+  const showLabels = useSimulationStore((s) => s.showLabels)
   const setPanel = useUiStore((s) => s.setActivePanel)
   const notify = useEducationStore((s) => s.notifySelection)
   const intro = useUiStore((s) => s.introVisible)
   const mode = useUiStore((s) => s.appMode)
   const labOpen = useLabStore((s) => s.labOpen)
-  const hideNames = intro || (mode === 'lab' && labOpen)
+  const hideNames = intro || (mode === 'lab' && labOpen) || !showLabels
 
   const date = useMemo(() => new Date(time), [time])
   const planets = getPlanets()
@@ -63,14 +65,39 @@ export function SolarSystem2D() {
           const active = selected === planet.id
           return (
             <g key={planet.id}>
-              <circle
-                cx={CX}
-                cy={CY}
-                r={Math.hypot(x - CX, y - CY)}
-                fill="none"
-                stroke={active ? '#7ee0ff' : '#2a3558'}
-                strokeWidth={active ? 2 : 1}
-              />
+              {showOrbits ? (
+                <>
+                  <circle
+                    cx={CX}
+                    cy={CY}
+                    r={Math.hypot(x - CX, y - CY)}
+                    fill="none"
+                    stroke="transparent"
+                    strokeWidth={16}
+                    pointerEvents="stroke"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`${planet.name} yörüngesi`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => focusBody(planet.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault()
+                        focusBody(planet.id)
+                      }
+                    }}
+                  />
+                  <circle
+                    cx={CX}
+                    cy={CY}
+                    r={Math.hypot(x - CX, y - CY)}
+                    fill="none"
+                    stroke={active ? '#7ee0ff' : '#3d4d78'}
+                    strokeWidth={active ? 6 : 4}
+                    pointerEvents="none"
+                  />
+                </>
+              ) : null}
               <circle
                 cx={x}
                 cy={y}
@@ -84,7 +111,7 @@ export function SolarSystem2D() {
                 onClick={() => {
                   selectBody(planet.id)
                   notify(planet.id)
-                  setPanel('info')
+                  setPanel('none')
                 }}
               />
               {hideNames ? null : (

@@ -11,9 +11,10 @@ import {
   SphereGeometry,
 } from 'three'
 import { CONSTELLATIONS, type Constellation } from '../content/constellations'
+import { SKY_SPHERE_RADIUS } from '../astronomy/skyCoordinates'
 
-const SPHERE_RADIUS = 260
-const STAR_GEO = new SphereGeometry(1.8, 10, 8)
+const SPHERE_RADIUS = SKY_SPHERE_RADIUS
+const STAR_GEO = new SphereGeometry(0.55, 8, 6)
 
 export class ConstellationLayer {
   readonly group: Group

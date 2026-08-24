@@ -33,6 +33,27 @@ export function getHeliocentricEclipticAu(bodyId: BodyId, date: Date): Vec3 {
   return keplerFallback(bodyId, date.getTime())
 }
 
+/** Parent-centric ecliptic AU (Moon: heliocentric difference; others: Kepler around parent). */
+export function getSatelliteRelativeEclipticAu(bodyId: BodyId, date: Date): Vec3 {
+  if (bodyId === 'moon') {
+    const earth = getHeliocentricEclipticAu('earth', date)
+    const moon = getHeliocentricEclipticAu('moon', date)
+    return { x: moon.x - earth.x, y: moon.y - earth.y, z: moon.z - earth.z }
+  }
+  return keplerFallback(bodyId, date.getTime())
+}
+
+/** Sample one orbital period of heliocentric ephemeris so the ring matches the moving planet. */
+export function sampleHeliocentricOrbitAu(bodyId: BodyId, date: Date, samples = 192): Vec3[] {
+  const body = getBody(bodyId)
+  const periodMs = Math.max(body.orbitalPeriodDays, 1) * 86_400_000
+  const points: Vec3[] = []
+  for (let i = 0; i <= samples; i += 1) {
+    points.push(getHeliocentricEclipticAu(bodyId, new Date(date.getTime() + (i / samples) * periodMs)))
+  }
+  return points
+}
+
 function keplerFallback(bodyId: BodyId, timeMs: number): Vec3 {
   const body = getBody(bodyId)
   if (body.orbitalPeriodDays <= 0) {

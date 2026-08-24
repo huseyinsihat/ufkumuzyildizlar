@@ -25,7 +25,7 @@ npm run build
 
 ## Deneyap Kart
 
-Sahne, kart olmadan da çalışır. USB ile Deneyap Kart 1A takılıysa Chrome veya Edge kartı kendiliğinden tanır. İlk kez eşlemek için **Takım**’a bir kez bas.
+Sahne, kart olmadan da çalışır. USB ile Deneyap Kart 1A takılıysa Chrome veya Edge kartı kendiliğinden tanır. İlk kez eşlemek için **Kart → Bağlan**’a bas.
 
 Yazılım: `firmware/deneyapkart/ufkumuz.ino`  
 Arduino IDE’de kart: **Deneyap Kart 1A**. Baud: 115200.
@@ -39,5 +39,6 @@ Arduino IDE’de kart: **Deneyap Kart 1A**. Baud: 115200.
 | D12 | Gezegenler |
 | D13 | Yıldızlar |
 | D14 | Bilgiler |
-| A0 | Hız (1 saniye → 1 yıl) |
+| A0 | Hız (1 sn → 1 saat → 1 gün → 1 yıl) |
+| D15 | Güneş Sistemine bak (F:overview) |
 | IMU | Kartı eğin, bakış döner |

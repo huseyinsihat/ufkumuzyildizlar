@@ -9,6 +9,7 @@ import {
 } from 'three'
 import { EDU_RADIUS } from '../astronomy/visualScale'
 import { createBodyTexture } from './proceduralTextures'
+import { siderealAngleRad } from '../astronomy/siderealSpin'
 
 export class SunMesh {
   readonly group: Group
@@ -17,6 +18,9 @@ export class SunMesh {
   private corona: Mesh
   private spin = 0
   private readonly rotationPeriodHours: number
+  private readonly baseEmissive = 1.85
+  private readonly baseGlow = 0.22
+  private readonly baseCorona = 0.1
 
   constructor(rotationPeriodHours: number, texture?: Texture) {
     this.rotationPeriodHours = rotationPeriodHours
@@ -49,6 +53,7 @@ export class SunMesh {
       }),
     )
     this.glow.scale.setScalar(EDU_RADIUS.sun * 1.28)
+    this.glow.renderOrder = 4
     this.glow.raycast = () => {}
     this.group.add(this.glow)
 
@@ -63,6 +68,7 @@ export class SunMesh {
       }),
     )
     this.corona.scale.setScalar(EDU_RADIUS.sun * 1.62)
+    this.corona.renderOrder = 3
     this.corona.raycast = () => {}
     this.group.add(this.corona)
   }
@@ -74,6 +80,16 @@ export class SunMesh {
     this.corona.scale.setScalar(next * 1.62)
   }
 
+  setFlare(amount: number): void {
+    const t = Math.max(0, Math.min(1, amount))
+    const sunMat = this.mesh.material
+    if (sunMat instanceof MeshStandardMaterial) sunMat.emissiveIntensity = this.baseEmissive + t * 0.28
+    const glowMat = this.glow.material
+    if (glowMat instanceof MeshBasicMaterial) glowMat.opacity = this.baseGlow + t * 0.08
+    const coronaMat = this.corona.material
+    if (coronaMat instanceof MeshBasicMaterial) coronaMat.opacity = this.baseCorona + t * 0.05
+  }
+
   applyMap(texture: Texture): void {
     const material = this.mesh.material
     if (!(material instanceof MeshStandardMaterial)) return
@@ -83,9 +99,8 @@ export class SunMesh {
     material.needsUpdate = true
   }
 
-  update(dtSimSeconds: number): void {
-    const period = Math.abs(this.rotationPeriodHours) * 3600
-    this.spin += ((Math.PI * 2) / period) * dtSimSeconds
+  update(_dtSimSeconds: number, simTimeMs = 0): void {
+    this.spin = siderealAngleRad(simTimeMs, this.rotationPeriodHours)
     this.mesh.rotation.y = this.spin
   }
 

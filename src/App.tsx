@@ -13,14 +13,16 @@ import { InspectRail } from './components/ui/LeftNav'
 import { CompactTimeBar } from './components/ui/ExploreDock'
 import { IntroScreen } from './components/ui/IntroScreen'
 import { VoiceHost } from './components/ui/VoiceHost'
-import { ExploreDock } from './components/ui/PlanetDrawer'
+import { ExploreDock, ExploreListStrip } from './components/ui/PlanetDrawer'
 import { ExploreSideTools } from './components/ui/SunMascot'
+import { HardwarePanel } from './components/ui/HardwarePanel'
 import { SettingsPanel } from './components/ui/SettingsPanel'
 import { TeamPanel } from './components/ui/TeamPanel'
 import { TopBar } from './components/ui/TopBar'
 import { useLabStore } from './store/labStore'
 import { useSimulationStore } from './store/simulationStore'
 import { useUiStore } from './store/uiStore'
+import { useAstroEventScheduler } from './features/astroEvents/useAstroEventScheduler'
 import { hasAnyWebGL } from './utils/webgl'
 import { watchHardwarePorts } from './hardware/hardwareStore'
 
@@ -35,10 +37,12 @@ export default function App() {
   const labOpen = useLabStore((s) => s.labOpen)
   const activityId = useLabStore((s) => s.activityId)
   const largeText = useUiStore((s) => s.largeText)
-  const drawerOpen = useUiStore((s) => s.planetDrawerOpen || s.starDrawerOpen)
+  const drawerOpen = useUiStore((s) => s.planetDrawerOpen || s.starDrawerOpen || s.eventDrawerOpen)
+  const eventDrawerOpen = useUiStore((s) => s.eventDrawerOpen)
   const chatOpen = useUiStore((s) => s.sunChatOpen)
   const setWebgl = useUiStore((s) => s.setWebglSupported)
   const set2d = useUiStore((s) => s.setUse2dFallback)
+  useAstroEventScheduler()
 
   useEffect(() => {
     const ok = hasAnyWebGL()
@@ -54,6 +58,9 @@ export default function App() {
         useUiStore.getState().setActivePanel('none')
         useUiStore.getState().setIntroVisible(false)
         useUiStore.getState().closeSunChat()
+        useUiStore.getState().setPlanetDrawerOpen(false)
+        useUiStore.getState().setStarDrawerOpen(false)
+        useUiStore.getState().setEventDrawerOpen(false)
       }
     }
     window.addEventListener('keydown', onKey)
@@ -61,27 +68,28 @@ export default function App() {
   }, [])
 
   const explore = mode === 'explore' && !activityId
-  const showLabHome = mode === 'lab' && labOpen && !activityId
   const showActivity = Boolean(activityId)
+  const showLabHome = mode === 'lab' && labOpen && !activityId && panel === 'none'
 
   return (
     <div
-      className={`app-shell${largeText ? ' large-text' : ''}${activityId === 'arrange-orbits' ? ' hide-scene-labels' : ''}${drawerOpen ? ' has-drawer' : ''}${chatOpen ? ' has-chat' : ''}${panel !== 'none' ? ' has-panel' : ''}${activityId ? ' has-activity' : ''}`}
+      className={`app-shell${largeText ? ' large-text' : ''}${activityId === 'arrange-orbits' ? ' hide-scene-labels' : ''}${explore ? ' has-explore' : ''}${drawerOpen ? ' has-drawer' : ''}${eventDrawerOpen ? ' has-event-drawer' : ''}${chatOpen ? ' has-chat' : ''}${panel !== 'none' ? ' has-panel' : ''}${activityId ? ' has-activity' : ''}`}
     >
       <div className="space-glow" />
       {webgl && !use2d ? <CanvasHost /> : <SolarSystem2D />}
       <TopBar />
       {explore ? (
         <div className="explore-chrome">
-          <CompactTimeBar />
           <ExploreDock />
+          <ExploreListStrip />
+          <CompactTimeBar />
+          {!intro ? <ExploreSideTools /> : null}
         </div>
       ) : null}
       {explore && scaleMode === 'trueScale' ? (
         <p className="scale-banner">Gezegenler gerçek boyutta — uzay çok boş.</p>
       ) : null}
       {explore ? <InspectRail /> : null}
-      {explore && !intro ? <ExploreSideTools /> : null}
       {explore && !intro ? <SunChatPanel /> : null}
       {showLabHome ? <LabHome /> : null}
       {showActivity ? (
@@ -93,6 +101,7 @@ export default function App() {
       {panel === 'facts' ? <FactsPanel /> : null}
       {panel === 'settings' ? <SettingsPanel /> : null}
       {panel === 'team' ? <TeamPanel /> : null}
+      {panel === 'hardware' ? <HardwarePanel /> : null}
       {demo ? <DemoTour /> : null}
       <VoiceHost />
       {intro ? <IntroScreen /> : null}

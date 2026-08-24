@@ -1,3 +1,3 @@
-import { TimeEngine, TIME_PRESETS } from '../../astronomy/timeEngine'
+import { TimeEngine, TIME_LADDER, TIME_PRESETS, timeScaleFromLadder } from '../../astronomy/timeEngine'
 
-export { TimeEngine, TIME_PRESETS }
+export { TimeEngine, TIME_LADDER, TIME_PRESETS, timeScaleFromLadder }

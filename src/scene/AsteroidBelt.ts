@@ -8,16 +8,19 @@ import {
   Quaternion,
   Vector3,
 } from 'three'
-import { educationalOrbitRadius } from '../astronomy/visualScale'
+import { compressDistance } from '../astronomy/visualScale'
 import { asteroidCountForDevice } from '../utils/performance'
 import { seededRandom } from '../utils/math'
+import type { ScaleMode } from '../types/simulation'
 
 export class AsteroidBelt {
   readonly mesh: InstancedMesh
   private angles: Float32Array
   private radii: Float32Array
+  private auT: Float32Array
   private speeds: Float32Array
   private scales: Float32Array
+  private scaleMode: ScaleMode = 'educational'
 
   constructor(count = asteroidCountForDevice()) {
     const geometry = new IcosahedronGeometry(1, 0)
@@ -37,12 +40,14 @@ export class AsteroidBelt {
     this.speeds = new Float32Array(count)
     this.scales = new Float32Array(count)
 
-    const inner = educationalOrbitRadius(2.2)
-    const outer = educationalOrbitRadius(3.3)
+    const inner = compressDistance(2.2, this.scaleMode)
+    const outer = compressDistance(3.3, this.scaleMode)
+    this.auT = new Float32Array(count)
 
     for (let i = 0; i < count; i += 1) {
       this.angles[i] = random() * Math.PI * 2
-      this.radii[i] = inner + random() * (outer - inner)
+      this.auT[i] = random()
+      this.radii[i] = inner + this.auT[i] * (outer - inner)
       this.speeds[i] = 0.02 + random() * 0.04
       this.scales[i] = 0.04 + random() * 0.09
       const tint = 0.65 + random() * 0.3
@@ -50,6 +55,16 @@ export class AsteroidBelt {
     }
     if (this.mesh.instanceColor) {
       this.mesh.instanceColor.needsUpdate = true
+    }
+    this.update(0)
+  }
+
+  rebuild(mode: ScaleMode): void {
+    this.scaleMode = mode
+    const inner = compressDistance(2.2, mode)
+    const outer = compressDistance(3.3, mode)
+    for (let i = 0; i < this.radii.length; i += 1) {
+      this.radii[i] = inner + this.auT[i] * (outer - inner)
     }
     this.update(0)
   }

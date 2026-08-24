@@ -48,7 +48,7 @@ export function LabHome() {
             {TEAM.home}
           </p>
           <h2>{currentRoom ? currentRoom.title : TEAM.home}</h2>
-          <p className="muted">{currentRoom ? currentRoom.blurb : 'Tahmin et, izle, nedenini gör.'}</p>
+          <p className="muted">{currentRoom ? currentRoom.blurb : 'Önce düşün. Sonra bak.'}</p>
         </div>
         <div className="row-actions">
           {room ? (
@@ -97,15 +97,17 @@ export function LabHome() {
                   className={`catalog-card ${index === 0 ? 'is-hero' : ''} ${seen ? 'is-done' : ''}`}
                   onClick={() => start(activity.id)}
                 >
-                  <span className="icon-well">
-                    <Icon name={CHALLENGE_ICON[id]} />
+                  <span className="catalog-card-top">
+                    <span className="icon-well">
+                      <Icon name={CHALLENGE_ICON[id]} />
+                    </span>
+                    <em>
+                      {seen ? <i className="done-dot" aria-hidden="true" /> : null}
+                      {seen ? 'Gördün' : verb}
+                    </em>
                   </span>
                   <strong>{activity.title}</strong>
                   <span>{CHALLENGE_BLURB[id]}</span>
-                  <em>
-                    {seen ? <i className="done-dot" aria-hidden="true" /> : null}
-                    {seen ? 'Gördün' : verb}
-                  </em>
                 </button>
               )
             })}
@@ -120,9 +122,11 @@ export function LabHome() {
                 style={{ '--room-tone': item.tone } as CSSProperties}
                 onClick={() => setRoom(item.id)}
               >
-                <b>{index + 1}</b>
-                <span className="icon-well">
-                  <Icon name={ROOM_ICON[item.id]} />
+                <span className="catalog-room-top">
+                  <b>{index + 1}</b>
+                  <span className="icon-well">
+                    <Icon name={ROOM_ICON[item.id]} />
+                  </span>
                 </span>
                 <strong>{item.title}</strong>
                 <span>{item.blurb}</span>
@@ -142,15 +146,17 @@ export function LabHome() {
                 style={currentRoom ? ({ '--room-tone': currentRoom.tone } as CSSProperties) : undefined}
                 onClick={() => start(activity.id as LabActivityId)}
               >
-                <span className="icon-well">
-                  <Icon name={ROOM_ICON[activity.room]} />
+                <span className="catalog-card-top">
+                  <span className="icon-well">
+                    <Icon name={ROOM_ICON[activity.room]} />
+                  </span>
+                  <em>
+                    {seen ? <i className="done-dot" aria-hidden="true" /> : null}
+                    {seen ? 'Gördün' : 'İzle'}
+                  </em>
                 </span>
                 <strong>{activity.title}</strong>
                 <span>{activity.question}</span>
-                <em>
-                  {seen ? <i className="done-dot" aria-hidden="true" /> : null}
-                  {seen ? 'Gördün' : 'İzle'}
-                </em>
               </button>
             )
           })}

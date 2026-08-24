@@ -1,9 +1,11 @@
-import { CylinderGeometry, Group, Mesh, MeshBasicMaterial } from 'three'
+import { CylinderGeometry, Group, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 /** Earth's shadow cone — shown only during the eclipse activity. */
 export class UmbraMesh {
   readonly group: Group
   private cone: Mesh
+  private readonly up = new Vector3(0, 1, 0)
+  private readonly away = new Vector3()
 
   constructor() {
     this.group = new Group()
@@ -14,11 +16,10 @@ export class UmbraMesh {
       new MeshBasicMaterial({
         color: '#020617',
         transparent: true,
-        opacity: 0.45,
+        opacity: 0.62,
         depthWrite: false,
       }),
     )
-    this.cone.rotation.x = Math.PI / 2
     this.cone.raycast = () => {}
     this.group.add(this.cone)
   }
@@ -27,15 +28,17 @@ export class UmbraMesh {
     this.group.visible = on
   }
 
-  /** Place the cone from Earth, pointing away from the Sun. */
+  /** Place the cone from Earth, pointing away from the Sun (at the origin). */
   update(earth: { x: number; y: number; z: number }, length: number): void {
     if (!this.group.visible) return
     const dist = Math.hypot(earth.x, earth.y, earth.z) || 1
-    const dirX = earth.x / dist
-    const dirY = earth.y / dist
-    const dirZ = earth.z / dist
-    this.group.position.set(earth.x + dirX * length * 0.55, earth.y + dirY * length * 0.55, earth.z + dirZ * length * 0.55)
-    this.group.lookAt(earth.x + dirX * 40, earth.y + dirY * 40, earth.z + dirZ * 40)
+    this.away.set(earth.x / dist, earth.y / dist, earth.z / dist)
+    this.group.position.set(
+      earth.x + this.away.x * length * 0.5,
+      earth.y + this.away.y * length * 0.5,
+      earth.z + this.away.z * length * 0.5,
+    )
+    this.group.quaternion.setFromUnitVectors(this.up, this.away)
     this.cone.scale.set(1, length / 8, 1)
   }
 
