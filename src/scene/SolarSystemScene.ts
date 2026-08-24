@@ -55,7 +55,7 @@ import { closestScreenHit, resolveStarVsBody, worldRadiusToPixels, type ScreenPi
 import { PlanetMesh } from './PlanetMesh'
 import { registerScene } from './sceneApi'
 import { SkyRocks } from './SkyRocks'
-import { createStarField } from './StarField'
+import { createStarField, setStarFieldDistant } from './StarField'
 import { isNearParent, shouldShowSatelliteLabel, shouldShowSatelliteMesh } from './proximityVisibility'
 import { SunMesh } from './SunMesh'
 import { AstroEventLayer } from './events/AstroEventLayer'
@@ -216,10 +216,12 @@ export class SolarSystemScene {
         this.asteroids.rebuild(state.scaleMode)
         this.skyRocks.setScaleMode(state.scaleMode)
         this.notableStars.setScaleMode(state.scaleMode)
-        this.camera.setFar(state.scaleMode === 'trueScale' ? 2200 : 1400)
+        this.applyViewClip(state.galaxyView)
         const keep = state.selectedBodyId
         if (keep && keep !== 'sun') {
           this.focusBody(keep)
+        } else if (state.galaxyView) {
+          this.camera.focusGalaxy(state.scaleMode === 'trueScale')
         } else {
           this.camera.focusOverview(state.scaleMode === 'trueScale')
         }
@@ -290,6 +292,8 @@ export class SolarSystemScene {
   }
 
   focusBody(id: BodyId): void {
+    useSimulationStore.getState().setGalaxyView(false)
+    this.applyViewClip(false)
     if (id === 'sun') {
       this.camera.stopFollow()
       this.camera.focusOn(new Vector3(0, 0, 0), visualRadius('sun', this.scaleMode), false)
@@ -303,23 +307,36 @@ export class SolarSystemScene {
 
   focusEventSky(id: string): void {
     if (!this.events.skyWorldPosition(id, this.world)) return
+    this.applyViewClip(false)
     this.camera.stopFollow()
     this.camera.focusOn(this.world.clone(), 8, false)
   }
 
   focusOverview(): void {
+    useSimulationStore.getState().setGalaxyView(false)
+    this.applyViewClip(false)
     this.camera.stopFollow()
     this.camera.focusOverview(this.scaleMode === 'trueScale')
+  }
+
+  focusGalaxy(): void {
+    useSimulationStore.getState().setGalaxyView(true)
+    this.applyViewClip(true)
+    this.camera.stopFollow()
+    this.camera.focusGalaxy(this.scaleMode === 'trueScale')
   }
 
   focusEarthSurface(): void {
     const earth = this.planets.get('earth')
     if (!earth) return
+    this.applyViewClip(false)
     earth.group.getWorldPosition(this.world)
     this.camera.focusClose(this.world.clone(), visualRadius('earth', this.scaleMode))
   }
 
   enterSkyView(): void {
+    useSimulationStore.getState().setGalaxyView(false)
+    this.applyViewClip(false)
     this.camera.enterSkyView()
   }
 
@@ -465,6 +482,22 @@ export class SolarSystemScene {
     this.camera.setGyro(yaw, pitch)
   }
 
+  orbitBy(deltaYaw: number, deltaPitch: number): void {
+    this.camera.orbitBy(deltaYaw, deltaPitch)
+  }
+
+  snapOrbit(theta: number | null, phi: number): void {
+    this.camera.snapOrbit(theta, phi)
+  }
+
+  lookAngles(): { yaw: number; pitch: number } {
+    return this.camera.lookAngles()
+  }
+
+  dollyBy(factor: number): void {
+    this.camera.dollyBy(factor)
+  }
+
   clearWow(): void {
     this.lightPulse.stop()
     this.heatAura.setEnabled(false)
@@ -536,6 +569,13 @@ export class SolarSystemScene {
     this.lonPrev.set(id, eclipticLongitude(getHeliocentricEclipticAu(id, date)))
   }
 
+  private applyViewClip(galaxy: boolean): void {
+    const trueScale = this.scaleMode === 'trueScale'
+    this.camera.setFar(galaxy ? 2800 : trueScale ? 2200 : 1400)
+    this.camera.setMaxDistance(galaxy ? 780 : 360)
+    setStarFieldDistant(this.stars, galaxy)
+  }
+
   private tick = (): void => {
     const dt = Math.min(this.clock.getDelta(), 0.05)
     const sim = useSimulationStore.getState()
@@ -557,7 +597,7 @@ export class SolarSystemScene {
       isInspectingEvent(astro.selectedEventId, astro.activeEventId),
     )
     this.asteroids.update(dtSim / 86_400)
-    this.skyRocks.update(dt, dtSim / 86_400)
+    this.skyRocks.update(dt, dtSim / 86_400, this.engine.simulationTimeMs, sim.playing)
     this.notableStars.update(dt)
     this.notableStars.setSelected(sim.selectedWonderId)
     this.earthCrafts.update(dt)
@@ -581,10 +621,11 @@ export class SolarSystemScene {
     }
     this.camera.update(dt)
     const hideLabels = this.labelOverlay()
+    const hidePlanetLabels = hideLabels || sim.galaxyView
     const hiddenMoonLabels = this.satelliteLabelHides(sim)
     this.labels.updateScales(
       this.camera.camera,
-      hideLabels || !sim.showLabels,
+      hidePlanetLabels || !sim.showLabels,
       this.collectOccluders(),
       sim.selectedBodyId,
       hiddenMoonLabels,
@@ -810,6 +851,8 @@ export class SolarSystemScene {
     const craft = this.earthCrafts.meshById(id)
     if (craft) {
       useSimulationStore.getState().selectWonder(id)
+      useSimulationStore.getState().setGalaxyView(false)
+      this.applyViewClip(false)
       craft.getWorldPosition(this.world)
       this.camera.focusOn(this.world.clone(), 0.55, true)
       return
@@ -819,6 +862,8 @@ export class SolarSystemScene {
       this.skyRocks.meshes.find((mesh) => mesh.userData.wonderId === id)
     if (!target) return
     useSimulationStore.getState().selectWonder(id)
+    useSimulationStore.getState().setGalaxyView(false)
+    this.applyViewClip(false)
     this.camera.stopFollow()
     const pos = new Vector3()
     target.getWorldPosition(pos)
@@ -830,6 +875,8 @@ export class SolarSystemScene {
     const pos = this.constellations.centroidWorld(id)
     if (!pos) return
     useSimulationStore.getState().selectWonder(id)
+    useSimulationStore.getState().setGalaxyView(false)
+    this.applyViewClip(false)
     this.constellations.select(id)
     this.camera.stopFollow()
     this.camera.nudgeLook(pos)
@@ -1103,6 +1150,7 @@ export class SolarSystemScene {
     }
     if (event.code === 'Escape') {
       useSimulationStore.getState().selectBody(null)
+      useSimulationStore.getState().setGalaxyView(false)
       useUiStore.getState().closeSunChat()
       this.focusOverview()
     }

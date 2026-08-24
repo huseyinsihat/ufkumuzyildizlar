@@ -1,6 +1,7 @@
 import { PerspectiveCamera, Vector3 } from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { clamp, easeInOutCubic } from '../utils/math'
+import { orbitOffset, lookAnglesDeg, offsetFromSpherical, sphericalFromOffset, dollyOffset, ORBIT_MIN_POLAR, ORBIT_MAX_POLAR } from './cameraOrbit'
 import { CAMERA_TRAVEL_MIN_SEC, cameraTravelArcOffset, cameraTravelDuration } from './cameraTravel'
 
 export class CameraController {
@@ -46,8 +47,8 @@ export class CameraController {
     this.controls.panSpeed = 0.45
     this.controls.rotateSpeed = 0.7
     this.controls.zoomSpeed = 0.9
-    this.controls.minPolarAngle = 0.12
-    this.controls.maxPolarAngle = Math.PI * 0.92
+    this.controls.minPolarAngle = ORBIT_MIN_POLAR
+    this.controls.maxPolarAngle = ORBIT_MAX_POLAR
     this.controls.target.set(0, 0, 0)
   }
 
@@ -65,6 +66,16 @@ export class CameraController {
     this.fromPos.copy(this.camera.position)
     this.fromTarget.copy(this.controls.target)
     this.toPos.set(0, trueScale ? 72 : 42, trueScale ? 210 : 102)
+    this.toTarget.set(0, 0, 0)
+    this.willFollow = false
+    this.beginTween()
+  }
+
+  /** Pull back until the star sphere fills the frame around the tiny solar system. */
+  focusGalaxy(trueScale = false): void {
+    this.fromPos.copy(this.camera.position)
+    this.fromTarget.copy(this.controls.target)
+    this.toPos.set(0, trueScale ? 260 : 188, trueScale ? 680 : 455)
     this.toTarget.set(0, 0, 0)
     this.willFollow = false
     this.beginTween()
@@ -153,6 +164,54 @@ export class CameraController {
   setGyro(yaw: number, pitch: number): void {
     this.gyroTargetYaw = clamp(yaw, -0.55, 0.55)
     this.gyroTargetPitch = clamp(pitch, -0.35, 0.35)
+  }
+
+  orbitBy(deltaYaw: number, deltaPitch: number): void {
+    if (this.animating) return
+    const offset = this.camera.position.clone().sub(this.controls.target)
+    const next = orbitOffset({ x: offset.x, y: offset.y, z: offset.z }, deltaYaw, deltaPitch)
+    this.camera.position.set(
+      this.controls.target.x + next.x,
+      this.controls.target.y + next.y,
+      this.controls.target.z + next.z,
+    )
+  }
+
+  snapOrbit(theta: number | null, phi: number): void {
+    if (this.animating) return
+    const offset = this.camera.position.clone().sub(this.controls.target)
+    const spherical = sphericalFromOffset({ x: offset.x, y: offset.y, z: offset.z })
+    const next = offsetFromSpherical(
+      spherical.radius,
+      theta ?? spherical.theta,
+      clamp(phi, ORBIT_MIN_POLAR, ORBIT_MAX_POLAR),
+    )
+    this.camera.position.set(
+      this.controls.target.x + next.x,
+      this.controls.target.y + next.y,
+      this.controls.target.z + next.z,
+    )
+  }
+
+  lookAngles(): { yaw: number; pitch: number } {
+    const offset = this.camera.position.clone().sub(this.controls.target)
+    return lookAnglesDeg({ x: offset.x, y: offset.y, z: offset.z })
+  }
+
+  dollyBy(factor: number): void {
+    if (this.animating) return
+    const offset = this.camera.position.clone().sub(this.controls.target)
+    const next = dollyOffset(
+      { x: offset.x, y: offset.y, z: offset.z },
+      factor,
+      this.controls.minDistance,
+      this.controls.maxDistance,
+    )
+    this.camera.position.set(
+      this.controls.target.x + next.x,
+      this.controls.target.y + next.y,
+      this.controls.target.z + next.z,
+    )
   }
 
   update(dt: number): void {

@@ -73,6 +73,7 @@ function makeLayer(
 
   const points = new Points(geometry, material)
   points.frustumCulled = false
+  points.userData.baseSize = size
   return points
 }
 
@@ -85,4 +86,14 @@ export function createStarField(count: number, radius = 620): Group {
   group.add(makeLayer(faint, radius, 1.15, map, random))
   group.add(makeLayer(count - faint, radius, 2.15, map, random))
   return group
+}
+
+export function setStarFieldDistant(group: Group, distant: boolean): void {
+  group.traverse((child) => {
+    if (!(child instanceof Points)) return
+    const material = child.material
+    if (!(material instanceof PointsMaterial)) return
+    const base = Number(child.userData.baseSize) || material.size
+    material.size = distant ? base * 2.6 : base
+  })
 }

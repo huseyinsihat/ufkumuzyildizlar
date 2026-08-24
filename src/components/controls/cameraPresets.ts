@@ -1,1 +1,1 @@
-export { focusBody, lookAtSolarSystem } from '../../features/planetExplorer/focus'
+export { focusBody, lookAtSolarSystem, lookAtGalaxy } from '../../features/planetExplorer/focus'

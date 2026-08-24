@@ -11,7 +11,9 @@ import {
   IcosahedronGeometry,
 } from 'three'
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js'
+import { keplerMeanMotionRadPerDay } from '../astronomy/keplerMotion'
 import { compressDistance } from '../astronomy/visualScale'
+import { meteorShowerIntensity } from '../content/meteorShowers'
 import { NAMED_ROCKS } from '../content/skyWonders'
 import type { ScaleMode } from '../types/simulation'
 
@@ -73,7 +75,7 @@ export class SkyRocks {
     const rock = NAMED_ROCKS[index]
     const mesh = this.meshes[index]
     if (!rock || !mesh) return
-    this.angles[index] += rock.speed * dtDays
+    this.angles[index] += keplerMeanMotionRadPerDay(rock.au) * dtDays
     const radius = compressDistance(rock.au, this.scaleMode)
     const angle = this.angles[index] ?? 0
     mesh.position.set(
@@ -98,10 +100,14 @@ export class SkyRocks {
     }
   }
 
-  update(dtSec: number, dtDays: number): void {
+  update(dtSec: number, dtDays: number, timeMs: number, playing: boolean): void {
     for (let i = 0; i < this.meshes.length; i += 1) this.place(i, dtDays)
-    this.spawn += dtSec
-    if (this.spawn > 2.8 && this.meteors.length < 4) {
+    if (!playing && Math.abs(dtDays) < 1e-9) return
+    const intensity = meteorShowerIntensity(timeMs)
+    const timeBoost = 1 + Math.min(8, Math.abs(dtDays) * 12)
+    this.spawn += dtSec * (0.22 + intensity * 1.7) * timeBoost
+    const cap = 3 + Math.round(intensity * 7)
+    if (this.spawn > 2.8 && this.meteors.length < cap) {
       this.spawn = 0
       this.launchMeteor()
     }

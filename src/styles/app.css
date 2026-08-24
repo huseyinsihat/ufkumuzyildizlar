@@ -382,7 +382,7 @@ a {
 }
 
 .app-shell.has-explore {
-  --chrome-left: 132px;
+  --chrome-left: 208px;
 }
 
 .app-shell.has-panel .mission-banner {
@@ -422,19 +422,25 @@ a {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 8px;
+  gap: 6px;
   width: calc(var(--chrome-left) - 16px);
+  height: auto;
+  max-height: none;
   padding: 8px;
-  overflow: auto;
-  scrollbar-width: none;
+  overflow: hidden;
   background: color-mix(in srgb, var(--bg-soft) 62%, transparent);
   border: 1px solid color-mix(in srgb, var(--cyan) 35%, var(--line));
   border-radius: 20px;
   backdrop-filter: blur(16px);
 }
 
-.explore-dock::-webkit-scrollbar {
-  display: none;
+.dock-explore::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dock-explore::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--cyan) 40%, transparent);
+  border-radius: 99px;
 }
 
 .explore-cluster {
@@ -473,13 +479,16 @@ a {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
-  gap: 8px;
+  gap: 6px;
   align-items: stretch;
+  flex: 1;
   height: 100%;
+  min-height: 0;
 }
 
 .dock-explore,
-.dock-actions {
+.dock-actions,
+.dock-view {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
@@ -487,14 +496,166 @@ a {
   align-items: stretch;
 }
 
+.dock-explore {
+  flex: 1 1 auto;
+  min-height: 0;
+  justify-content: space-between;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--cyan) 45%, transparent) transparent;
+}
+
+.dock-view {
+  flex: 0 0 auto;
+  justify-content: flex-start;
+  gap: 6px;
+}
+
 .dock-actions {
-  margin-top: auto;
-  padding-top: 8px;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+
+.dock-view > .btn {
+  min-height: 40px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.explore-dock .dock-view > .btn {
+  min-height: 36px;
+}
+
+.dock-zoom {
+  display: flex;
+  flex-direction: row;
+  flex: 0 0 auto;
+  gap: 6px;
+}
+
+.explore-dock .dock-zoom .btn {
+  flex: 1;
+  width: auto;
+  min-height: 36px;
+  max-height: 40px;
+  flex-direction: row;
+  touch-action: none;
+  user-select: none;
+}
+
+.explore-dock .dock-actions {
+  flex: 0 0 auto;
+}
+
+.explore-dock .dock-actions .btn {
+  flex: none;
+  width: 100%;
+  min-height: 48px;
+  max-height: none;
+  font-size: 12px;
+  padding: 8px 10px;
+}
+
+.explore-dock .dock-actions .ui-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.view-cube {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto;
+  perspective: 140px;
+  touch-action: none;
+  cursor: grab;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.view-cube:active {
+  cursor: grabbing;
+}
+
+.view-cube-stage {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  margin: 6px auto;
+}
+
+.view-cube-ring {
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  top: 50%;
+  height: 12px;
+  margin-top: -6px;
+  border: 2px solid color-mix(in srgb, var(--cyan) 70%, white);
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--cyan) 40%, transparent);
+}
+
+.view-cube-spin {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  transform-style: preserve-3d;
+}
+
+.view-cube-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  cursor: inherit;
+  font-family: inherit;
+  border: 1px solid color-mix(in srgb, var(--cyan) 55%, #7ee0ff);
+  background: #0b1730;
+  color: #e8eef8;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  backface-visibility: hidden;
+  box-shadow: inset 0 0 12px rgba(8, 20, 48, 0.85);
+}
+
+.view-cube-face.is-front {
+  transform: translateZ(22px);
+}
+
+.view-cube-face.is-back {
+  transform: rotateY(180deg) translateZ(22px);
+}
+
+.view-cube-face.is-right {
+  transform: rotateY(90deg) translateZ(22px);
+}
+
+.view-cube-face.is-left {
+  transform: rotateY(-90deg) translateZ(22px);
+}
+
+.view-cube-face.is-top {
+  transform: rotateX(90deg) translateZ(22px);
+  background: #1a2d18;
+}
+
+.view-cube-face.is-bottom {
+  transform: rotateX(-90deg) translateZ(22px);
+  background: #14283a;
 }
 
 .dock-label {
   line-height: 1.15;
-  text-align: center;
+  text-align: left;
   white-space: normal;
 }
 
@@ -503,11 +664,11 @@ a {
 }
 
 .explore-dock .btn:has(.dock-label-short) .dock-label {
-  display: none;
+  display: inline;
 }
 
 .explore-dock .dock-label-short {
-  display: inline;
+  display: none;
 }
 
 .dock-live-event {
@@ -570,15 +731,27 @@ a {
 .explore-dock .dock-buttons .btn {
   display: flex;
   width: 100%;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-  min-height: 52px;
-  padding: 8px 6px;
-  font-size: 11px;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 8px;
+  min-height: 36px;
+  max-height: none;
+  padding: 6px 10px;
+  font-size: 12px;
   font-weight: 800;
-  text-align: center;
+  text-align: left;
   border-radius: 14px;
+  flex: 0 0 auto;
+}
+
+.explore-dock .dock-zoom,
+.explore-dock .view-cube {
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+.explore-dock .dock-zoom .btn {
+  max-height: 40px;
 }
 
 .explore-dock .dock-buttons .ui-icon {
@@ -610,6 +783,11 @@ a {
   justify-content: center;
 }
 
+.explore-dock .dock-zoom .btn.icon-only {
+  width: auto;
+  height: auto;
+}
+
 .dock-buttons .btn.icon-only .ui-icon,
 .dock-icons .btn.icon-only .ui-icon {
   width: 18px;
@@ -619,7 +797,8 @@ a {
 .dock-buttons .btn.icon-only.is-on,
 .dock-icons .btn.icon-only.is-on,
 .view-tools .btn.is-on,
-.dock-buttons .btn.is-on {
+.dock-buttons .btn.is-on,
+.time-compact .btn.is-on {
   border-color: var(--amber);
   border-width: 2px;
   box-shadow: 0 0 0 1px var(--amber);
@@ -820,6 +999,13 @@ a {
   padding: 6px 10px;
   border-radius: 999px;
   flex-shrink: 0;
+}
+
+.time-compact .btn.icon-only {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  justify-content: center;
 }
 
 .time-compact .time-readout {
@@ -2938,7 +3124,36 @@ details summary {
   }
 }
 
-@media (max-width: 1199px) {
+@media (min-width: 1024px) and (max-height: 820px) {
+  .explore-dock .dock-buttons,
+  .dock-explore,
+  .dock-view {
+    gap: 4px;
+  }
+
+  .explore-dock .dock-buttons .btn,
+  .explore-dock .dock-view > .btn {
+    min-height: 34px;
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .explore-dock .dock-zoom .btn {
+    min-height: 32px;
+  }
+
+  .explore-dock .dock-actions .btn {
+    min-height: 40px;
+    font-size: 11px;
+  }
+
+  .dock-live-event {
+    min-height: 24px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 1023px) {
   :root {
     --chrome-bar: 118px;
   }
@@ -2995,7 +3210,9 @@ details summary {
     top: auto;
     bottom: max(10px, var(--safe-bottom));
     width: auto;
+    height: auto;
     max-width: none;
+    max-height: none;
     overflow-x: auto;
     overflow-y: hidden;
     flex-direction: row;
@@ -3006,10 +3223,85 @@ details summary {
 
   .explore-dock .dock-buttons,
   .dock-explore,
+  .dock-view,
   .dock-actions {
+    flex: 0 1 auto;
     flex-direction: row;
     align-items: center;
     height: auto;
+    min-height: 0;
+    justify-content: flex-start;
+    overflow: visible;
+  }
+
+  .dock-explore {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .dock-zoom {
+    flex-direction: column;
+    flex: 0 0 auto;
+  }
+
+  .explore-dock .dock-zoom .btn {
+    max-height: none;
+  }
+
+  .explore-dock .dock-actions {
+    flex: 0 0 auto;
+  }
+
+  .explore-dock .dock-actions .btn {
+    flex: none;
+    min-height: 44px;
+  }
+
+  .explore-dock .dock-actions .ui-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .view-cube {
+    width: 48px;
+    height: 48px;
+    margin: 0 4px;
+  }
+
+  .view-cube-stage {
+    width: 40px;
+    height: 40px;
+    margin: 4px auto;
+  }
+
+  .view-cube-spin {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto;
+  }
+
+  .view-cube-face.is-front {
+    transform: translateZ(20px);
+  }
+
+  .view-cube-face.is-back {
+    transform: rotateY(180deg) translateZ(20px);
+  }
+
+  .view-cube-face.is-right {
+    transform: rotateY(90deg) translateZ(20px);
+  }
+
+  .view-cube-face.is-left {
+    transform: rotateY(-90deg) translateZ(20px);
+  }
+
+  .view-cube-face.is-top {
+    transform: rotateX(90deg) translateZ(20px);
+  }
+
+  .view-cube-face.is-bottom {
+    transform: rotateX(-90deg) translateZ(20px);
   }
 
   .dock-actions {
@@ -3029,8 +3321,29 @@ details summary {
   .explore-dock .dock-buttons .btn {
     width: auto;
     min-height: 44px;
+    max-height: none;
     padding: 6px 10px;
     font-size: 12px;
+    flex: 0 0 auto;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .explore-dock .dock-label {
+    text-align: center;
+  }
+
+  .explore-dock .btn:has(.dock-label-short) .dock-label {
+    display: none;
+  }
+
+  .explore-dock .dock-label-short {
+    display: inline;
+  }
+
+  .explore-dock .dock-actions {
+    border-top: 0;
   }
 
   .explore-cluster {
@@ -3296,7 +3609,13 @@ details summary {
   .explore-dock {
     left: max(8px, var(--safe-left));
     right: max(8px, var(--safe-right));
+    top: auto;
     bottom: max(8px, var(--safe-bottom));
+    width: auto;
+    height: auto;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
 
   .dock-buttons {
@@ -3306,6 +3625,7 @@ details summary {
   }
 
   .dock-explore,
+  .dock-view,
   .dock-actions {
     flex: 1 1 auto;
     flex-direction: row;
@@ -3315,6 +3635,7 @@ details summary {
   .explore-dock .dock-buttons .btn {
     flex: 1 1 0;
     min-width: 0;
+    max-height: none;
     flex-direction: column;
     justify-content: center;
     gap: 2px;
@@ -3450,8 +3771,13 @@ details summary {
     left: max(8px, var(--safe-left));
     right: max(8px, var(--safe-right));
     width: auto;
+    height: auto;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
     flex-direction: row;
     padding: 4px;
+  }
   }
 
   .explore-cluster {

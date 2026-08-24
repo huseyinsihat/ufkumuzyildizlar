@@ -24,6 +24,7 @@ interface SimulationState {
   freezeRotation: boolean
   freezeRevolution: boolean
   skyCamera: boolean
+  galaxyView: boolean
   cityPinsVisible: boolean
   moonDragEnabled: boolean
   setPlaying: (playing: boolean) => void
@@ -41,6 +42,7 @@ interface SimulationState {
   setFreezeRotation: (value: boolean) => void
   setFreezeRevolution: (value: boolean) => void
   setSkyCamera: (value: boolean) => void
+  setGalaxyView: (value: boolean) => void
   setCityPinsVisible: (value: boolean) => void
   setMoonDragEnabled: (value: boolean) => void
   goNowRealtime: () => void
@@ -72,6 +74,7 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   freezeRotation: false,
   freezeRevolution: false,
   skyCamera: false,
+  galaxyView: false,
   cityPinsVisible: false,
   moonDragEnabled: false,
   setPlaying: (playing) => {
@@ -101,6 +104,7 @@ export const useSimulationStore = create<SimulationState>((set) => ({
   setFreezeRotation: (value) => set({ freezeRotation: value }),
   setFreezeRevolution: (value) => set({ freezeRevolution: value }),
   setSkyCamera: (value) => set({ skyCamera: value }),
+  setGalaxyView: (value) => set({ galaxyView: value }),
   setCityPinsVisible: (value) => set({ cityPinsVisible: value }),
   setMoonDragEnabled: (value) => set({ moonDragEnabled: value }),
   goNowRealtime: () => {

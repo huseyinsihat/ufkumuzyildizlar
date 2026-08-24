@@ -8,6 +8,7 @@ import {
   Quaternion,
   Vector3,
 } from 'three'
+import { keplerMeanMotionRadPerDay } from '../astronomy/keplerMotion'
 import { compressDistance } from '../astronomy/visualScale'
 import { asteroidCountForDevice } from '../utils/performance'
 import { seededRandom } from '../utils/math'
@@ -18,7 +19,6 @@ export class AsteroidBelt {
   private angles: Float32Array
   private radii: Float32Array
   private auT: Float32Array
-  private speeds: Float32Array
   private scales: Float32Array
   private scaleMode: ScaleMode = 'educational'
 
@@ -37,7 +37,6 @@ export class AsteroidBelt {
     const random = seededRandom(9041)
     this.angles = new Float32Array(count)
     this.radii = new Float32Array(count)
-    this.speeds = new Float32Array(count)
     this.scales = new Float32Array(count)
 
     const inner = compressDistance(2.2, this.scaleMode)
@@ -48,7 +47,6 @@ export class AsteroidBelt {
       this.angles[i] = random() * Math.PI * 2
       this.auT[i] = random()
       this.radii[i] = inner + this.auT[i] * (outer - inner)
-      this.speeds[i] = 0.02 + random() * 0.04
       this.scales[i] = 0.04 + random() * 0.09
       const tint = 0.65 + random() * 0.3
       this.mesh.setColorAt(i, new Color(tint, tint * 0.92, tint * 0.8))
@@ -76,7 +74,8 @@ export class AsteroidBelt {
     const matrix = new Matrix4()
     const count = this.angles.length
     for (let i = 0; i < count; i += 1) {
-      this.angles[i] += this.speeds[i] * dtSimDays * 0.015
+      const au = 2.2 + this.auT[i] * (3.3 - 2.2)
+      this.angles[i] += keplerMeanMotionRadPerDay(au) * dtSimDays
       const angle = this.angles[i]
       const radius = this.radii[i]
       position.set(Math.cos(angle) * radius, (Math.sin(angle * 3.1) * 0.35), Math.sin(angle) * radius)

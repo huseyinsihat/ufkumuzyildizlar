@@ -18,3 +18,6 @@ export const HOUR_S = 3600
 
 /** Approximate tropical year used for "N yıl sonra" shortcuts. */
 export const TROPICAL_YEAR_DAYS = 365.2422
+
+/** Sidereal year in days — Kepler periods use this, not the tropical year. */
+export const SIDEREAL_YEAR_DAYS = 365.256363

@@ -1,9 +1,7 @@
 import { SECOND_SCALE, TIME_LADDER } from '../../astronomy/timeEngine'
 import { formatSimulationDate } from '../../utils/formatting'
 import { MISSIONS } from '../../content/missions'
-import { lookAtSolarSystem } from '../../features/planetExplorer/focus'
 import { useEducationStore } from '../../store/educationStore'
-import { useEventStore } from '../../store/eventStore'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
 import { Icon } from './Icon'
@@ -18,13 +16,11 @@ export function CompactTimeBar() {
   const setScale = useSimulationStore((s) => s.setTimeScale)
   const goNow = useSimulationStore((s) => s.goNowRealtime)
   const addYears = useSimulationStore((s) => s.addYears)
-  const bodyId = useSimulationStore((s) => s.selectedBodyId)
-  const wonderId = useSimulationStore((s) => s.selectedWonderId)
-  const eventId = useEventStore((s) => s.selectedEventId)
+  const direction = useSimulationStore((s) => s.direction)
+  const setDirection = useSimulationStore((s) => s.setDirection)
   const missionId = useEducationStore((s) => s.activeMissionId)
   const mission = MISSIONS.find((item) => item.id === missionId)
   const panel = useUiStore((s) => s.activePanel)
-  const overview = !bodyId && !wonderId && !eventId
   const atNow = scale === SECOND_SCALE && Math.abs(displayed - Date.now()) < NOW_SLACK_MS
 
   return (
@@ -35,9 +31,14 @@ export function CompactTimeBar() {
         </p>
       ) : null}
       <footer className="time-compact" aria-label="Zaman">
-        <button type="button" className={`btn${overview ? ' emergency' : ''}`} onClick={lookAtSolarSystem}>
-          <Icon name="sun" />
-          <span className="time-label">Güneş’e dön</span>
+        <button
+          type="button"
+          className={`btn icon-only${direction < 0 ? ' is-on' : ''}`}
+          onClick={() => setDirection(-1)}
+          aria-label="Geri sar"
+          aria-pressed={direction < 0}
+        >
+          <Icon name="back" />
         </button>
         <button type="button" className="btn primary" onClick={toggle} aria-label={playing ? 'Duraklat' : 'Oynat'}>
           <Icon name={playing ? 'pause' : 'play'} />
@@ -68,6 +69,15 @@ export function CompactTimeBar() {
           }}
         >
           1 Yıl Atla
+        </button>
+        <button
+          type="button"
+          className={`btn icon-only${direction > 0 ? ' is-on' : ''}`}
+          onClick={() => setDirection(1)}
+          aria-label="İleri sar"
+          aria-pressed={direction > 0}
+        >
+          <Icon name="forward" />
         </button>
       </footer>
     </div>

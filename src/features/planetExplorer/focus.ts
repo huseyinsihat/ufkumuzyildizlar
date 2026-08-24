@@ -21,6 +21,7 @@ export function askTheSun(): void {
 
 export function focusBody(id: BodyId): void {
   useSimulationStore.getState().selectBody(id)
+  useSimulationStore.getState().setGalaxyView(false)
   useEducationStore.getState().notifySelection(id)
   useUiStore.getState().setActivePanel('none')
   getScene()?.focusBody(id)
@@ -37,11 +38,25 @@ export function openCompare(selected?: BodyId | null): void {
 }
 
 export function lookAtSolarSystem(): void {
-  useSimulationStore.getState().selectBody(null)
+  const sim = useSimulationStore.getState()
+  sim.selectBody(null)
+  sim.setGalaxyView(false)
   getScene()?.focusOverview()
   if (useUiStore.getState().demoActive) return
   if (useLabStore.getState().activityId) return
   useVoiceStore.getState().play('ui-overview')
+}
+
+export function lookAtGalaxy(): void {
+  const scene = getScene()
+  if (!scene) return
+  const sim = useSimulationStore.getState()
+  sim.selectBody(null)
+  sim.setGalaxyView(true)
+  scene.focusGalaxy()
+  if (useUiStore.getState().demoActive) return
+  if (useLabStore.getState().activityId) return
+  useVoiceStore.getState().play('ui-stars')
 }
 
 export function runDemoAction(step: number): void {

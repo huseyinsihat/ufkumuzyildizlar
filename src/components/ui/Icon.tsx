@@ -96,6 +96,24 @@ const ICONS: Record<string, ReactNode> = {
       <path d="M9 12h10" />
     </>
   ),
+  forward: (
+    <>
+      <path d="M9 6l6 6-6 6" />
+      <path d="M5 12h10" />
+    </>
+  ),
+  up: (
+    <>
+      <path d="M6 15l6-6 6 6" />
+      <path d="M12 9v10" />
+    </>
+  ),
+  down: (
+    <>
+      <path d="M6 9l6 6 6-6" />
+      <path d="M12 15V5" />
+    </>
+  ),
   check: (
     <>
       <path d="M5.5 12.5 10 17l8.5-9" />
@@ -126,6 +144,12 @@ const ICONS: Record<string, ReactNode> = {
   pause: (
     <>
       <path d="M8 6h3v12H8zM13 6h3v12h-3z" />
+    </>
+  ),
+  pin: (
+    <>
+      <path d="M12 21s7-6.4 7-11.2A7 7 0 0 0 5 9.8C5 14.6 12 21 12 21z" />
+      <circle cx="12" cy="9.8" r="2.2" />
     </>
   ),
 }

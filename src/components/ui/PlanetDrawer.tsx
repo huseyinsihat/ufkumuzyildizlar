@@ -1,5 +1,6 @@
+import { useEffect, useRef, type PointerEvent } from 'react'
 import { BODIES } from '../../astronomy/planetData'
-import { focusBody, openCompare } from '../../features/planetExplorer/focus'
+import { focusBody, lookAtGalaxy, lookAtSolarSystem, openCompare } from '../../features/planetExplorer/focus'
 import { starsAlphabetical, starDisplayName } from '../../content/skyWonders'
 import { EVENT_STATUS_LABEL, eventsForDrawer, getAstroEvent } from '../../content/astroEvents'
 import { focusEvent } from '../../features/astroEvents/focusEvent'
@@ -10,7 +11,53 @@ import { useUiStore } from '../../store/uiStore'
 import { useVoiceStore } from '../../store/voiceStore'
 import { TEAM } from '../../content/team'
 import { getScene } from '../../scene/sceneApi'
-import { Icon } from './Icon'
+import { Icon, type IconName } from './Icon'
+import { ViewCube } from './ViewCube'
+
+const ZOOM_IN = 0.9
+const ZOOM_OUT = 1.11
+const ZOOM_HOLD_MS = 50
+
+function HoldZoomButton({ factor, label, icon }: { factor: number; label: string; icon: IconName }) {
+  const hold = useRef(0)
+
+  function stop() {
+    window.clearInterval(hold.current)
+    hold.current = 0
+  }
+
+  function start(event: PointerEvent<HTMLButtonElement>) {
+    if (event.button !== 0) return
+    event.preventDefault()
+    event.currentTarget.setPointerCapture(event.pointerId)
+    getScene()?.dollyBy(factor)
+    window.clearInterval(hold.current)
+    hold.current = window.setInterval(() => getScene()?.dollyBy(factor), ZOOM_HOLD_MS)
+  }
+
+  useEffect(
+    () => () => {
+      window.clearInterval(hold.current)
+    },
+    [],
+  )
+
+  return (
+    <button
+      type="button"
+      className="btn icon-only"
+      aria-label={label}
+      title={`${label} — basılı tut`}
+      onPointerDown={start}
+      onPointerUp={stop}
+      onPointerCancel={stop}
+      onLostPointerCapture={stop}
+      onContextMenu={(event) => event.preventDefault()}
+    >
+      <Icon name={icon} />
+    </button>
+  )
+}
 
 export function ExploreListStrip() {
   const planetOpen = useUiStore((s) => s.planetDrawerOpen)
@@ -153,6 +200,7 @@ export function ExploreDock() {
   const setMode = useUiStore((s) => s.setAppMode)
   const openLab = useLabStore((s) => s.openLab)
   const liveEvent = getAstroEvent(useEventStore((s) => s.activeEventId))
+  const galaxyView = useSimulationStore((s) => s.galaxyView)
 
   function openPlanets() {
     if (!planetOpen) useVoiceStore.getState().play('ui-planets')
@@ -201,6 +249,31 @@ export function ExploreDock() {
     <div className="explore-dock">
       <nav className="dock-buttons" aria-label="Keşif">
         <div className="dock-explore">
+          <div className="dock-view">
+            <button
+              type="button"
+              className={`btn ${galaxyView ? 'is-on' : ''}`}
+              onClick={lookAtGalaxy}
+              aria-pressed={galaxyView}
+            >
+              <Icon name="spark" />
+              <span className="dock-label">{TEAM.project}</span>
+            </button>
+            <button
+              type="button"
+              className={`btn ${galaxyView ? '' : 'is-on'}`}
+              onClick={lookAtSolarSystem}
+              aria-pressed={!galaxyView}
+            >
+              <Icon name="sun" />
+              <span className="dock-label">Güneş Sistemi</span>
+            </button>
+            <div className="dock-zoom" role="group" aria-label="Yakınlaştır">
+              <HoldZoomButton factor={ZOOM_IN} label="Yakınlaştır" icon="up" />
+              <HoldZoomButton factor={ZOOM_OUT} label="Uzaklaştır" icon="down" />
+            </div>
+            <ViewCube />
+          </div>
           <button type="button" className={`btn ${starOpen ? 'is-on' : ''}`} onClick={openStars} aria-expanded={starOpen}>
             <Icon name="spark" />
             <span className="dock-label">Yıldızlar</span>
@@ -248,7 +321,6 @@ export function ExploreDock() {
           <button type="button" className="btn primary" onClick={openLabHome}>
             <Icon name="flask" />
             <span className="dock-label">{TEAM.home}</span>
-            <span className="dock-label-short">Etkinlik</span>
           </button>
         </div>
       </nav>

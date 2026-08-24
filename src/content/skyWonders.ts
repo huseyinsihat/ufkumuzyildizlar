@@ -41,7 +41,6 @@ export interface NotableStar extends SkyWonder {
 export type NamedRock = SkyWonder & {
   au: number
   size: number
-  speed: number
   tilt: number
   facts: string[]
 }
@@ -635,7 +634,6 @@ export const NAMED_ROCKS: NamedRock[] = [
     kind: 'rock',
     au: 2.77,
     size: 0.28,
-    speed: 0.013,
     tilt: 0.12,
     facts: [
       'Güneş’e uzaklığı ortalama 2,77 astronomi birimidir.',
@@ -651,7 +649,6 @@ export const NAMED_ROCKS: NamedRock[] = [
     kind: 'rock',
     au: 2.36,
     size: 0.18,
-    speed: 0.017,
     tilt: -0.08,
     facts: [
       'Güneş’e uzaklığı ortalama 2,36 astronomi birimidir.',
@@ -667,7 +664,6 @@ export const NAMED_ROCKS: NamedRock[] = [
     kind: 'rock',
     au: 2.77,
     size: 0.16,
-    speed: 0.015,
     tilt: 0.34,
     facts: [
       'Güneş’e uzaklığı ortalama 2,77 astronomi birimidir.',
