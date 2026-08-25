@@ -10,30 +10,30 @@ tr-intro-welcome.mp3  Hoş geldin. Burası Ufkumuz Yıldızlar.
 en-intro-welcome.mp3  Welcome. This is Our Horizon, the Stars.
 
 intro-lead — hoş geldinden sonra
-tr-intro-lead.mp3  Ortada Güneş var. Gezegenler onun etrafında döner.
-en-intro-lead.mp3  The Sun is in the middle. Planets go around it.
+tr-intro-lead.mp3  Üç yol var. Birine dokun.
+en-intro-lead.mp3  Three paths. Tap one.
 
 intro-lab — Proje Etkinlikleri
 tr-intro-lab.mp3  Proje Etkinlikleri. Oyna ve öğren.
 en-intro-lab.mp3  Project Activities. Play and learn.
 
-intro-explore — Gezegenlere bak
-tr-intro-explore.mp3  Gezegenlere bak. Bir gezegene dokun.
-en-intro-explore.mp3  Look at the planets. Tap a planet.
+intro-explore — Güneş Sistemini keşfet
+tr-intro-explore.mp3  Güneş Sistemini keşfet. Bir gezegene dokun.
+en-intro-explore.mp3  Discover the Solar System. Tap a planet.
 
 intro-team — Takım
-tr-intro-team.mp3  Takım. Takımımız Minik Dahiler.
-en-intro-team.mp3  The team. We are the Little Geniuses.
+tr-intro-team.mp3  Takımımız Minik Dahiler.
+en-intro-team.mp3  We are the Little Geniuses.
 
 ## Gezinme
 
 mode-explore — keşfe dönünce
-tr-mode-explore.mp3  Keşif. Gezegenlere bak.
-en-mode-explore.mp3  Explore. Look at the planets.
+tr-mode-explore.mp3  Keşif. Bir gezegene dokun.
+en-mode-explore.mp3  Explore. Tap a planet.
 
 mode-lab — Proje Etkinlikleri
-tr-mode-lab.mp3  Proje Etkinlikleri. Bir oda seç.
-en-mode-lab.mp3  Project Activities. Pick a room.
+tr-mode-lab.mp3  Proje Etkinlikleri. Birini seç.
+en-mode-lab.mp3  Project Activities. Pick one.
 
 ui-planets — Gezegenler
 tr-ui-planets.mp3  Gezegenler. Bir ada dokun.
@@ -48,62 +48,62 @@ tr-ui-facts.mp3  Bilgiler. Kısa kartlar.
 en-ui-facts.mp3  Facts. Short cards.
 
 ui-compare — Karşılaştır
-tr-ui-compare.mp3  Karşılaştır. İki gezegeni yan yana gör.
-en-ui-compare.mp3  Compare. See two planets side by side.
+tr-ui-compare.mp3  Karşılaştır. İkisini yan yana gör.
+en-ui-compare.mp3  Compare. See two side by side.
 
 ui-team — Takım paneli
-tr-ui-team.mp3  Takımımız Minik Dahiler. Danışmanımız Hüseyin SIHAT.
+tr-ui-team.mp3  Takımımız Minik Dahiler. Danışmanımız Hüseyin Sıhat.
 en-ui-team.mp3  Our team is the Little Geniuses. Our advisor is Hüseyin Sıhat.
 
-ui-overview — Güneş’e dön
-tr-ui-overview.mp3  Güneş’e dön. Ortada Güneş, yanında gezegenler.
-en-ui-overview.mp3  Back to the Sun. The Sun is in the middle.
+ui-overview — Güneş Sistemi
+tr-ui-overview.mp3  Güneş Sistemi. Ortada Güneş var.
+en-ui-overview.mp3  Solar System. The Sun is in the middle.
 
 ## Cisimler
 
 body-sun — Güneş
-tr-body-sun.mp3  Güneş. O bir yıldız. Işık verir.
-en-body-sun.mp3  The Sun. It is a star. It gives light.
+tr-body-sun.mp3  Güneş bir yıldızdır. Işık verir.
+en-body-sun.mp3  The Sun is a star. It gives light.
 
 body-mercury — Merkür
-tr-body-mercury.mp3  Merkür. Güneş’e en yakın. Küçüktür.
-en-body-mercury.mp3  Mercury. Closest to the Sun. It is small.
+tr-body-mercury.mp3  Merkür, Güneş’e en yakın gezegendir.
+en-body-mercury.mp3  Mercury is the closest planet to the Sun.
 
 body-venus — Venüs
-tr-body-venus.mp3  Venüs. En sıcak gezegen.
-en-body-venus.mp3  Venus. The hottest planet.
+tr-body-venus.mp3  Venüs, en sıcak gezegendir.
+en-body-venus.mp3  Venus is the hottest planet.
 
 body-earth — Dünya
-tr-body-earth.mp3  Dünya. Biz burada yaşarız. Mavidir.
-en-body-earth.mp3  Earth. We live here. It is blue.
+tr-body-earth.mp3  Dünya bizim evimizdir. Mavidir.
+en-body-earth.mp3  Earth is our home. It is blue.
 
 body-moon — Ay
-tr-body-moon.mp3  Ay. Dünya’nın uydusu. Güneş ışığını yansıtır.
-en-body-moon.mp3  The Moon. It goes around Earth. It shines with sunlight.
+tr-body-moon.mp3  Ay, Dünya’nın uydusudur.
+en-body-moon.mp3  The Moon goes around Earth.
 
 body-mars — Mars
-tr-body-mars.mp3  Mars. Kırmızı gezegen.
-en-body-mars.mp3  Mars. The red planet.
+tr-body-mars.mp3  Mars, kırmızı gezegendir.
+en-body-mars.mp3  Mars is the red planet.
 
 body-jupiter — Jüpiter
-tr-body-jupiter.mp3  Jüpiter. En kocaman gezegen.
-en-body-jupiter.mp3  Jupiter. The biggest planet.
+tr-body-jupiter.mp3  Jüpiter, en büyük gezegendir.
+en-body-jupiter.mp3  Jupiter is the biggest planet.
 
 body-saturn — Satürn
-tr-body-saturn.mp3  Satürn. Halkaları vardır.
-en-body-saturn.mp3  Saturn. It has rings.
+tr-body-saturn.mp3  Satürn’ün halkaları vardır.
+en-body-saturn.mp3  Saturn has rings.
 
 body-uranus — Uranüs
-tr-body-uranus.mp3  Uranüs. Yan yatarak döner.
-en-body-uranus.mp3  Uranus. It spins on its side.
+tr-body-uranus.mp3  Uranüs, yan yatarak döner.
+en-body-uranus.mp3  Uranus spins on its side.
 
 body-neptune — Neptün
-tr-body-neptune.mp3  Neptün. Güneş’ten en uzak gezegen.
-en-body-neptune.mp3  Neptune. The farthest planet from the Sun.
+tr-body-neptune.mp3  Neptün, Güneş’ten en uzak gezegendir.
+en-body-neptune.mp3  Neptune is the farthest planet from the Sun.
 
 body-pluto — Plüton
-tr-body-pluto.mp3  Plüton. Çok küçük ve çok soğuk.
-en-body-pluto.mp3  Pluto. It is very small and very cold.
+tr-body-pluto.mp3  Plüton çok küçük ve çok soğuktur.
+en-body-pluto.mp3  Pluto is very small and very cold.
 
 ## Etkinlik akışı
 
@@ -134,39 +134,39 @@ tr-room-earth.mp3  Dünya. Gece, gündüz ve mevsim.
 en-room-earth.mp3  Earth. Night, day, and seasons.
 
 room-gravity — Yerçekimi
-tr-room-gravity.mp3  Yerçekimi. Top düşer. Sen zıplarsın.
+tr-room-gravity.mp3  Yerçekimi. Top düşer, sen zıplarsın.
 en-room-gravity.mp3  Gravity. A ball falls. You jump.
 
 room-scale — Uzaklık
-tr-room-scale.mp3  Uzaklık. Uzay çok büyük. Gezegenler küçük görünür.
-en-room-scale.mp3  Distance. Space is huge. Planets look tiny.
+tr-room-scale.mp3  Uzaklık. Uzay çok büyüktür.
+en-room-scale.mp3  Distance. Space is huge.
 
 room-build — Sıra ve Ay
-tr-room-build.mp3  Sıra ve Ay. Gezegenleri diz. Dolunayı yap.
-en-room-build.mp3  Order and the Moon. Line up the planets. Make a full moon.
+tr-room-build.mp3  Sıra ve Ay. Diz ve dolunayı yakala.
+en-room-build.mp3  Order and the Moon. Line them up. Catch the full moon.
 
 room-sky — Gökyüzü
-tr-room-sky.mp3  Gökyüzü. Yıldızlar mı kayıyor, Dünya mı dönüyor?
-en-room-sky.mp3  Sky. Do the stars move, or does Earth spin?
+tr-room-sky.mp3  Gökyüzü. Yıldızlar mı kayıyor?
+en-room-sky.mp3  Sky. Do the stars move?
 
 ## Hızlı başla
 
 activity-arrange-orbits — gezegenleri diz
-tr-activity-arrange-orbits.mp3  Gezegenleri Güneş’ten uzağa diz. En yakın Merkür.
-en-activity-arrange-orbits.mp3  Put the planets in order from the Sun. Mercury is first.
+tr-activity-arrange-orbits.mp3  Gezegenleri Güneş’ten uzağa diz.
+en-activity-arrange-orbits.mp3  Put the planets in order from the Sun.
 
 activity-moon-phases — dolunay
-tr-activity-moon-phases.mp3  Ay’ı sürükle, dolunayı yakala. Gece tarafına götür.
-en-activity-moon-phases.mp3  Drag the Moon. Catch the full moon on the night side.
+tr-activity-moon-phases.mp3  Ay’ı sürükle. Dolunayı yakala.
+en-activity-moon-phases.mp3  Drag the Moon. Catch the full moon.
 
 activity-closest-hottest — en sıcak
-tr-activity-closest-hottest.mp3  En yakın mı, en sıcak mı? Merkür yakın. Venüs sıcak.
-en-activity-closest-hottest.mp3  Closest or hottest? Mercury is closest. Venus is hottest.
+tr-activity-closest-hottest.mp3  En yakın Merkür. En sıcak Venüs.
+en-activity-closest-hottest.mp3  Mercury is closest. Venus is hottest.
 
 activity-drop-ball — top düşer
-tr-activity-drop-ball.mp3  Aynı top nerede önce düşer? Çekim büyüdükçe top çabuk düşer.
-en-activity-drop-ball.mp3  Where does the same ball fall first? Stronger pull makes it fall sooner.
+tr-activity-drop-ball.mp3  Aynı top nerede önce düşer?
+en-activity-drop-ball.mp3  Where does the same ball fall first?
 
 activity-who-faster — kim önce tur atar
-tr-activity-who-faster.mp3  Kim önce bir tur atar? Merkür mü, Dünya mı?
+tr-activity-who-faster.mp3  Kim önce tur atar? Merkür mü, Dünya mı?
 en-activity-who-faster.mp3  Who finishes a lap first? Mercury or Earth?

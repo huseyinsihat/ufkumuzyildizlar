@@ -73,7 +73,7 @@ export default function App() {
 
   return (
     <div
-      className={`app-shell${largeText ? ' large-text' : ''}${activityId === 'arrange-orbits' ? ' hide-scene-labels' : ''}${explore ? ' has-explore' : ''}${drawerOpen ? ' has-drawer' : ''}${eventDrawerOpen ? ' has-event-drawer' : ''}${chatOpen ? ' has-chat' : ''}${panel !== 'none' ? ' has-panel' : ''}${activityId ? ' has-activity' : ''}`}
+      className={`app-shell${largeText ? ' large-text' : ''}${activityId === 'arrange-orbits' ? ' hide-scene-labels' : ''}${explore ? ' has-explore' : ''}${drawerOpen ? ' has-drawer' : ''}${eventDrawerOpen ? ' has-event-drawer' : ''}${chatOpen ? ' has-chat' : ''}${panel !== 'none' ? ' has-panel' : ''}${activityId ? ' has-activity' : ''}${demo ? ' has-demo' : ''}`}
     >
       <div className="space-glow" />
       {webgl && !use2d ? <CanvasHost /> : <SolarSystem2D />}

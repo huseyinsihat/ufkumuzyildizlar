@@ -46,7 +46,7 @@ export function ViewCube() {
     start.moved = true
     start.x = event.clientX
     start.y = event.clientY
-    getScene()?.orbitBy(-dx * DRAG_SCALE, -dy * DRAG_SCALE)
+    getScene()?.orbitBy(-dx * DRAG_SCALE, dy * DRAG_SCALE)
   }
 
   function onPointerUp(event: React.PointerEvent<HTMLDivElement>) {

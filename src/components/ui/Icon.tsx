@@ -108,6 +108,8 @@ const ICONS: Record<string, ReactNode> = {
       <path d="M12 9v10" />
     </>
   ),
+  plus: <path d="M12 5v14M5 12h14" />,
+  minus: <path d="M5 12h14" />,
   down: (
     <>
       <path d="M6 9l6 6 6-6" />
@@ -150,6 +152,134 @@ const ICONS: Record<string, ReactNode> = {
     <>
       <path d="M12 21s7-6.4 7-11.2A7 7 0 0 0 5 9.8C5 14.6 12 21 12 21z" />
       <circle cx="12" cy="9.8" r="2.2" />
+    </>
+  ),
+  camera: (
+    <>
+      <path d="M4 8.5h3.2l1.4-2h6.8l1.4 2H20a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 20 19.5H4A1.5 1.5 0 0 1 2.5 18v-8A1.5 1.5 0 0 1 4 8.5z" />
+      <circle cx="12" cy="13.5" r="3.2" />
+    </>
+  ),
+  eclipse: (
+    <>
+      <circle cx="12" cy="12" r="7" />
+      <path d="M12 5a7 7 0 0 0 0 14" />
+    </>
+  ),
+  moon: (
+    <>
+      <path d="M15.5 4.2A7.5 7.5 0 1 0 19.8 14 6 6 0 0 1 15.5 4.2z" />
+    </>
+  ),
+  volcano: (
+    <>
+      <path d="M4 19h16L14.5 9l-2 3-2.5-5z" />
+      <path d="M12 4v3M10.5 5.5 12 7l1.5-1.5" />
+    </>
+  ),
+  geyser: (
+    <>
+      <path d="M8 19h8" />
+      <path d="M10 19c0-4 1-7 2-10 1 3 2 6 2 10" />
+      <path d="M11 7c-1.5-2-1-3.5 1-4.5 2 1 2.5 2.5 1 4.5" />
+    </>
+  ),
+  rain: (
+    <>
+      <path d="M8 10a4 4 0 0 1 7.5-1.8A3.2 3.2 0 1 1 17 16H8.5A3.5 3.5 0 0 1 8 10z" />
+      <path d="M9 18.5 8 21M12 18.5 11 21M15 18.5 14 21" />
+    </>
+  ),
+  ocean: (
+    <>
+      <path d="M3 14c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2" />
+      <path d="M3 18c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2" />
+      <path d="M7 8c1.2-2 3-3.2 5-3.2S15.8 6 17 8" />
+    </>
+  ),
+  flare: (
+    <>
+      <path d="M12 3v6M8.5 5.5 12 9l3.5-3.5" />
+      <circle cx="12" cy="14.5" r="4.5" />
+      <path d="M12 12.2v4.6M9.8 14.5h4.4" />
+    </>
+  ),
+  aurora: (
+    <>
+      <path d="M4 18c2-5 3.5-8 5-8s2.5 4 4 4 2.5-5 4-5 2.5 3 3 5" />
+      <path d="M3 19h18" />
+    </>
+  ),
+  spot: (
+    <>
+      <circle cx="12" cy="12" r="7.5" />
+      <ellipse cx="10" cy="11" rx="3.2" ry="2.2" />
+    </>
+  ),
+  dust: (
+    <>
+      <path d="M4 16c3-1 5 1 8 0s5-2 8-1" />
+      <path d="M5 12c2.5-.8 4.5.6 7 0s4.5-1.4 7-.2" />
+      <circle cx="8" cy="8" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="13" cy="6.5" r="0.9" fill="currentColor" stroke="none" />
+      <circle cx="17" cy="9" r="1" fill="currentColor" stroke="none" />
+    </>
+  ),
+  rings: (
+    <>
+      <ellipse cx="12" cy="12" rx="9" ry="3.6" />
+      <circle cx="12" cy="12" r="3.2" />
+    </>
+  ),
+  meteor: (
+    <>
+      <path d="M5 19 14.5 9.5" />
+      <path d="M9 19l2.5-2.5M5 15l2.5-2.5" />
+      <circle cx="16.5" cy="7.5" r="2.2" />
+    </>
+  ),
+  haze: (
+    <>
+      <circle cx="12" cy="12" r="5" />
+      <path d="M4 9h3M17 9h3M3 12h4M17 12h4M4 15h3M17 15h3" />
+    </>
+  ),
+  tilt: (
+    <>
+      <ellipse cx="12" cy="12" rx="4" ry="7.5" transform="rotate(-55 12 12)" />
+      <path d="M5 19l14-14" />
+    </>
+  ),
+  comet: (
+    <>
+      <circle cx="16.5" cy="7.5" r="2.4" />
+      <path d="M14.2 9.2 4 19M13 11.2 6.5 19M15.5 10.5 9 19" />
+    </>
+  ),
+  supernova: (
+    <>
+      <path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M6 18l2.5-2.5" />
+      <circle cx="12" cy="12" r="2.4" />
+    </>
+  ),
+  merge: (
+    <>
+      <circle cx="8" cy="12" r="3.2" />
+      <circle cx="16" cy="12" r="3.2" />
+      <path d="M11 12h2" />
+    </>
+  ),
+  blackhole: (
+    <>
+      <circle cx="12" cy="12" r="3" />
+      <ellipse cx="12" cy="12" rx="9" ry="3.4" />
+      <path d="M5.5 12c0 1.4 2.9 2.5 6.5 2.5s6.5-1.1 6.5-2.5" />
+    </>
+  ),
+  shadow: (
+    <>
+      <circle cx="9" cy="12" r="5" />
+      <path d="M12.5 7.2a5.5 5.5 0 0 1 0 9.6" />
     </>
   ),
 }

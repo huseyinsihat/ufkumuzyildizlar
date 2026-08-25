@@ -54,9 +54,6 @@ export function lookAtGalaxy(): void {
   sim.selectBody(null)
   sim.setGalaxyView(true)
   scene.focusGalaxy()
-  if (useUiStore.getState().demoActive) return
-  if (useLabStore.getState().activityId) return
-  useVoiceStore.getState().play('ui-stars')
 }
 
 export function runDemoAction(step: number): void {

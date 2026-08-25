@@ -19,6 +19,7 @@
   --chrome-bar: 64px;
   --chrome-strip: 56px;
   --chrome-left: 0px;
+  --chrome-mascot: 96px;
   --chrome-bottom: var(--chrome-bar);
   color-scheme: dark;
 }
@@ -382,10 +383,11 @@ a {
 }
 
 .app-shell.has-explore {
-  --chrome-left: 208px;
+  --chrome-left: 176px;
 }
 
-.app-shell.has-panel .mission-banner {
+.app-shell.has-panel .mission-banner,
+.app-shell.has-demo .mission-banner {
   display: none;
 }
 
@@ -417,36 +419,36 @@ a {
   position: absolute;
   left: max(12px, var(--safe-left));
   top: calc(72px + var(--safe-top));
-  bottom: max(12px, var(--safe-bottom));
+  bottom: auto;
   z-index: 4;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 6px;
+  gap: 0;
   width: calc(var(--chrome-left) - 16px);
   height: auto;
-  max-height: none;
+  max-height: calc(100% - 72px - var(--safe-top) - 12px - var(--safe-bottom));
   padding: 8px;
   overflow: hidden;
   background: color-mix(in srgb, var(--bg-soft) 62%, transparent);
   border: 1px solid color-mix(in srgb, var(--cyan) 35%, var(--line));
-  border-radius: 20px;
+  border-radius: 16px;
   backdrop-filter: blur(16px);
 }
 
-.dock-explore::-webkit-scrollbar {
+.dock-buttons::-webkit-scrollbar {
   width: 6px;
 }
 
-.dock-explore::-webkit-scrollbar-thumb {
+.dock-buttons::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--cyan) 40%, transparent);
   border-radius: 99px;
 }
 
 .explore-cluster {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: var(--chrome-left);
+  right: var(--chrome-mascot);
   bottom: max(12px, var(--safe-bottom));
   margin-inline: auto;
   z-index: 6;
@@ -455,7 +457,7 @@ a {
   align-items: center;
   gap: 6px;
   width: max-content;
-  max-width: calc(100% - 24px);
+  max-width: calc(100% - var(--chrome-left) - var(--chrome-mascot));
 }
 
 .explore-side {
@@ -481,25 +483,9 @@ a {
   flex-wrap: nowrap;
   gap: 6px;
   align-items: stretch;
-  flex: 1;
-  height: 100%;
+  flex: 0 0 auto;
+  height: auto;
   min-height: 0;
-}
-
-.dock-explore,
-.dock-actions,
-.dock-view {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  gap: 6px;
-  align-items: stretch;
-}
-
-.dock-explore {
-  flex: 1 1 auto;
-  min-height: 0;
-  justify-content: space-between;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -507,72 +493,213 @@ a {
   scrollbar-color: color-mix(in srgb, var(--cyan) 45%, transparent) transparent;
 }
 
-.dock-view {
-  flex: 0 0 auto;
-  justify-content: flex-start;
+.dock-nav,
+.dock-meta,
+.dock-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   gap: 6px;
+  flex: 0 0 auto;
 }
 
-.dock-actions {
-  margin-top: 4px;
+.dock-meta {
   padding-top: 6px;
   border-top: 1px solid var(--line);
 }
 
-.dock-view > .btn {
-  min-height: 40px;
-  padding: 6px 8px;
-  font-size: 12px;
+.dock-cta {
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
 }
 
-.explore-dock .dock-view > .btn {
-  min-height: 36px;
+.explore-dock .dock-buttons .btn {
+  display: flex;
+  width: 100%;
+  flex: 0 0 auto;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  max-height: none;
+  padding: 6px 10px;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: left;
+  border-radius: 10px;
+}
+
+.explore-dock .dock-cta .btn {
+  min-height: 58px;
+  width: 100%;
+  font-size: 14px;
+  padding: 10px 12px;
+  gap: 10px;
+}
+
+.explore-dock .dock-cta .ui-icon {
+  width: 26px;
+  height: 26px;
+}
+
+.explore-dock .dock-nav .btn.is-on,
+.explore-dock .dock-views .btn.is-on,
+.explore-dock .dock-meta .btn.is-on {
+  border-color: var(--cyan);
+  border-width: 1px;
+  background: var(--cyan-dim);
+  color: var(--cyan);
+  box-shadow: none;
+}
+
+.explore-dock .dock-buttons .ui-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.dock-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+}
+
+.dock-badge {
+  display: inline-block;
+  max-width: 100%;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(251, 191, 36, 0.22);
+  border: 1px solid color-mix(in srgb, var(--amber) 70%, var(--line));
+  color: #fff8e1;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.dock-look {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  padding: 2px 0 10px;
+  border-bottom: 1px solid var(--line);
 }
 
 .dock-zoom {
   display: flex;
   flex-direction: row;
-  flex: 0 0 auto;
+  width: 100%;
   gap: 6px;
 }
 
-.explore-dock .dock-zoom .btn {
-  flex: 1;
+.explore-dock .dock-look .dock-zoom .btn {
+  flex: 1 1 0;
   width: auto;
-  min-height: 36px;
-  max-height: 40px;
-  flex-direction: row;
+  height: 44px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0;
+  justify-content: center;
   touch-action: none;
   user-select: none;
 }
 
-.explore-dock .dock-actions {
+.explore-dock .dock-look .dock-zoom .dock-label {
+  display: none;
+}
+
+.dock-look .view-cube {
+  margin: 2px auto 0;
+}
+
+.dock-views {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   flex: 0 0 auto;
+  padding: 8px 0 8px;
+  border-bottom: 0;
 }
 
-.explore-dock .dock-actions .btn {
-  flex: none;
-  width: 100%;
-  min-height: 48px;
-  max-height: none;
+.dock-divider {
+  flex: 0 0 auto;
+  height: 1px;
+  margin: 2px 4px 8px;
+  background: color-mix(in srgb, var(--cyan) 40%, var(--line));
+  border: 0;
+}
+
+.dock-planets,
+.dock-events {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dock-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-left: 28px;
+  width: calc(100% - 28px);
+  min-height: 36px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--cyan) 28%, var(--line));
+  background: transparent;
+  color: var(--muted);
   font-size: 12px;
-  padding: 8px 10px;
+  font-weight: 700;
+  min-width: 0;
 }
 
-.explore-dock .dock-actions .ui-icon {
-  width: 22px;
-  height: 22px;
+.dock-tool .ui-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.dock-tool-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.dock-tool.is-on,
+.dock-tool.is-live-event {
+  border-color: var(--cyan);
+  background: var(--cyan-dim);
+  color: var(--cyan);
+}
+
+.dock-tool.is-live-event {
+  border-color: color-mix(in srgb, var(--amber) 70%, var(--line));
+  background: rgba(251, 191, 36, 0.16);
+  color: #fff8e1;
 }
 
 .view-cube {
-  width: 56px;
-  height: 56px;
-  margin: 0 auto;
-  perspective: 140px;
+  width: 64px;
+  height: 64px;
+  margin: 0;
+  perspective: 160px;
   touch-action: none;
   cursor: grab;
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   user-select: none;
+  background: none;
+  border: 0;
+  border-radius: 0;
 }
 
 .view-cube:active {
@@ -581,9 +708,9 @@ a {
 
 .view-cube-stage {
   position: relative;
-  width: 44px;
-  height: 44px;
-  margin: 6px auto;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto;
 }
 
 .view-cube-ring {
@@ -591,8 +718,8 @@ a {
   left: -6px;
   right: -6px;
   top: 50%;
-  height: 12px;
-  margin-top: -6px;
+  height: 14px;
+  margin-top: -7px;
   border: 2px solid color-mix(in srgb, var(--cyan) 70%, white);
   border-radius: 50%;
   pointer-events: none;
@@ -601,8 +728,8 @@ a {
 
 .view-cube-spin {
   position: relative;
-  width: 44px;
-  height: 44px;
+  width: 56px;
+  height: 56px;
   transform-style: preserve-3d;
 }
 
@@ -620,7 +747,7 @@ a {
   border: 1px solid color-mix(in srgb, var(--cyan) 55%, #7ee0ff);
   background: #0b1730;
   color: #e8eef8;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.02em;
   backface-visibility: hidden;
@@ -628,35 +755,44 @@ a {
 }
 
 .view-cube-face.is-front {
-  transform: translateZ(22px);
+  transform: translateZ(28px);
 }
 
 .view-cube-face.is-back {
-  transform: rotateY(180deg) translateZ(22px);
+  transform: rotateY(180deg) translateZ(28px);
 }
 
 .view-cube-face.is-right {
-  transform: rotateY(90deg) translateZ(22px);
+  transform: rotateY(90deg) translateZ(28px);
 }
 
 .view-cube-face.is-left {
-  transform: rotateY(-90deg) translateZ(22px);
+  transform: rotateY(-90deg) translateZ(28px);
 }
 
 .view-cube-face.is-top {
-  transform: rotateX(90deg) translateZ(22px);
+  transform: rotateX(90deg) translateZ(28px);
   background: #1a2d18;
 }
 
 .view-cube-face.is-bottom {
-  transform: rotateX(-90deg) translateZ(22px);
+  transform: rotateX(-90deg) translateZ(28px);
   background: #14283a;
 }
 
 .dock-label {
-  line-height: 1.15;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0;
+  line-height: 1.12;
   text-align: left;
   white-space: normal;
+}
+
+.dock-label > span {
+  display: block;
 }
 
 .dock-label-short {
@@ -669,94 +805,6 @@ a {
 
 .explore-dock .dock-label-short {
   display: none;
-}
-
-.dock-live-event {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 28px;
-  max-width: 100%;
-  padding: 4px 6px;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--amber) 70%, var(--line));
-  background: rgba(251, 191, 36, 0.2);
-  color: #fff8e1;
-  font-size: 11px;
-  font-weight: 800;
-  line-height: 1.1;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex-shrink: 0;
-}
-
-.dock-live-event.is-idle {
-  border-color: color-mix(in srgb, var(--muted) 45%, var(--line));
-  background: rgba(148, 163, 184, 0.12);
-  color: var(--muted);
-  font-weight: 700;
-}
-
-.dock-live-event.is-compare {
-  border-color: color-mix(in srgb, var(--cyan) 50%, var(--line));
-  background: rgba(34, 211, 238, 0.12);
-  color: var(--cyan);
-  font-weight: 700;
-}
-
-.dock-live-event.is-compare.is-on {
-  border-color: color-mix(in srgb, var(--cyan) 80%, var(--line));
-  background: rgba(34, 211, 238, 0.22);
-}
-
-.dock-home {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.dock-home-tools {
-  display: flex;
-  gap: 6px;
-}
-
-.dock-home-tools .btn {
-  min-height: 34px;
-  padding: 4px 10px;
-  font-size: 12px;
-}
-
-.explore-dock .dock-buttons .btn {
-  display: flex;
-  width: 100%;
-  flex-direction: row;
-  justify-content: flex-start;
-  gap: 8px;
-  min-height: 36px;
-  max-height: none;
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 800;
-  text-align: left;
-  border-radius: 14px;
-  flex: 0 0 auto;
-}
-
-.explore-dock .dock-zoom,
-.explore-dock .view-cube {
-  flex-grow: 0;
-  flex-shrink: 0;
-}
-
-.explore-dock .dock-zoom .btn {
-  max-height: 40px;
-}
-
-.explore-dock .dock-buttons .ui-icon {
-  width: 18px;
-  height: 18px;
 }
 
 .btn,
@@ -776,33 +824,22 @@ a {
 }
 
 .dock-buttons .btn.icon-only,
-.dock-icons .btn.icon-only {
-  width: 38px;
-  height: 38px;
+.dock-icons .btn.icon-only,
+.dock-look .btn.icon-only,
+.time-compact .btn.icon-only {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
   padding: 0;
   justify-content: center;
 }
 
-.explore-dock .dock-zoom .btn.icon-only {
-  width: auto;
-  height: auto;
-}
-
 .dock-buttons .btn.icon-only .ui-icon,
-.dock-icons .btn.icon-only .ui-icon {
+.dock-icons .btn.icon-only .ui-icon,
+.dock-look .btn.icon-only .ui-icon,
+.time-compact .btn.icon-only .ui-icon {
   width: 18px;
   height: 18px;
-}
-
-.dock-buttons .btn.icon-only.is-on,
-.dock-icons .btn.icon-only.is-on,
-.view-tools .btn.is-on,
-.dock-buttons .btn.is-on,
-.time-compact .btn.is-on {
-  border-color: var(--amber);
-  border-width: 2px;
-  box-shadow: 0 0 0 1px var(--amber);
-  color: #fff8e1;
 }
 
 .view-tools {
@@ -857,7 +894,8 @@ a {
   align-items: stretch;
   gap: 10px;
   max-height: 100%;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .event-drawer section {
@@ -885,22 +923,60 @@ a {
   padding: 0;
 }
 
+.event-drawer li {
+  flex: 0 0 auto;
+}
+
 .planet-drawer li {
   list-style: none;
+  flex: 0 0 auto;
+  display: flex;
+  min-height: 0;
+}
+
+.planet-drawer.event-drawer li {
+  flex: 0 0 auto;
+  display: block;
+  min-height: auto;
 }
 
 .planet-drawer button {
   width: 100%;
+  flex: 0 0 auto;
   text-align: left;
   margin: 0;
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 40px;
+  min-height: 36px;
   padding: 6px 12px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.06);
   white-space: nowrap;
+}
+
+.planet-drawer.event-drawer button {
+  flex: none;
+  height: auto;
+  min-height: 40px;
+  white-space: normal;
+  align-items: flex-start;
+}
+
+.planet-drawer.event-drawer .ui-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #fbbf24;
+}
+
+.planet-drawer.event-drawer button.is-upcoming .ui-icon {
+  color: #67e8f9;
+}
+
+.planet-drawer.event-drawer button.is-happened .ui-icon {
+  color: #94a3b8;
 }
 
 .planet-drawer button span {
@@ -955,7 +1031,8 @@ a {
 
 .mission-banner {
   margin: 0;
-  max-width: min(100%, 420px);
+  width: 100%;
+  max-width: 100%;
   padding: 4px 12px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--amber) 55%, var(--line));
@@ -964,6 +1041,7 @@ a {
   font-size: 12px;
   font-weight: 800;
   line-height: 1.3;
+  text-align: center;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -976,20 +1054,39 @@ a {
   transform: none;
   display: flex;
   flex-wrap: nowrap;
-  gap: 6px 8px;
+  gap: 8px;
   align-items: center;
   justify-content: center;
   width: auto;
   max-width: 100%;
-  min-height: 48px;
-  padding: 5px 8px;
+  min-height: 52px;
+  padding: 6px 10px;
   border-radius: 999px;
+  border-color: color-mix(in srgb, var(--cyan) 35%, var(--line));
   overflow-x: auto;
   scrollbar-width: none;
 }
 
 .time-compact::-webkit-scrollbar {
   display: none;
+}
+
+.time-transport,
+.time-now {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.time-transport {
+  padding-right: 8px;
+  border-right: 1px solid var(--line);
+}
+
+.time-now {
+  padding-left: 8px;
+  border-left: 1px solid var(--line);
 }
 
 .time-compact .btn,
@@ -1002,44 +1099,60 @@ a {
 }
 
 .time-compact .btn.icon-only {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
   padding: 0;
   justify-content: center;
 }
 
+.time-compact .time-play {
+  min-height: 44px;
+  min-width: 44px;
+  background: var(--cyan-dim);
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.time-compact .btn.is-on {
+  border-color: var(--cyan);
+  border-width: 1px;
+  background: var(--cyan-dim);
+  color: var(--cyan);
+  box-shadow: none;
+}
+
 .time-compact .time-readout {
-  font-size: 13px;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.4em;
+  font-size: 15px;
   font-weight: 700;
-  min-width: 9.2rem;
+  font-variant-numeric: tabular-nums;
+  min-width: 11rem;
   text-align: center;
   flex-shrink: 0;
 }
 
-.time-segments {
-  flex-shrink: 0;
+.time-compact .chip.is-on {
+  border-color: var(--cyan);
+  box-shadow: none;
+  color: var(--cyan);
+  background: var(--cyan-dim);
 }
 
-@media (max-width: 1366px) {
-  .brand-logo {
-    height: 44px;
-    max-width: 180px;
-  }
-
-  .time-compact .btn,
-  .time-compact .chip {
-    font-size: 13px;
-    padding: 6px 10px;
-  }
-
-  .sun-mascot-lg {
-    width: 72px;
-    height: 72px;
-  }
+.time-skip {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 10px;
+  background: transparent;
 }
 
 .time-segments {
   display: flex;
+  flex-shrink: 0;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -1050,10 +1163,11 @@ a {
   border: 0;
   border-radius: 0;
   background: transparent;
-  padding: 7px 10px;
+  padding: 8px 10px;
   font-size: 13px;
   font-weight: 800;
-  min-width: 3.4rem;
+  min-width: 3.6rem;
+  min-height: 40px;
   flex: 1 1 auto;
 }
 
@@ -1064,6 +1178,45 @@ a {
 .time-segments button.is-active {
   background: var(--cyan-dim);
   color: var(--cyan);
+}
+
+.time-seg-short {
+  display: none;
+}
+
+@media (max-width: 1279px) {
+  .time-compact .time-clock {
+    display: none;
+  }
+
+  .time-compact .time-readout {
+    min-width: 7.2rem;
+  }
+
+  .time-seg-full {
+    display: none;
+  }
+
+  .time-seg-short {
+    display: inline;
+  }
+
+  .time-segments button {
+    min-width: 2.6rem;
+    padding: 8px 8px;
+  }
+}
+
+@media (max-width: 1366px) {
+  .brand-logo {
+    height: 44px;
+    max-width: 180px;
+  }
+
+  .sun-mascot-lg {
+    width: 72px;
+    height: 72px;
+  }
 }
 
 .scale-banner {
@@ -2274,8 +2427,24 @@ a {
   max-height: none;
   margin: 0;
   transform: none;
-  overflow: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   padding: 12px;
+}
+
+.facts-sheet .fact-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding-right: 2px;
+}
+
+.facts-sheet .panel-head,
+.facts-sheet .room-row {
+  flex-shrink: 0;
 }
 
 .settings-sheet {
@@ -2410,9 +2579,21 @@ a {
   backdrop-filter: none;
 }
 
+.intro-logo {
+  display: block;
+  height: 72px;
+  max-width: min(280px, 70%);
+  width: auto;
+  margin: 0 auto 8px;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
 .intro-card .eyebrow.section-kicker {
   justify-content: center;
   width: 100%;
+  margin-top: 0;
 }
 
 .intro-card .eyebrow.section-kicker::before,
@@ -2808,10 +2989,17 @@ a {
 .demo-card {
   position: absolute;
   left: 50%;
-  bottom: 88px;
+  bottom: calc(var(--chrome-bottom) + var(--safe-bottom) + 108px);
   transform: translateX(-50%);
   width: min(420px, calc(100% - 32px));
   padding: 14px;
+  z-index: 9;
+}
+
+@media (max-height: 640px) {
+  .demo-card {
+    bottom: calc(var(--chrome-bottom) + var(--safe-bottom) + 48px);
+  }
 }
 
 .fallback-banner {
@@ -3124,35 +3312,6 @@ details summary {
   }
 }
 
-@media (min-width: 1024px) and (max-height: 820px) {
-  .explore-dock .dock-buttons,
-  .dock-explore,
-  .dock-view {
-    gap: 4px;
-  }
-
-  .explore-dock .dock-buttons .btn,
-  .explore-dock .dock-view > .btn {
-    min-height: 34px;
-    padding: 4px 8px;
-    font-size: 11px;
-  }
-
-  .explore-dock .dock-zoom .btn {
-    min-height: 32px;
-  }
-
-  .explore-dock .dock-actions .btn {
-    min-height: 40px;
-    font-size: 11px;
-  }
-
-  .dock-live-event {
-    min-height: 24px;
-    font-size: 10px;
-  }
-}
-
 @media (max-width: 1023px) {
   :root {
     --chrome-bar: 118px;
@@ -3222,100 +3381,102 @@ details summary {
   }
 
   .explore-dock .dock-buttons,
-  .dock-explore,
-  .dock-view,
-  .dock-actions {
-    flex: 0 1 auto;
+  .dock-look,
+  .dock-views,
+  .dock-nav,
+  .dock-planets,
+  .dock-events,
+  .dock-meta,
+  .dock-cta {
+    display: flex;
     flex-direction: row;
     align-items: center;
     height: auto;
     min-height: 0;
     justify-content: flex-start;
     overflow: visible;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    margin: 0;
   }
 
-  .dock-explore {
+  .explore-dock .dock-buttons {
+    flex: 1 1 auto;
     overflow-x: auto;
     overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
 
-  .dock-zoom {
-    flex-direction: column;
+  .explore-dock .dock-buttons::-webkit-scrollbar {
+    display: none;
+  }
+
+  .dock-nav {
+    flex: 1 1 auto;
+    overflow-x: auto;
+  }
+
+  .dock-meta {
     flex: 0 0 auto;
-  }
-
-  .explore-dock .dock-zoom .btn {
-    max-height: none;
-  }
-
-  .explore-dock .dock-actions {
-    flex: 0 0 auto;
-  }
-
-  .explore-dock .dock-actions .btn {
-    flex: none;
-    min-height: 44px;
-  }
-
-  .explore-dock .dock-actions .ui-icon {
-    width: 18px;
-    height: 18px;
-  }
-
-  .view-cube {
-    width: 48px;
-    height: 48px;
-    margin: 0 4px;
-  }
-
-  .view-cube-stage {
-    width: 40px;
-    height: 40px;
-    margin: 4px auto;
-  }
-
-  .view-cube-spin {
-    width: 40px;
-    height: 40px;
-    margin: 0 auto;
-  }
-
-  .view-cube-face.is-front {
-    transform: translateZ(20px);
-  }
-
-  .view-cube-face.is-back {
-    transform: rotateY(180deg) translateZ(20px);
-  }
-
-  .view-cube-face.is-right {
-    transform: rotateY(90deg) translateZ(20px);
-  }
-
-  .view-cube-face.is-left {
-    transform: rotateY(-90deg) translateZ(20px);
-  }
-
-  .view-cube-face.is-top {
-    transform: rotateX(90deg) translateZ(20px);
-  }
-
-  .view-cube-face.is-bottom {
-    transform: rotateX(-90deg) translateZ(20px);
-  }
-
-  .dock-actions {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: 0;
     padding-left: 6px;
     border-left: 1px solid var(--line);
   }
 
-  .dock-live-event {
-    min-height: 36px;
-    padding: 6px 8px;
-    flex-shrink: 0;
+  .dock-cta {
+    flex: 0 0 auto;
+    padding-left: 6px;
+    border-left: 1px solid var(--line);
+  }
+
+  .dock-look {
+    flex-direction: row;
+    align-items: center;
+    padding: 0 8px 0 0;
+    border-bottom: 0;
+    border-right: 1px solid var(--line);
+  }
+
+  .dock-zoom {
+    flex-direction: column;
+    width: auto;
+  }
+
+  .dock-look .dock-zoom .btn {
+    flex: 0 0 auto;
+    width: 44px;
+  }
+
+  .dock-views {
+    flex-direction: row;
+    padding: 0 8px;
+    border-bottom: 0;
+    border-right: 0;
+  }
+
+  .dock-divider {
+    width: 1px;
+    height: 36px;
+    margin: 0 4px;
+    align-self: center;
+    background: color-mix(in srgb, var(--cyan) 40%, var(--line));
+  }
+
+  .dock-tool {
+    margin-left: 0;
+    width: auto;
+    max-width: 140px;
+  }
+
+  .explore-dock .dock-cta .btn {
+    min-height: 52px;
+    font-size: 13px;
+  }
+
+  .explore-dock .dock-cta .ui-icon {
+    width: 22px;
+    height: 22px;
   }
 
   .explore-dock .dock-buttons .btn {
@@ -3332,6 +3493,11 @@ details summary {
 
   .explore-dock .dock-label {
     text-align: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0 4px;
   }
 
   .explore-dock .btn:has(.dock-label-short) .dock-label {
@@ -3342,8 +3508,49 @@ details summary {
     display: inline;
   }
 
-  .explore-dock .dock-actions {
-    border-top: 0;
+  .dock-badge {
+    font-size: 11px;
+    max-width: none;
+  }
+
+  .dock-copy {
+    align-items: center;
+  }
+
+  .view-cube {
+    width: 56px;
+    height: 56px;
+    margin: 0;
+  }
+
+  .view-cube-stage,
+  .view-cube-spin {
+    width: 48px;
+    height: 48px;
+  }
+
+  .view-cube-face.is-front {
+    transform: translateZ(24px);
+  }
+
+  .view-cube-face.is-back {
+    transform: rotateY(180deg) translateZ(24px);
+  }
+
+  .view-cube-face.is-right {
+    transform: rotateY(90deg) translateZ(24px);
+  }
+
+  .view-cube-face.is-left {
+    transform: rotateY(-90deg) translateZ(24px);
+  }
+
+  .view-cube-face.is-top {
+    transform: rotateX(90deg) translateZ(24px);
+  }
+
+  .view-cube-face.is-bottom {
+    transform: rotateX(-90deg) translateZ(24px);
   }
 
   .explore-cluster {
@@ -3381,11 +3588,22 @@ details summary {
     padding: 4px 8px;
   }
 
+  .planet-drawer li {
+    flex: 0 0 auto;
+  }
+
   .planet-drawer.event-drawer {
     flex-direction: column;
     max-height: min(28vh, 220px);
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
     width: 100%;
+  }
+
+  .planet-drawer.event-drawer li {
+    flex: 0 0 auto;
+    display: block;
+    min-height: auto;
   }
 
   .event-drawer ul {
@@ -3398,15 +3616,14 @@ details summary {
     border-radius: 999px;
   }
 
-  .time-compact {
-    border-radius: 999px;
-    justify-content: center;
-    gap: 6px;
-    padding: 5px 8px;
-  }
-
   .time-label {
     display: none;
+  }
+
+  .time-transport,
+  .time-now {
+    padding: 0;
+    border: 0;
   }
 
   .inspect-rail,
@@ -3446,6 +3663,9 @@ details summary {
     width: min(320px, calc(100% - 20px));
     max-width: min(320px, calc(100% - 20px));
     transform: none;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 
   .compare-sheet,
@@ -3524,8 +3744,7 @@ details summary {
     width: min(100%, 240px);
   }
 
-  .explore-dock .dock-buttons,
-  .explore-dock .view-tools {
+  .explore-dock .dock-buttons {
     flex-direction: row;
     max-width: 100%;
     overflow-x: auto;
@@ -3534,8 +3753,7 @@ details summary {
     scrollbar-width: none;
   }
 
-  .explore-dock .dock-buttons::-webkit-scrollbar,
-  .explore-dock .view-tools::-webkit-scrollbar {
+  .explore-dock .dock-buttons::-webkit-scrollbar {
     display: none;
   }
 }
@@ -3602,6 +3820,8 @@ details summary {
   }
 
   .explore-cluster {
+    left: 0;
+    right: 0;
     bottom: calc(56px + max(8px, var(--safe-bottom)));
     max-width: calc(100% - 16px);
   }
@@ -3618,18 +3838,36 @@ details summary {
     overflow-y: hidden;
   }
 
-  .dock-buttons {
-    width: 100%;
-    flex-direction: row;
-    gap: 4px;
-  }
-
-  .dock-explore,
-  .dock-view,
-  .dock-actions {
-    flex: 1 1 auto;
+  .dock-buttons,
+  .dock-look,
+  .dock-views,
+  .dock-nav,
+  .dock-planets,
+  .dock-events,
+  .dock-meta,
+  .dock-cta {
+    display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
+    margin-top: 0;
+    height: auto;
+  }
+
+  .dock-divider {
+    width: 1px;
+    height: 32px;
+    margin: 0 2px;
+  }
+
+  .dock-tool {
+    max-width: 110px;
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .explore-dock .dock-buttons {
+    width: 100%;
+    gap: 4px;
   }
 
   .explore-dock .dock-buttons .btn {
@@ -3640,7 +3878,7 @@ details summary {
     justify-content: center;
     gap: 2px;
     padding: 6px 4px;
-    font-size: 10px;
+    font-size: 12px;
     min-height: var(--touch);
     border-radius: 12px;
   }
@@ -3662,12 +3900,12 @@ details summary {
     min-width: 0;
     flex: 0 0 auto;
     text-align: center;
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .time-segments button {
     min-width: 0;
-    padding: 7px 10px;
+    padding: 8px 8px;
     font-size: 12px;
   }
 
@@ -3732,6 +3970,12 @@ details summary {
     width: min(760px, calc(100% - 16px));
   }
 
+  .intro-logo {
+    height: 52px;
+    max-width: 200px;
+    margin-bottom: 6px;
+  }
+
   .intro-grid {
     grid-template-columns: 1fr;
   }
@@ -3747,6 +3991,12 @@ details summary {
     padding: 12px 16px;
     max-height: calc(100dvh - 16px);
     overflow: auto;
+  }
+
+  .intro-logo {
+    height: 40px;
+    max-width: 160px;
+    margin-bottom: 4px;
   }
 
   .intro-grid {
@@ -3777,7 +4027,6 @@ details summary {
     overflow-y: hidden;
     flex-direction: row;
     padding: 4px;
-  }
   }
 
   .explore-cluster {

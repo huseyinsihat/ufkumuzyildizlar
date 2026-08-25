@@ -1,22 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { FACTS, FACT_STAGES, type FactStage } from '../../content/insights'
 import { focusBody } from '../../features/planetExplorer/focus'
 import { getScene } from '../../scene/sceneApi'
 import { useUiStore } from '../../store/uiStore'
 
-const PAGE_SIZE = 5
-
 export function FactsPanel() {
   const [stage, setStage] = useState<FactStage>('general')
-  const [page, setPage] = useState(0)
   const close = () => useUiStore.getState().setActivePanel('none')
   const cards = FACTS.filter((item) => item.stage === stage)
-  const pages = Math.max(1, Math.ceil(cards.length / PAGE_SIZE))
-  const shown = cards.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)
-
-  useEffect(() => {
-    setPage(0)
-  }, [stage])
 
   return (
     <aside className="hud-sheet facts-sheet" aria-label="Bilgiler">
@@ -42,7 +33,7 @@ export function FactsPanel() {
         ))}
       </div>
       <ul className="fact-list">
-        {shown.map((card) => (
+        {cards.map((card) => (
           <li key={card.id}>
             <strong>{card.title}</strong>
             <p>{card.text}</p>
@@ -60,15 +51,6 @@ export function FactsPanel() {
           </li>
         ))}
       </ul>
-      {pages > 1 ? (
-        <button
-          type="button"
-          className="btn"
-          onClick={() => setPage((current) => (current + 1) % pages)}
-        >
-          Sonraki bilgi
-        </button>
-      ) : null}
     </aside>
   )
 }

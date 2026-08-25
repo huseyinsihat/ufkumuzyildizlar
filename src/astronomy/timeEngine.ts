@@ -7,10 +7,10 @@ export const YEAR_SCALE = DAY_SCALE * TROPICAL_YEAR_DAYS
 
 /** Kid-facing speeds: 1 real second equals 1 second, hour, day, then year. */
 export const TIME_LADDER = [
-  { id: '1', label: '1 Sn', fullLabel: '1 sn/sn', scale: SECOND_SCALE },
-  { id: 'hour', label: '1 Saat', fullLabel: '1 saat/sn', scale: HOUR_SCALE },
-  { id: 'day', label: '1 Gün', fullLabel: '1 gün/sn', scale: DAY_SCALE },
-  { id: 'year', label: '1 Yıl', fullLabel: '1 yıl/sn', scale: YEAR_SCALE },
+  { id: '1', label: '1 Sn', shortLabel: '1s', fullLabel: '1 sn/sn', scale: SECOND_SCALE },
+  { id: 'hour', label: '1 Saat', shortLabel: '1sa', fullLabel: '1 saat/sn', scale: HOUR_SCALE },
+  { id: 'day', label: '1 Gün', shortLabel: '1g', fullLabel: '1 gün/sn', scale: DAY_SCALE },
+  { id: 'year', label: '1 Yıl', shortLabel: '1y', fullLabel: '1 yıl/sn', scale: YEAR_SCALE },
 ] as const
 
 export const TIME_PRESETS = [

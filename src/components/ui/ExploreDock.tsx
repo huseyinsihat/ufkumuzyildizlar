@@ -1,5 +1,5 @@
 import { SECOND_SCALE, TIME_LADDER } from '../../astronomy/timeEngine'
-import { formatSimulationDate } from '../../utils/formatting'
+import { formatSimulationDateParts } from '../../utils/formatting'
 import { MISSIONS } from '../../content/missions'
 import { useEducationStore } from '../../store/educationStore'
 import { useSimulationStore } from '../../store/simulationStore'
@@ -22,6 +22,7 @@ export function CompactTimeBar() {
   const mission = MISSIONS.find((item) => item.id === missionId)
   const panel = useUiStore((s) => s.activePanel)
   const atNow = scale === SECOND_SCALE && Math.abs(displayed - Date.now()) < NOW_SLACK_MS
+  const { date, time } = formatSimulationDateParts(displayed)
 
   return (
     <div className="explore-cluster">
@@ -31,20 +32,39 @@ export function CompactTimeBar() {
         </p>
       ) : null}
       <footer className="time-compact" aria-label="Zaman">
-        <button
-          type="button"
-          className={`btn icon-only${direction < 0 ? ' is-on' : ''}`}
-          onClick={() => setDirection(-1)}
-          aria-label="Geri sar"
-          aria-pressed={direction < 0}
-        >
-          <Icon name="back" />
-        </button>
-        <button type="button" className="btn primary" onClick={toggle} aria-label={playing ? 'Duraklat' : 'Oynat'}>
-          <Icon name={playing ? 'pause' : 'play'} />
-          <span className="time-label">{playing ? 'Duraklat' : 'Oynat'}</span>
-        </button>
-        <p className="time-readout">{formatSimulationDate(displayed)}</p>
+        <div className="time-transport" role="group" aria-label="Oynatma">
+          <button
+            type="button"
+            className={`btn icon-only${direction < 0 ? ' is-on' : ''}`}
+            onClick={() => setDirection(-1)}
+            aria-label="Geri sar"
+            aria-pressed={direction < 0}
+          >
+            <Icon name="back" />
+          </button>
+          <button
+            type="button"
+            className="btn time-play"
+            onClick={toggle}
+            aria-label={playing ? 'Duraklat' : 'Oynat'}
+          >
+            <Icon name={playing ? 'pause' : 'play'} />
+            <span className="time-label">{playing ? 'Duraklat' : 'Oynat'}</span>
+          </button>
+          <button
+            type="button"
+            className={`btn icon-only${direction > 0 ? ' is-on' : ''}`}
+            onClick={() => setDirection(1)}
+            aria-label="İleri sar"
+            aria-pressed={direction > 0}
+          >
+            <Icon name="forward" />
+          </button>
+        </div>
+        <p className="time-readout">
+          <span className="time-date">{date}</span>
+          <span className="time-clock">{time}</span>
+        </p>
         <div className="time-segments" role="group" aria-label="Bir gerçek saniyede geçen süre">
           {TIME_LADDER.map((preset) => (
             <button
@@ -53,32 +73,27 @@ export function CompactTimeBar() {
               className={scale === preset.scale ? 'is-active' : ''}
               onClick={() => setScale(preset.scale)}
             >
-              {preset.label}
+              <span className="time-seg-full">{preset.label}</span>
+              <span className="time-seg-short">{preset.shortLabel}</span>
             </button>
           ))}
         </div>
-        <button type="button" className={`chip${atNow ? ' is-on' : ''}`} onClick={goNow}>
-          Şu An
-        </button>
-        <button
-          type="button"
-          className="chip"
-          onClick={() => {
-            addYears(1)
-            useEducationStore.getState().notifyTimeAdvanceDays(365)
-          }}
-        >
-          1 Yıl Atla
-        </button>
-        <button
-          type="button"
-          className={`btn icon-only${direction > 0 ? ' is-on' : ''}`}
-          onClick={() => setDirection(1)}
-          aria-label="İleri sar"
-          aria-pressed={direction > 0}
-        >
-          <Icon name="forward" />
-        </button>
+        <div className="time-now" role="group" aria-label="Zaman atlama">
+          <button type="button" className={`chip${atNow ? ' is-on' : ''}`} onClick={goNow}>
+            Şimdi
+          </button>
+          <button
+            type="button"
+            className="chip time-skip"
+            title="1 yıl atla"
+            onClick={() => {
+              addYears(1)
+              useEducationStore.getState().notifyTimeAdvanceDays(365)
+            }}
+          >
+            Atla
+          </button>
+        </div>
       </footer>
     </div>
   )

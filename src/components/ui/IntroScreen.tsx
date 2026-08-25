@@ -4,6 +4,8 @@ import { useUiStore } from '../../store/uiStore'
 import { useVoiceStore } from '../../store/voiceStore'
 import { Icon } from './Icon'
 
+const logoSrc = `${import.meta.env.BASE_URL}Teknofest_logo.png`
+
 export function IntroScreen() {
   const setIntro = useUiStore((s) => s.setIntroVisible)
   const setMode = useUiStore((s) => s.setAppMode)
@@ -13,6 +15,7 @@ export function IntroScreen() {
   return (
     <div className="intro-screen" role="dialog" aria-labelledby="intro-title">
       <div className="intro-card">
+        <img className="intro-logo" src={logoSrc} alt="TEKNOFEST" />
         <p className="eyebrow section-kicker">{TEAM.event}</p>
         <h1 id="intro-title">{TEAM.project}</h1>
         <p className="intro-team">{TEAM.teamName}</p>

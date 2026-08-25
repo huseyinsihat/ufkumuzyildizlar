@@ -20,7 +20,7 @@ export const HARDWARE_ANALOG = { pin: 'A0', line: 'T:0-1', label: 'Hız (1 sn �
 export const HARDWARE_MOTION = { pin: 'IMU', line: 'G:yaw,pitch', label: 'Kartı eğin: bakış döner' } as const
 
 export const HARDWARE_EXTRAS = [
-  { pin: 'D15', line: 'F:overview', label: 'Güneş Sistemine bak' },
+  { pin: 'D15', line: 'F:overview', label: 'Güneş Sistemi' },
 ] as const
 
 export const HARDWARE_SPARES = [

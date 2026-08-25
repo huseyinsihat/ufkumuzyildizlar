@@ -3,6 +3,7 @@ import { BODIES } from '../../astronomy/planetData'
 import { focusBody, lookAtGalaxy, lookAtSolarSystem, openCompare } from '../../features/planetExplorer/focus'
 import { starsAlphabetical, starDisplayName } from '../../content/skyWonders'
 import { EVENT_STATUS_LABEL, eventsForDrawer, getAstroEvent } from '../../content/astroEvents'
+import { eventIconName } from '../../features/astroEvents/eventIcons'
 import { focusEvent } from '../../features/astroEvents/focusEvent'
 import { useEventStore } from '../../store/eventStore'
 import { useLabStore } from '../../store/labStore'
@@ -18,7 +19,27 @@ const ZOOM_IN = 0.9
 const ZOOM_OUT = 1.11
 const ZOOM_HOLD_MS = 50
 
-function HoldZoomButton({ factor, label, icon }: { factor: number; label: string; icon: IconName }) {
+function DockLabel({ lines }: { lines: string[] }) {
+  return (
+    <span className="dock-label">
+      {lines.map((line) => (
+        <span key={line}>{line}</span>
+      ))}
+    </span>
+  )
+}
+
+function HoldZoomButton({
+  factor,
+  label,
+  icon,
+  text,
+}: {
+  factor: number
+  label: string
+  icon: IconName
+  text: string
+}) {
   const hold = useRef(0)
 
   function stop() {
@@ -55,7 +76,20 @@ function HoldZoomButton({ factor, label, icon }: { factor: number; label: string
       onContextMenu={(event) => event.preventDefault()}
     >
       <Icon name={icon} />
+      <span className="dock-label">{text}</span>
     </button>
+  )
+}
+
+export function ViewTools() {
+  return (
+    <div className="dock-look" aria-label="Bakış">
+      <div className="dock-zoom" role="group" aria-label="Yakınlaştır">
+        <HoldZoomButton factor={ZOOM_IN} label="Yakınlaştır" icon="plus" text="Yakın" />
+        <HoldZoomButton factor={ZOOM_OUT} label="Uzaklaştır" icon="minus" text="Uzak" />
+      </div>
+      <ViewCube />
+    </div>
   )
 }
 
@@ -128,7 +162,7 @@ export function ExploreListStrip() {
                     className={selectedEvent === event.id ? 'is-active' : ''}
                     onClick={() => focusEvent(event.id)}
                   >
-                    <i className="body-swatch" style={{ background: '#fbbf24' }} aria-hidden="true" />
+                    <Icon name={eventIconName(event.id)} />
                     <span>
                       {event.shortName}
                       <small>{event.title}</small>
@@ -146,10 +180,10 @@ export function ExploreListStrip() {
                   <li key={event.id}>
                     <button
                       type="button"
-                      className={selectedEvent === event.id ? 'is-active' : ''}
+                      className={`is-upcoming${selectedEvent === event.id ? ' is-active' : ''}`}
                       onClick={() => focusEvent(event.id)}
                     >
-                      <i className="body-swatch" style={{ background: '#67e8f9' }} aria-hidden="true" />
+                      <Icon name={eventIconName(event.id)} />
                       <span>
                         {event.dateLabel}
                         <small>{event.text}</small>
@@ -168,10 +202,10 @@ export function ExploreListStrip() {
                   <li key={event.id}>
                     <button
                       type="button"
-                      className={selectedEvent === event.id ? 'is-active' : ''}
+                      className={`is-happened${selectedEvent === event.id ? ' is-active' : ''}`}
                       onClick={() => focusEvent(event.id)}
                     >
-                      <i className="body-swatch" style={{ background: '#94a3b8' }} aria-hidden="true" />
+                      <Icon name={eventIconName(event.id)} />
                       <span>
                         {event.dateLabel}
                         <small>{event.text}</small>
@@ -212,6 +246,14 @@ export function ExploreDock() {
     setStarOpen(!starOpen)
   }
 
+  function goUfkumuz() {
+    lookAtGalaxy()
+  }
+
+  function goSolarSystem() {
+    lookAtSolarSystem()
+  }
+
   function openEvents() {
     setEventOpen(!eventOpen)
   }
@@ -245,82 +287,93 @@ export function ExploreDock() {
     setPanel(panel === 'settings' ? 'none' : 'settings')
   }
 
+  function goLiveEvent() {
+    if (!liveEvent) return
+    focusEvent(liveEvent.id)
+  }
+
   return (
     <div className="explore-dock">
       <nav className="dock-buttons" aria-label="Keşif">
-        <div className="dock-explore">
-          <div className="dock-view">
-            <button
-              type="button"
-              className={`btn ${galaxyView ? 'is-on' : ''}`}
-              onClick={lookAtGalaxy}
-              aria-pressed={galaxyView}
-            >
-              <Icon name="spark" />
-              <span className="dock-label">{TEAM.project}</span>
-            </button>
-            <button
-              type="button"
-              className={`btn ${galaxyView ? '' : 'is-on'}`}
-              onClick={lookAtSolarSystem}
-              aria-pressed={!galaxyView}
-            >
-              <Icon name="sun" />
-              <span className="dock-label">Güneş Sistemi</span>
-            </button>
-            <div className="dock-zoom" role="group" aria-label="Yakınlaştır">
-              <HoldZoomButton factor={ZOOM_IN} label="Yakınlaştır" icon="up" />
-              <HoldZoomButton factor={ZOOM_OUT} label="Uzaklaştır" icon="down" />
-            </div>
-            <ViewCube />
-          </div>
-          <button type="button" className={`btn ${starOpen ? 'is-on' : ''}`} onClick={openStars} aria-expanded={starOpen}>
+        <ViewTools />
+        <div className="dock-views" role="group" aria-label="Kamera bakışı">
+          <button
+            type="button"
+            className={`btn${galaxyView ? ' is-on' : ''}`}
+            onClick={goUfkumuz}
+            aria-pressed={galaxyView}
+          >
+            <Icon name="camera" />
+            <span className="dock-label">Ufkumuz</span>
+          </button>
+          <button
+            type="button"
+            className={`btn${galaxyView ? '' : ' is-on'}`}
+            onClick={goSolarSystem}
+            aria-pressed={!galaxyView}
+          >
+            <Icon name="camera" />
+            <DockLabel lines={['Güneş', 'Sistemi']} />
+          </button>
+        </div>
+        <div className="dock-divider" aria-hidden="true" />
+        <div className="dock-nav">
+          <button type="button" className={`btn${starOpen ? ' is-on' : ''}`} onClick={openStars} aria-expanded={starOpen}>
             <Icon name="spark" />
             <span className="dock-label">Yıldızlar</span>
           </button>
-          <button type="button" className={`btn ${planetOpen ? 'is-on' : ''}`} onClick={openPlanets} aria-expanded={planetOpen}>
-            <Icon name="planet" />
-            <span className="dock-label">Gezegenler</span>
-          </button>
-          <button
-            type="button"
-            className={`dock-live-event is-compare${panel === 'compare' ? ' is-on' : ''}`}
-            onClick={toggleCompare}
-            aria-pressed={panel === 'compare'}
-            title="Gezegenleri karşılaştır"
-          >
-            Karşılaştır
-          </button>
-          <button type="button" className={`btn ${eventOpen ? 'is-on' : ''}`} onClick={openEvents} aria-expanded={eventOpen}>
-            <Icon name="orbit" />
-            <span className="dock-label">Olaylar</span>
-          </button>
-          <button
-            type="button"
-            className={`dock-live-event${liveEvent ? '' : ' is-idle'}`}
-            onClick={() => (liveEvent ? focusEvent(liveEvent.id) : openEvents())}
-            title={liveEvent ? liveEvent.title : 'Aktif olay yok'}
-          >
-            {liveEvent ? liveEvent.shortName : 'Aktif Olay Yok'}
-          </button>
-          <button type="button" className={`btn ${panel === 'facts' ? 'is-on' : ''}`} onClick={openFacts}>
+          <div className="dock-planets">
+            <button type="button" className={`btn${planetOpen ? ' is-on' : ''}`} onClick={openPlanets} aria-expanded={planetOpen}>
+              <Icon name="planet" />
+              <span className="dock-label">Gezegenler</span>
+            </button>
+            <button
+              type="button"
+              className={`dock-tool${panel === 'compare' ? ' is-on' : ''}`}
+              onClick={toggleCompare}
+              aria-pressed={panel === 'compare'}
+            >
+              <Icon name="compare" />
+              <span>Karşılaştır</span>
+            </button>
+          </div>
+          <div className="dock-events">
+            <button type="button" className={`btn${eventOpen ? ' is-on' : ''}`} onClick={openEvents} aria-expanded={eventOpen}>
+              <Icon name="orbit" />
+              <span className="dock-label">Olaylar</span>
+            </button>
+            {liveEvent ? (
+              <button
+                type="button"
+                className="dock-tool is-live-event"
+                onClick={goLiveEvent}
+                title={liveEvent.title}
+              >
+                <Icon name={eventIconName(liveEvent.id)} />
+                <span className="dock-tool-label">{liveEvent.shortName}</span>
+              </button>
+            ) : null}
+          </div>
+          <button type="button" className={`btn${panel === 'facts' ? ' is-on' : ''}`} onClick={openFacts}>
             <Icon name="book" />
             <span className="dock-label">Bilgiler</span>
             <span className="dock-label-short">Bilgi</span>
           </button>
-          <button type="button" className={`btn ${panel === 'team' ? 'is-on' : ''}`} onClick={openTeam}>
+        </div>
+        <div className="dock-meta">
+          <button type="button" className={`btn${panel === 'team' ? ' is-on' : ''}`} onClick={openTeam}>
             <Icon name="people" />
             <span className="dock-label">Takım</span>
           </button>
-          <button type="button" className={`btn ${panel === 'settings' ? 'is-on' : ''}`} onClick={openSettings}>
+          <button type="button" className={`btn${panel === 'settings' ? ' is-on' : ''}`} onClick={openSettings}>
             <Icon name="gear" />
             <span className="dock-label">Ayarlar</span>
           </button>
         </div>
-        <div className="dock-actions">
-          <button type="button" className="btn primary" onClick={openLabHome}>
+        <div className="dock-cta">
+          <button type="button" className="btn primary" onClick={openLabHome} aria-label={TEAM.home}>
             <Icon name="flask" />
-            <span className="dock-label">{TEAM.home}</span>
+            <DockLabel lines={['Proje', 'Etkinlikleri']} />
           </button>
         </div>
       </nav>

@@ -7,8 +7,25 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
   hour12: false,
 })
 
+const dateOnlyFormatter = new Intl.DateTimeFormat('tr-TR', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+
+const timeOnlyFormatter = new Intl.DateTimeFormat('tr-TR', {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+})
+
 export function formatSimulationDate(ms: number): string {
   return dateFormatter.format(new Date(ms))
+}
+
+export function formatSimulationDateParts(ms: number): { date: string; time: string } {
+  const value = new Date(ms)
+  return { date: dateOnlyFormatter.format(value), time: timeOnlyFormatter.format(value) }
 }
 
 export function formatNumberTr(value: number, digits = 0): string {

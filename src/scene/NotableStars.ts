@@ -14,7 +14,7 @@ import {
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js'
 import { starHex } from '../astronomy/starSpectrum'
 import { NOTABLE_STARS, starDisplayName, type NotableStar } from '../content/skyWonders'
-import { SKY_SPHERE_RADIUS } from '../astronomy/skyCoordinates'
+import { eduSkyDirection, SKY_SPHERE_RADIUS } from '../astronomy/skyCoordinates'
 import type { ScaleMode } from '../types/simulation'
 import {
   createNebulaTexture,
@@ -80,11 +80,13 @@ export class NotableStars {
     this.shared.add(nebulaMap)
     const photos = new Map<string, Texture>()
 
-    for (const star of NOTABLE_STARS) {
-      const length = Math.hypot(star.x, star.y, star.z) || 1
-      const x = (star.x / length) * SKY_SPHERE_RADIUS
-      const y = (star.y / length) * SKY_SPHERE_RADIUS
-      const z = (star.z / length) * SKY_SPHERE_RADIUS
+    const ordered = NOTABLE_STARS.slice().sort((a, b) => a.raHours - b.raHours || a.name.localeCompare(b.name, 'tr'))
+    for (let i = 0; i < ordered.length; i += 1) {
+      const star = ordered[i]!
+      const dir = eduSkyDirection({ x: star.x, y: star.y, z: star.z }, i, ordered.length)
+      const x = dir.x * SKY_SPHERE_RADIUS
+      const y = dir.y * SKY_SPHERE_RADIUS
+      const z = dir.z * SKY_SPHERE_RADIUS
       const core = starCoreRadius(star.radiusSolar, star.mag, this.scaleMode)
       const glowSize = starGlowRadius(star.radiusSolar, star.mag, star.kind, this.scaleMode)
       const look = starLook(star.tempK, star.radiusSolar, star.mag, star.kind)
