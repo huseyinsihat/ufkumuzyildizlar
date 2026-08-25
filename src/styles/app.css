@@ -686,6 +686,24 @@ a {
   color: #fff8e1;
 }
 
+.dock-tool.is-idle-event {
+  opacity: 0.42;
+  border-color: color-mix(in srgb, var(--muted) 45%, var(--line));
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+  min-width: 88px;
+  cursor: default;
+}
+
+.dock-tool.is-idle-event:disabled {
+  pointer-events: none;
+}
+
+.dock-tool-label.is-empty {
+  display: inline-block;
+  min-width: 3.5ch;
+}
+
 .view-cube {
   width: 64px;
   height: 64px;
@@ -3314,7 +3332,7 @@ details summary {
 
 @media (max-width: 1023px) {
   :root {
-    --chrome-bar: 118px;
+    --chrome-bar: 96px;
   }
 
   .app-shell.has-explore {
@@ -3372,8 +3390,7 @@ details summary {
     height: auto;
     max-width: none;
     max-height: none;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: hidden;
     flex-direction: row;
     align-items: center;
     padding: 6px;
@@ -3403,6 +3420,7 @@ details summary {
 
   .explore-dock .dock-buttons {
     flex: 1 1 auto;
+    min-width: 0;
     overflow-x: auto;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
@@ -3414,8 +3432,17 @@ details summary {
   }
 
   .dock-nav {
-    flex: 1 1 auto;
-    overflow-x: auto;
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+
+  .dock-look {
+    flex: 0 0 auto;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 8px 0 0;
+    border-bottom: 0;
+    border-right: 1px solid var(--line);
   }
 
   .dock-meta {
@@ -3430,14 +3457,6 @@ details summary {
     border-left: 1px solid var(--line);
   }
 
-  .dock-look {
-    flex-direction: row;
-    align-items: center;
-    padding: 0 8px 0 0;
-    border-bottom: 0;
-    border-right: 1px solid var(--line);
-  }
-
   .dock-zoom {
     flex-direction: column;
     width: auto;
@@ -3449,6 +3468,7 @@ details summary {
   }
 
   .dock-views {
+    flex: 0 0 auto;
     flex-direction: row;
     padding: 0 8px;
     border-bottom: 0;
@@ -3466,7 +3486,13 @@ details summary {
   .dock-tool {
     margin-left: 0;
     width: auto;
-    max-width: 140px;
+    max-width: 120px;
+    flex: 0 0 auto;
+  }
+
+  .dock-tool.is-idle-event {
+    min-width: 72px;
+    max-width: 88px;
   }
 
   .explore-dock .dock-cta .btn {
@@ -3556,7 +3582,7 @@ details summary {
   .explore-cluster {
     left: 0;
     right: 0;
-    bottom: calc(58px + max(10px, var(--safe-bottom)));
+    bottom: calc(var(--chrome-bar) - 36px + max(10px, var(--safe-bottom)));
     width: max-content;
     max-width: calc(100% - 24px);
   }
@@ -3565,7 +3591,7 @@ details summary {
     left: max(10px, var(--safe-left));
     right: max(10px, var(--safe-right));
     top: auto;
-    bottom: calc(110px + max(10px, var(--safe-bottom)));
+    bottom: calc(var(--chrome-bar) + 14px + max(10px, var(--safe-bottom)));
     width: auto;
     height: auto;
   }
@@ -3660,8 +3686,8 @@ details summary {
     right: auto;
     top: calc(56px + var(--safe-top));
     bottom: calc(var(--chrome-bottom) + var(--safe-bottom));
-    width: min(320px, calc(100% - 20px));
-    max-width: min(320px, calc(100% - 20px));
+    width: min(300px, calc(100% - 20px));
+    max-width: min(300px, calc(100% - 20px));
     transform: none;
     overflow: hidden;
     display: flex;
@@ -3760,7 +3786,7 @@ details summary {
 
 @media (max-width: 767px) {
   :root {
-    --chrome-bar: 112px;
+    --chrome-bar: 88px;
   }
 
   .top-bar {
@@ -3816,13 +3842,13 @@ details summary {
   .explore-strip {
     left: max(8px, var(--safe-left));
     right: max(8px, var(--safe-right));
-    bottom: calc(104px + max(8px, var(--safe-bottom)));
+    bottom: calc(var(--chrome-bar) + 12px + max(8px, var(--safe-bottom)));
   }
 
   .explore-cluster {
     left: 0;
     right: 0;
-    bottom: calc(56px + max(8px, var(--safe-bottom)));
+    bottom: calc(var(--chrome-bar) - 32px + max(8px, var(--safe-bottom)));
     max-width: calc(100% - 16px);
   }
 
@@ -3834,8 +3860,8 @@ details summary {
     width: auto;
     height: auto;
     max-height: none;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: hidden;
+    padding: 4px;
   }
 
   .dock-buttons,
@@ -3855,14 +3881,36 @@ details summary {
 
   .dock-divider {
     width: 1px;
-    height: 32px;
+    height: 28px;
     margin: 0 2px;
   }
 
+  .dock-look .view-cube {
+    display: none;
+  }
+
+  .dock-look {
+    padding-right: 6px;
+  }
+
+  .dock-look .dock-zoom .btn {
+    width: var(--touch);
+    height: var(--touch);
+    min-height: var(--touch);
+  }
+
   .dock-tool {
-    max-width: 110px;
+    max-width: 96px;
     padding: 4px 8px;
     font-size: 11px;
+    min-height: 36px;
+  }
+
+  .dock-tool.is-idle-event {
+    min-width: var(--touch);
+    max-width: var(--touch);
+    justify-content: center;
+    padding: 4px;
   }
 
   .explore-dock .dock-buttons {
@@ -3871,14 +3919,14 @@ details summary {
   }
 
   .explore-dock .dock-buttons .btn {
-    flex: 1 1 0;
-    min-width: 0;
+    flex: 0 0 auto;
+    min-width: var(--touch);
     max-height: none;
     flex-direction: column;
     justify-content: center;
     gap: 2px;
-    padding: 6px 4px;
-    font-size: 12px;
+    padding: 6px 6px;
+    font-size: 11px;
     min-height: var(--touch);
     border-radius: 12px;
   }
@@ -3886,6 +3934,33 @@ details summary {
   .explore-dock .dock-buttons .ui-icon {
     width: 16px;
     height: 16px;
+  }
+
+  .explore-dock .dock-meta .dock-label {
+    display: none;
+  }
+
+  .explore-dock .dock-cta .btn {
+    min-height: var(--touch);
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .explore-dock .dock-cta .ui-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .facts-sheet {
+    left: max(8px, var(--safe-left));
+    right: max(8px, var(--safe-right));
+    top: auto;
+    bottom: calc(var(--chrome-bottom) + var(--safe-bottom));
+    width: auto;
+    max-width: none;
+    max-height: min(52dvh, calc(100dvh - var(--chrome-bottom) - 64px));
+    transform: none;
+    border-radius: 16px 16px 12px 12px;
   }
 
   .time-compact {
@@ -4023,8 +4098,7 @@ details summary {
     width: auto;
     height: auto;
     max-height: none;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: hidden;
     flex-direction: row;
     padding: 4px;
   }

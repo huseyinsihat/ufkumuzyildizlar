@@ -305,6 +305,7 @@ export function ExploreDock() {
           >
             <Icon name="camera" />
             <span className="dock-label">Ufkumuz</span>
+            <span className="dock-label-short">Ufku</span>
           </button>
           <button
             type="button"
@@ -314,6 +315,7 @@ export function ExploreDock() {
           >
             <Icon name="camera" />
             <DockLabel lines={['Güneş', 'Sistemi']} />
+            <span className="dock-label-short">Güneş</span>
           </button>
         </div>
         <div className="dock-divider" aria-hidden="true" />
@@ -342,17 +344,25 @@ export function ExploreDock() {
               <Icon name="orbit" />
               <span className="dock-label">Olaylar</span>
             </button>
-            {liveEvent ? (
-              <button
-                type="button"
-                className="dock-tool is-live-event"
-                onClick={goLiveEvent}
-                title={liveEvent.title}
-              >
-                <Icon name={eventIconName(liveEvent.id)} />
-                <span className="dock-tool-label">{liveEvent.shortName}</span>
-              </button>
-            ) : null}
+            <button
+              type="button"
+              className={`dock-tool${liveEvent ? ' is-live-event' : ' is-idle-event'}`}
+              onClick={goLiveEvent}
+              disabled={!liveEvent}
+              title={liveEvent?.title ?? 'Aktif olay yok'}
+              aria-label={liveEvent ? liveEvent.shortName : 'Aktif olay yok'}
+            >
+              {liveEvent ? (
+                <>
+                  <Icon name={eventIconName(liveEvent.id)} />
+                  <span className="dock-tool-label">{liveEvent.shortName}</span>
+                </>
+              ) : (
+                <span className="dock-tool-label is-empty" aria-hidden="true">
+                  &nbsp;
+                </span>
+              )}
+            </button>
           </div>
           <button type="button" className={`btn${panel === 'facts' ? ' is-on' : ''}`} onClick={openFacts}>
             <Icon name="book" />
@@ -374,6 +384,7 @@ export function ExploreDock() {
           <button type="button" className="btn primary" onClick={openLabHome} aria-label={TEAM.home}>
             <Icon name="flask" />
             <DockLabel lines={['Proje', 'Etkinlikleri']} />
+            <span className="dock-label-short">Proje</span>
           </button>
         </div>
       </nav>
