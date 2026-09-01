@@ -10,22 +10,22 @@ export const HARDWARE_BUTTONS = [
   { pin: 'D8', line: 'P:neptune', label: 'Neptün' },
   { pin: 'D9', line: 'F:play', label: 'Oynat / Duraklat' },
   { pin: 'D10', line: 'F:lab', label: 'Proje Etkinlikleri' },
-  { pin: 'D11', line: 'F:compare', label: 'Karşılaştır' },
-  { pin: 'D12', line: 'F:planets', label: 'Gezegenler' },
-  { pin: 'D13', line: 'F:stars', label: 'Yıldızlar' },
-  { pin: 'D14', line: 'F:facts', label: 'Bilgiler' },
+  { pin: 'D11', line: 'F:events', label: 'Olaylar' },
+  { pin: 'D12', line: 'F:stars', label: 'Yıldızlar' },
+  { pin: 'D13', line: 'F:team', label: 'Takım' },
+  { pin: 'D14', line: 'F:settings', label: 'Ayarlar' },
 ] as const
 
 export const HARDWARE_ANALOG = { pin: 'A0', line: 'T:0-1', label: 'Hız (1 sn → 1 saat → 1 gün → 1 yıl)' } as const
 export const HARDWARE_MOTION = { pin: 'IMU', line: 'G:yaw,pitch', label: 'Kartı eğin: bakış döner' } as const
 
 export const HARDWARE_EXTRAS = [
-  { pin: 'D15', line: 'F:overview', label: 'Güneş Sistemi' },
+  { pin: 'D15', line: 'F:back', label: 'Geri' },
+  { pin: 'A1', line: 'F:chat', label: 'Güneş’e Sor' },
+  { pin: 'A2', line: 'F:compare', label: 'Karşılaştır' },
 ] as const
 
 export const HARDWARE_SPARES = [
-  { pin: 'A1', label: 'Yedek' },
-  { pin: 'A2', label: 'Yedek' },
   { pin: 'A3', label: 'Yedek' },
   { pin: 'A4', label: 'Yedek' },
   { pin: 'A5', label: 'Yedek' },

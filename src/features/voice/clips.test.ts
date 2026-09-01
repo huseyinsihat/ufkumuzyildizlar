@@ -2,12 +2,15 @@ import { describe, expect, it } from 'vitest'
 import type { LabActivityId } from '../../types/lab'
 import type { BodyId } from '../../types/planet'
 import { BODIES } from '../../astronomy/planetData'
-import { CHALLENGE_IDS } from '../../content/labActivities'
+import { CHALLENGE_IDS, isCorrectLabChoice } from '../../content/labActivities'
+import { useVoiceStore } from '../../store/voiceStore'
 import {
   activityClip,
   bodyClip,
   clipUrl,
   roomClip,
+  sfxUrl,
+  SFX_IDS,
   VOICE_CLIP_IDS,
 } from './clips'
 
@@ -42,5 +45,23 @@ describe('voice clips', () => {
   it('keeps a small pack: intro, ui, bodies, lab flow, rooms, challenges', () => {
     expect(VOICE_CLIP_IDS).toHaveLength(39)
     expect(new Set(VOICE_CLIP_IDS).size).toBe(39)
+  })
+
+  it('names sfx files without a language prefix', () => {
+    expect(sfxUrl('correct')).toMatch(/audio\/sfx-correct\.mp3$/)
+    expect(sfxUrl('wrong')).toMatch(/audio\/sfx-wrong\.mp3$/)
+    expect(SFX_IDS).toEqual(['correct', 'wrong'])
+  })
+
+  it('maps lab guesses to sfx without spoiling activities that have no answer id', () => {
+    expect(isCorrectLabChoice('who-faster', 'mercury')).toBe(true)
+    expect(isCorrectLabChoice('who-faster', 'earth')).toBe(false)
+    expect(isCorrectLabChoice('closest-hottest', 'venus')).toBe(true)
+    expect(isCorrectLabChoice('arrange-orbits', 'earth')).toBeUndefined()
+  })
+
+  it('starts with narration on and the speaker idle', () => {
+    expect(useVoiceStore.getState().enabled).toBe(true)
+    expect(useVoiceStore.getState().playing).toBe(false)
   })
 })

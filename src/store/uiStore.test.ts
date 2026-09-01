@@ -9,6 +9,7 @@ describe('ui overlays', () => {
       planetDrawerOpen: false,
       starDrawerOpen: false,
       eventDrawerOpen: false,
+      dockMoreOpen: false,
       sunChatOpen: false,
     })
 
@@ -33,6 +34,20 @@ describe('ui overlays', () => {
     expect(useUiStore.getState().planetDrawerOpen).toBe(false)
     expect(useUiStore.getState().sunChatOpen).toBe(false)
     expect(useUiStore.getState().eventDrawerOpen).toBe(false)
+    expect(useUiStore.getState().dockMoreOpen).toBe(false)
+  })
+
+  it('closes other overlays when the more sheet opens', () => {
+    useUiStore.setState({
+      activePanel: 'facts',
+      planetDrawerOpen: true,
+      dockMoreOpen: false,
+      sunChatOpen: false,
+    })
+    useUiStore.getState().setDockMoreOpen(true)
+    expect(useUiStore.getState().dockMoreOpen).toBe(true)
+    expect(useUiStore.getState().planetDrawerOpen).toBe(false)
+    expect(useUiStore.getState().activePanel).toBe('none')
   })
 })
 

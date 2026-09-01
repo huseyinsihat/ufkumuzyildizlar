@@ -4,6 +4,7 @@
 // Ufkumuz Yıldızlar — Deneyap Kart 1A
 // Arduino IDE: Kart olarak "Deneyap Kart 1A" seç.
 // Baud: 115200. Tuş: bir uç pine, diğer uç GND (INPUT_PULLUP).
+// D0–D8 gezegen, D9–D15 süreç (D15 geri). A1/A2 isteğe bağlı.
 // A0: hız potansiyometresi. LSM6DSM: kartı eğin, bakış döner.
 // Tarayıcı gezegen rengi için L:rrggbb yazar.
 
@@ -24,11 +25,13 @@ const Binding BINDINGS[] = {
   {D8, "P:neptune"},
   {D9, "F:play"},
   {D10, "F:lab"},
-  {D11, "F:compare"},
-  {D12, "F:planets"},
-  {D13, "F:stars"},
-  {D14, "F:facts"},
-  {D15, "F:overview"},
+  {D11, "F:events"},
+  {D12, "F:stars"},
+  {D13, "F:team"},
+  {D14, "F:settings"},
+  {D15, "F:back"},
+  {A1, "F:chat"},
+  {A2, "F:compare"},
 };
 
 const uint8_t COUNT = sizeof(BINDINGS) / sizeof(BINDINGS[0]);

@@ -5,7 +5,7 @@ import { TIME_PRESETS, labWatchScale } from '../astronomy/timeEngine'
 import { getScene } from '../scene/sceneApi'
 import { useEducationStore } from './educationStore'
 import { useUiStore } from './uiStore'
-import { getActivity } from '../content/labActivities'
+import { getActivity, isCorrectLabChoice } from '../content/labActivities'
 import { activityClip, roomClip } from '../features/voice/clips'
 import { useVoiceStore } from './voiceStore'
 import type { BodyId } from '../types/planet'
@@ -225,7 +225,12 @@ export const useLabStore = create<LabState>((set, get) => ({
   },
   setStep: (step) => set({ step }),
   setPrediction: (id) => {
+    const activityId = get().activityId
     set({ prediction: id, step: 'simulate' })
+    if (activityId) {
+      const correct = isCorrectLabChoice(activityId, id)
+      if (correct !== undefined) useVoiceStore.getState().playSfx(correct ? 'correct' : 'wrong')
+    }
     useVoiceStore.getState().play('lab-watch')
   },
   completeActivity: () => {

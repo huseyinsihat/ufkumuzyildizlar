@@ -1,10 +1,21 @@
 import { TIME_LADDER, timeScaleFromLadder } from '../astronomy/timeEngine'
 import { NOTABLE_STARS, NAMED_ROCKS } from '../content/skyWonders'
-import { focusBody, lookAtSolarSystem, openCompare } from '../features/planetExplorer/focus'
+import {
+  enterExplore,
+  goBack,
+  toggleCompare,
+  toggleEvents,
+  toggleFacts,
+  toggleLab,
+  togglePlanets,
+  toggleSettings,
+  toggleStars,
+  toggleSunChat,
+  toggleTeam,
+} from '../features/planetExplorer/chrome'
+import { focusBody, lookAtSolarSystem } from '../features/planetExplorer/focus'
 import { getScene } from '../scene/sceneApi'
-import { useLabStore } from '../store/labStore'
 import { useSimulationStore } from '../store/simulationStore'
-import { useUiStore } from '../store/uiStore'
 import type { BodyId } from '../types/planet'
 
 const BODIES: BodyId[] = [
@@ -41,6 +52,11 @@ export type HardwareCommand =
   | { kind: 'planets' }
   | { kind: 'stars' }
   | { kind: 'facts' }
+  | { kind: 'events' }
+  | { kind: 'team' }
+  | { kind: 'settings' }
+  | { kind: 'back' }
+  | { kind: 'chat' }
   | { kind: 'time'; t: number }
   | { kind: 'gyro'; yaw: number; pitch: number }
 
@@ -68,6 +84,14 @@ const FUNCTIONS: Record<string, Exclude<HardwareCommand['kind'], 'planet' | 'sta
   PLANETS: 'planets',
   STARS: 'stars',
   FACTS: 'facts',
+  EVENTS: 'events',
+  EVENT: 'events',
+  TEAM: 'team',
+  SETTINGS: 'settings',
+  BACK: 'back',
+  GERI: 'back',
+  CHAT: 'chat',
+  ASK: 'chat',
 }
 
 export function timeScaleFromPot(t: number): number {
@@ -111,18 +135,8 @@ export function parseHardwareLine(line: string): HardwareCommand | null {
   return null
 }
 
-function enterExplore(): void {
-  const ui = useUiStore.getState()
-  const lab = useLabStore.getState()
-  ui.setIntroVisible(false)
-  ui.setAppMode('explore')
-  if (lab.labOpen || lab.activityId) lab.leaveLab()
-}
-
 export function applyHardwareCommand(command: HardwareCommand): void {
   const sim = useSimulationStore.getState()
-  const ui = useUiStore.getState()
-  const lab = useLabStore.getState()
   const second = TIME_LADDER.find((item) => item.id === '1')?.scale ?? 1
   const hour = TIME_LADDER.find((item) => item.id === 'hour')?.scale ?? 3_600
   const day = TIME_LADDER.find((item) => item.id === 'day')?.scale ?? 86_400
@@ -159,41 +173,43 @@ export function applyHardwareCommand(command: HardwareCommand): void {
   if (command.kind === 'axes') sim.setShowAxes(!sim.showAxes)
   if (command.kind === 'labels') sim.setShowLabels(!sim.showLabels)
   if (command.kind === 'lab') {
-    ui.setIntroVisible(false)
-    if (ui.appMode === 'lab' || lab.labOpen || lab.activityId) {
-      lab.closeLab()
-      ui.setAppMode('explore')
-    } else {
-      ui.setActivePanel('none')
-      ui.setPlanetDrawerOpen(false)
-      ui.setStarDrawerOpen(false)
-      ui.setEventDrawerOpen(false)
-      ui.setAppMode('lab')
-      lab.openLab()
-    }
+    toggleLab()
     return
   }
   if (command.kind === 'compare') {
-    enterExplore()
-    if (ui.activePanel === 'compare') ui.setActivePanel('none')
-    else openCompare()
+    toggleCompare()
     return
   }
   if (command.kind === 'planets') {
-    enterExplore()
-    ui.setStarDrawerOpen(false)
-    ui.setPlanetDrawerOpen(!ui.planetDrawerOpen)
+    togglePlanets()
     return
   }
   if (command.kind === 'stars') {
-    enterExplore()
-    ui.setPlanetDrawerOpen(false)
-    ui.setStarDrawerOpen(!ui.starDrawerOpen)
+    toggleStars()
     return
   }
   if (command.kind === 'facts') {
-    enterExplore()
-    ui.setActivePanel(ui.activePanel === 'facts' ? 'none' : 'facts')
+    toggleFacts()
+    return
+  }
+  if (command.kind === 'events') {
+    toggleEvents()
+    return
+  }
+  if (command.kind === 'team') {
+    toggleTeam()
+    return
+  }
+  if (command.kind === 'settings') {
+    toggleSettings()
+    return
+  }
+  if (command.kind === 'back') {
+    goBack()
+    return
+  }
+  if (command.kind === 'chat') {
+    toggleSunChat()
     return
   }
   if (command.kind === 'time') sim.setTimeScale(timeScaleFromPot(command.t))

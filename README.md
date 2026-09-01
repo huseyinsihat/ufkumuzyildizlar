@@ -35,10 +35,12 @@ Arduino IDE’de kart: **Deneyap Kart 1A**. Baud: 115200.
 | D0–D8 | Güneş … Neptün |
 | D9 | Oynat / Duraklat |
 | D10 | Proje Etkinlikleri |
-| D11 | Karşılaştır |
-| D12 | Gezegenler |
-| D13 | Yıldızlar |
-| D14 | Bilgiler |
+| D11 | Olaylar (açıkken sonraki olay) |
+| D12 | Yıldızlar (açıkken sonraki yıldız) |
+| D13 | Takım |
+| D14 | Ayarlar |
+| D15 | Geri (yoksa Güneş Sistemi bakışı) |
 | A0 | Hız (1 sn → 1 saat → 1 gün → 1 yıl) |
-| D15 | Güneş Sistemine bak (F:overview) |
+| A1 | Güneş’e Sor (isteğe bağlı) |
+| A2 | Karşılaştır (isteğe bağlı) |
 | IMU | Kartı eğin, bakış döner |

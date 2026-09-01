@@ -100,3 +100,11 @@ export function roomClip(id: LabRoomId): VoiceClipId {
 export function activityClip(id: LabActivityId): VoiceClipId | undefined {
   return ACTIVITY_CLIPS[id]
 }
+
+export const SFX_IDS = ['correct', 'wrong'] as const
+
+export type SfxId = (typeof SFX_IDS)[number]
+
+export function sfxUrl(id: SfxId): string {
+  return `${import.meta.env.BASE_URL}audio/sfx-${id}.mp3`
+}

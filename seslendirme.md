@@ -170,3 +170,35 @@ en-activity-drop-ball.mp3  Where does the same ball fall first?
 activity-who-faster — kim önce tur atar
 tr-activity-who-faster.mp3  Kim önce tur atar? Merkür mü, Dünya mı?
 en-activity-who-faster.mp3  Who finishes a lap first? Mercury or Earth?
+
+## Durum
+
+Stüdyo: `seslendirme/` — yeni kayıt buraya, sonra `npm run voice:sync`.
+Çalışan kopya: `public/audio/` — uygulama buradan okur. Dosya yoksa susar.
+
+### Çalışıyor (23 TR)
+
+intro-welcome, intro-lead, intro-lab, intro-explore, intro-team
+body-sun, body-mercury, body-venus, body-earth, body-moon, body-mars, body-jupiter, body-uranus, body-neptune
+lab-predict, lab-watch, lab-why, lab-done
+activity-arrange-orbits, activity-moon-phases, activity-closest-hottest, activity-drop-ball, activity-who-faster
+
+### Sistem uyuyor, kayıt yok (sessiz kalır)
+
+mode-explore, mode-lab
+ui-planets, ui-stars, ui-facts, ui-compare, ui-team, ui-overview
+body-saturn, body-pluto
+room-motion, room-earth, room-gravity, room-scale, room-build, room-sky
+tüm en-*.mp3
+
+### Efekt (ayrı kanal, dil yok)
+
+sfx-correct.mp3 — doğru tahmin
+sfx-wrong.mp3 — yanlış tahmin
+Kayıt yok. `seslendirme/` altına koy, `npm run voice:sync`. Dock veya gezegen tık sesi yok.
+
+### Arşiv
+
+`seslendirme-arsiv/` — uygulama okumaz. Eski `Ufkumuz Yıldızlar_/` dışa aktarımı buraya taşınır (`eski-disa-aktarim/`). Kullanılan kayıtlar `seslendirme/` ve `public/audio/` altında.
+
+Eklenmeyecek: eski eğitim / quiz / görev paneline özel clip yok. Yeni dock mevcut ui-* ve mode-* kodlarıyla konuşur.

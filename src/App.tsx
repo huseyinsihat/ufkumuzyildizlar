@@ -40,6 +40,7 @@ export default function App() {
   const drawerOpen = useUiStore((s) => s.planetDrawerOpen || s.starDrawerOpen || s.eventDrawerOpen)
   const eventDrawerOpen = useUiStore((s) => s.eventDrawerOpen)
   const chatOpen = useUiStore((s) => s.sunChatOpen)
+  const moreOpen = useUiStore((s) => s.dockMoreOpen)
   const setWebgl = useUiStore((s) => s.setWebglSupported)
   const set2d = useUiStore((s) => s.setUse2dFallback)
   useAstroEventScheduler()
@@ -61,6 +62,7 @@ export default function App() {
         useUiStore.getState().setPlanetDrawerOpen(false)
         useUiStore.getState().setStarDrawerOpen(false)
         useUiStore.getState().setEventDrawerOpen(false)
+        useUiStore.getState().setDockMoreOpen(false)
       }
     }
     window.addEventListener('keydown', onKey)
@@ -73,7 +75,7 @@ export default function App() {
 
   return (
     <div
-      className={`app-shell${largeText ? ' large-text' : ''}${activityId === 'arrange-orbits' ? ' hide-scene-labels' : ''}${explore ? ' has-explore' : ''}${drawerOpen ? ' has-drawer' : ''}${eventDrawerOpen ? ' has-event-drawer' : ''}${chatOpen ? ' has-chat' : ''}${panel !== 'none' ? ' has-panel' : ''}${activityId ? ' has-activity' : ''}${demo ? ' has-demo' : ''}`}
+      className={`app-shell${largeText ? ' large-text' : ''}${activityId === 'arrange-orbits' ? ' hide-scene-labels' : ''}${explore ? ' has-explore' : ''}${drawerOpen ? ' has-drawer' : ''}${eventDrawerOpen ? ' has-event-drawer' : ''}${chatOpen ? ' has-chat' : ''}${moreOpen ? ' has-more-sheet' : ''}${panel !== 'none' ? ' has-panel' : ''}${activityId ? ' has-activity' : ''}${demo ? ' has-demo' : ''}`}
     >
       <div className="space-glow" />
       {webgl && !use2d ? <CanvasHost /> : <SolarSystem2D />}

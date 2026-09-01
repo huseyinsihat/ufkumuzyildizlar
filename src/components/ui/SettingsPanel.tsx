@@ -1,4 +1,5 @@
 import { getScene } from '../../scene/sceneApi'
+import { useHardwareStore } from '../../hardware/hardwareStore'
 import { useEducationStore } from '../../store/educationStore'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
@@ -56,7 +57,9 @@ export function SettingsPanel() {
   const setVoiceOn = useVoiceStore((s) => s.setEnabled)
   const voiceLang = useVoiceStore((s) => s.lang)
   const setVoiceLang = useVoiceStore((s) => s.setLang)
+  const hardwareStatus = useHardwareStore((s) => s.status)
   const close = () => useUiStore.getState().setActivePanel('none')
+  const hardwareLabel = hardwareStatus === 'connected' ? 'Deneyap Kart · bağlı' : 'Deneyap Kart'
 
   return (
     <aside className="hud-sheet settings-sheet" aria-label="Ayarlar">
@@ -110,7 +113,7 @@ export function SettingsPanel() {
 
       <p className="nav-label">Ses</p>
       <div className="settings-voice">
-        <Chip on={voiceOn} label="Sesli anlatım" icon="play" onToggle={setVoiceOn} />
+        <Chip on={voiceOn} label="Sesli anlatım" icon="speaker" onToggle={setVoiceOn} />
         <div className="settings-seg is-slim" role="group" aria-label="Anlatım dili">
           {VOICE_LANGS.map((item) => (
             <button
@@ -126,10 +129,15 @@ export function SettingsPanel() {
       </div>
 
       <div className="settings-foot">
-        <button type="button" className="settings-chip" onClick={() => useUiStore.getState().setActivePanel('hardware')}>
-          <Icon name="chip" />
-          Deneyap Kart
-        </button>
+        <div className="settings-hw">
+          <button type="button" className="settings-chip" onClick={() => useUiStore.getState().setActivePanel('hardware')}>
+            <Icon name="chip" />
+            {hardwareLabel}
+          </button>
+          <p className="settings-note">
+            {hardwareStatus === 'connected' ? 'Pinler fare ve klavye yerine gezdirir.' : 'USB tak, Bağlan. Pinlerle gez.'}
+          </p>
+        </div>
         <button type="button" className="settings-chip" onClick={() => getScene()?.focusOverview()}>
           <Icon name="reset" />
           Genel bakışa dön

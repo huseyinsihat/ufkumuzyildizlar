@@ -14,7 +14,9 @@ export function VoiceHost() {
 
   useEffect(() => {
     const unlock = (event: Event) => {
-      const fromControl = event.target instanceof Element && Boolean(event.target.closest('button, a, input, label'))
+      const target = event.target instanceof Element ? event.target : null
+      if (target?.closest('[data-voice-toggle]')) return
+      const fromControl = Boolean(target?.closest('button, a, input, label'))
       useVoiceStore.getState().unlock(!fromControl)
     }
     window.addEventListener('pointerdown', unlock, true)

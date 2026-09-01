@@ -1,15 +1,23 @@
 import { useEffect, useRef, type PointerEvent } from 'react'
 import { BODIES } from '../../astronomy/planetData'
-import { focusBody, lookAtGalaxy, lookAtSolarSystem, openCompare } from '../../features/planetExplorer/focus'
+import { focusBody, lookAtGalaxy, lookAtSolarSystem } from '../../features/planetExplorer/focus'
+import {
+  openLabHome,
+  toggleCompare,
+  toggleEvents,
+  toggleFacts,
+  togglePlanets,
+  toggleSettings,
+  toggleStars,
+  toggleTeam,
+} from '../../features/planetExplorer/chrome'
 import { starsAlphabetical, starDisplayName } from '../../content/skyWonders'
 import { EVENT_STATUS_LABEL, eventsForDrawer, getAstroEvent } from '../../content/astroEvents'
 import { eventIconName } from '../../features/astroEvents/eventIcons'
 import { focusEvent } from '../../features/astroEvents/focusEvent'
 import { useEventStore } from '../../store/eventStore'
-import { useLabStore } from '../../store/labStore'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
-import { useVoiceStore } from '../../store/voiceStore'
 import { TEAM } from '../../content/team'
 import { getScene } from '../../scene/sceneApi'
 import { Icon, type IconName } from './Icon'
@@ -222,85 +230,94 @@ export function ExploreListStrip() {
   )
 }
 
+function PhoneZoomFloat() {
+  return (
+    <div className="dock-zoom-float" aria-label="Yakınlaştır">
+      <HoldZoomButton factor={ZOOM_IN} label="Yakınlaştır" icon="plus" text="Yakın" />
+      <HoldZoomButton factor={ZOOM_OUT} label="Uzaklaştır" icon="minus" text="Uzak" />
+    </div>
+  )
+}
+
 export function ExploreDock() {
   const planetOpen = useUiStore((s) => s.planetDrawerOpen)
   const starOpen = useUiStore((s) => s.starDrawerOpen)
   const eventOpen = useUiStore((s) => s.eventDrawerOpen)
-  const setPlanetOpen = useUiStore((s) => s.setPlanetDrawerOpen)
-  const setStarOpen = useUiStore((s) => s.setStarDrawerOpen)
-  const setEventOpen = useUiStore((s) => s.setEventDrawerOpen)
-  const setPanel = useUiStore((s) => s.setActivePanel)
+  const moreOpen = useUiStore((s) => s.dockMoreOpen)
+  const setMoreOpen = useUiStore((s) => s.setDockMoreOpen)
   const panel = useUiStore((s) => s.activePanel)
-  const setMode = useUiStore((s) => s.setAppMode)
-  const openLab = useLabStore((s) => s.openLab)
   const liveEvent = getAstroEvent(useEventStore((s) => s.activeEventId))
   const galaxyView = useSimulationStore((s) => s.galaxyView)
 
-  function openPlanets() {
-    if (!planetOpen) useVoiceStore.getState().play('ui-planets')
-    setPlanetOpen(!planetOpen)
-  }
-
-  function openStars() {
-    if (!starOpen) useVoiceStore.getState().play('ui-stars')
-    setStarOpen(!starOpen)
-  }
-
-  function goUfkumuz() {
-    lookAtGalaxy()
-  }
-
-  function goSolarSystem() {
-    lookAtSolarSystem()
-  }
-
-  function openEvents() {
-    setEventOpen(!eventOpen)
-  }
-
-  function openFacts() {
-    if (panel !== 'facts') useVoiceStore.getState().play('ui-facts')
-    setPanel(panel === 'facts' ? 'none' : 'facts')
-  }
-
-  function openLabHome() {
-    useVoiceStore.getState().play('mode-lab')
-    setMode('lab')
-    openLab()
-  }
-
-  function toggleCompare() {
-    if (panel === 'compare') {
-      setPanel('none')
-      return
-    }
-    useVoiceStore.getState().play('ui-compare')
-    openCompare()
-  }
-
-  function openTeam() {
-    if (panel !== 'team') useVoiceStore.getState().play('ui-team')
-    setPanel(panel === 'team' ? 'none' : 'team')
-  }
-
-  function openSettings() {
-    setPanel(panel === 'settings' ? 'none' : 'settings')
-  }
-
   function goLiveEvent() {
     if (!liveEvent) return
+    setMoreOpen(false)
     focusEvent(liveEvent.id)
   }
 
+  function goGalaxy() {
+    setMoreOpen(false)
+    lookAtGalaxy()
+  }
+
+  function goSolar() {
+    setMoreOpen(false)
+    lookAtSolarSystem()
+  }
+
   return (
-    <div className="explore-dock">
+    <div className={`explore-dock${moreOpen ? ' is-more-open' : ''}`}>
+      {moreOpen ? (
+        <button type="button" className="dock-more-backdrop" aria-label="Menüyü kapat" onClick={() => setMoreOpen(false)} />
+      ) : null}
+      {moreOpen ? (
+        <div className="dock-more-sheet" id="dock-more-sheet" role="menu" aria-label="Daha fazla">
+          <ViewTools />
+          <button type="button" className={`btn${galaxyView ? ' is-on' : ''}`} onClick={goGalaxy} aria-pressed={galaxyView}>
+            <Icon name="camera" />
+            <span className="dock-label">Ufkumuz</span>
+          </button>
+          <button
+            type="button"
+            className={`btn${panel === 'compare' ? ' is-on' : ''}`}
+            onClick={() => toggleCompare()}
+            aria-pressed={panel === 'compare'}
+          >
+            <Icon name="compare" />
+            <span className="dock-label">Karşılaştır</span>
+          </button>
+          {liveEvent ? (
+            <button type="button" className="btn is-live-event" onClick={goLiveEvent} title={liveEvent.title}>
+              <Icon name={eventIconName(liveEvent.id)} />
+              <span className="dock-label">{liveEvent.shortName}</span>
+            </button>
+          ) : null}
+          <button type="button" className={`btn${panel === 'facts' ? ' is-on' : ''}`} onClick={() => toggleFacts()}>
+            <Icon name="book" />
+            <span className="dock-label">Bilgiler</span>
+          </button>
+          <button type="button" className={`btn${panel === 'team' ? ' is-on' : ''}`} onClick={() => toggleTeam()}>
+            <Icon name="people" />
+            <span className="dock-label">Takım</span>
+          </button>
+          <button type="button" className={`btn${panel === 'settings' ? ' is-on' : ''}`} onClick={() => toggleSettings()}>
+            <Icon name="gear" />
+            <span className="dock-label">Ayarlar</span>
+          </button>
+          <button type="button" className="btn primary" onClick={() => openLabHome()} aria-label={TEAM.home}>
+            <Icon name="flask" />
+            <span className="dock-label">Proje Etkinlikleri</span>
+          </button>
+        </div>
+      ) : null}
+      <PhoneZoomFloat />
       <nav className="dock-buttons" aria-label="Keşif">
         <ViewTools />
         <div className="dock-views" role="group" aria-label="Kamera bakışı">
           <button
             type="button"
-            className={`btn${galaxyView ? ' is-on' : ''}`}
-            onClick={goUfkumuz}
+            className={`btn dock-phone-hide${galaxyView ? ' is-on' : ''}`}
+            onClick={goGalaxy}
             aria-pressed={galaxyView}
           >
             <Icon name="camera" />
@@ -309,8 +326,8 @@ export function ExploreDock() {
           </button>
           <button
             type="button"
-            className={`btn${galaxyView ? '' : ' is-on'}`}
-            onClick={goSolarSystem}
+            className={`btn dock-phone-tab${galaxyView ? '' : ' is-on'}`}
+            onClick={goSolar}
             aria-pressed={!galaxyView}
           >
             <Icon name="camera" />
@@ -320,19 +337,29 @@ export function ExploreDock() {
         </div>
         <div className="dock-divider" aria-hidden="true" />
         <div className="dock-nav">
-          <button type="button" className={`btn${starOpen ? ' is-on' : ''}`} onClick={openStars} aria-expanded={starOpen}>
+          <button
+            type="button"
+            className={`btn dock-phone-tab${starOpen ? ' is-on' : ''}`}
+            onClick={() => toggleStars({ cycle: false })}
+            aria-expanded={starOpen}
+          >
             <Icon name="spark" />
             <span className="dock-label">Yıldızlar</span>
           </button>
           <div className="dock-planets">
-            <button type="button" className={`btn${planetOpen ? ' is-on' : ''}`} onClick={openPlanets} aria-expanded={planetOpen}>
+            <button
+              type="button"
+              className={`btn dock-phone-tab${planetOpen ? ' is-on' : ''}`}
+              onClick={() => togglePlanets()}
+              aria-expanded={planetOpen}
+            >
               <Icon name="planet" />
               <span className="dock-label">Gezegenler</span>
             </button>
             <button
               type="button"
               className={`dock-tool${panel === 'compare' ? ' is-on' : ''}`}
-              onClick={toggleCompare}
+              onClick={() => toggleCompare()}
               aria-pressed={panel === 'compare'}
             >
               <Icon name="compare" />
@@ -340,7 +367,12 @@ export function ExploreDock() {
             </button>
           </div>
           <div className="dock-events">
-            <button type="button" className={`btn${eventOpen ? ' is-on' : ''}`} onClick={openEvents} aria-expanded={eventOpen}>
+            <button
+              type="button"
+              className={`btn dock-phone-tab${eventOpen ? ' is-on' : ''}`}
+              onClick={() => toggleEvents({ cycle: false })}
+              aria-expanded={eventOpen}
+            >
               <Icon name="orbit" />
               <span className="dock-label">Olaylar</span>
             </button>
@@ -364,29 +396,39 @@ export function ExploreDock() {
               )}
             </button>
           </div>
-          <button type="button" className={`btn${panel === 'facts' ? ' is-on' : ''}`} onClick={openFacts}>
+          <button type="button" className={`btn dock-facts${panel === 'facts' ? ' is-on' : ''}`} onClick={() => toggleFacts()}>
             <Icon name="book" />
             <span className="dock-label">Bilgiler</span>
             <span className="dock-label-short">Bilgi</span>
           </button>
         </div>
         <div className="dock-meta">
-          <button type="button" className={`btn${panel === 'team' ? ' is-on' : ''}`} onClick={openTeam}>
+          <button type="button" className={`btn${panel === 'team' ? ' is-on' : ''}`} onClick={() => toggleTeam()}>
             <Icon name="people" />
             <span className="dock-label">Takım</span>
           </button>
-          <button type="button" className={`btn${panel === 'settings' ? ' is-on' : ''}`} onClick={openSettings}>
+          <button type="button" className={`btn${panel === 'settings' ? ' is-on' : ''}`} onClick={() => toggleSettings()}>
             <Icon name="gear" />
             <span className="dock-label">Ayarlar</span>
           </button>
         </div>
         <div className="dock-cta">
-          <button type="button" className="btn primary" onClick={openLabHome} aria-label={TEAM.home}>
+          <button type="button" className="btn primary" onClick={() => openLabHome()} aria-label={TEAM.home}>
             <Icon name="flask" />
             <DockLabel lines={['Proje', 'Etkinlikleri']} />
             <span className="dock-label-short">Proje</span>
           </button>
         </div>
+        <button
+          type="button"
+          className={`btn dock-more-btn dock-phone-tab${moreOpen ? ' is-on' : ''}`}
+          onClick={() => setMoreOpen(!moreOpen)}
+          aria-expanded={moreOpen}
+          aria-controls="dock-more-sheet"
+        >
+          <Icon name="more" />
+          <span className="dock-label">Daha</span>
+        </button>
       </nav>
     </div>
   )

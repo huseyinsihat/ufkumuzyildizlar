@@ -24,6 +24,12 @@ describe('parseHardwareLine', () => {
     expect(parseHardwareLine('F:planets')).toEqual({ kind: 'planets' })
     expect(parseHardwareLine('F:stars')).toEqual({ kind: 'stars' })
     expect(parseHardwareLine('F:facts')).toEqual({ kind: 'facts' })
+    expect(parseHardwareLine('F:events')).toEqual({ kind: 'events' })
+    expect(parseHardwareLine('F:team')).toEqual({ kind: 'team' })
+    expect(parseHardwareLine('F:settings')).toEqual({ kind: 'settings' })
+    expect(parseHardwareLine('F:back')).toEqual({ kind: 'back' })
+    expect(parseHardwareLine('F:geri')).toEqual({ kind: 'back' })
+    expect(parseHardwareLine('F:chat')).toEqual({ kind: 'chat' })
     expect(parseHardwareLine('S:sirius')).toEqual({ kind: 'star', id: 'sirius' })
   })
 

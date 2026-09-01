@@ -123,6 +123,7 @@ function extraRows(body: PlanetDefinition): { label: string; value: string }[] {
 export function InspectRail() {
   const leftOpen = useUiStore((s) => s.leftOpen)
   const listOpen = useUiStore((s) => s.planetDrawerOpen || s.starDrawerOpen || s.eventDrawerOpen)
+  const moreOpen = useUiStore((s) => s.dockMoreOpen)
   const chatOpen = useUiStore((s) => s.sunChatOpen)
   const panel = useUiStore((s) => s.activePanel)
   const bodyId = useSimulationStore((s) => s.selectedBodyId)
@@ -137,7 +138,7 @@ export function InspectRail() {
     setMoreEvent(false)
   }, [bodyId, wonderId, eventId])
 
-  if (!leftOpen || listOpen || chatOpen || (panel !== 'none' && panel !== 'info')) return null
+  if (!leftOpen || listOpen || moreOpen || chatOpen || (panel !== 'none' && panel !== 'info')) return null
 
   const body = bodyId ? getBody(bodyId) : null
   const craft = findEarthCraft(wonderId)

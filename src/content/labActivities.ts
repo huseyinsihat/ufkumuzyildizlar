@@ -338,6 +338,33 @@ export function getActivity(id: LabActivityId): LabActivity {
   return found
 }
 
+const LAB_CORRECT_CHOICE: Partial<Record<LabActivityId, string>> = {
+  'earth-year': 'inner',
+  'who-faster': 'mercury',
+  'spin-vs-orbit': 'spin',
+  'day-night': 'same',
+  'mass-weight': 'no',
+  'drop-ball': 'jupiter',
+  jump: 'moon',
+  'real-scale': 'model',
+  'moon-phases': 'night',
+  'stars-or-earth': 'earth',
+  'light-travel': 'minutes',
+  'seasons-tilt': 'tilt',
+  'closest-hottest': 'venus',
+  'comet-tail': 'sun',
+  'kepler-pizza': 'faster',
+  'mercury-long-day': 'long',
+  'eclipse-align': 'align',
+  'light-diary': 'far',
+}
+
+export function isCorrectLabChoice(activityId: LabActivityId, choiceId: string): boolean | undefined {
+  const correct = LAB_CORRECT_CHOICE[activityId]
+  if (!correct) return undefined
+  return choiceId === correct
+}
+
 export function activitiesInRoom(room: LabRoomId): LabActivity[] {
   return LAB_ACTIVITIES.filter((item) => item.room === room)
 }

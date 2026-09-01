@@ -10,7 +10,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "voice:sync": "node scripts/sync-voice.mjs"
   },
   "dependencies": {
     "astronomy-engine": "^2.1.19",

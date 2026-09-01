@@ -16,6 +16,7 @@ interface UiState {
   starDrawerOpen: boolean
   sunChatOpen: boolean
   eventDrawerOpen: boolean
+  dockMoreOpen: boolean
   setIntroVisible: (visible: boolean) => void
   setAppMode: (mode: AppMode) => void
   setActivePanel: (panel: AppPanel) => void
@@ -29,6 +30,7 @@ interface UiState {
   setPlanetDrawerOpen: (open: boolean) => void
   setStarDrawerOpen: (open: boolean) => void
   setEventDrawerOpen: (open: boolean) => void
+  setDockMoreOpen: (open: boolean) => void
   openSunChat: () => void
   closeSunChat: () => void
   largeText: boolean
@@ -47,16 +49,18 @@ export const useUiStore = create<UiState>((set, get) => ({
   planetDrawerOpen: false,
   starDrawerOpen: false,
   eventDrawerOpen: false,
+  dockMoreOpen: false,
   sunChatOpen: false,
   largeText: false,
   setIntroVisible: (visible) => set({ introVisible: visible }),
-  setAppMode: (mode) => set({ appMode: mode }),
+  setAppMode: (mode) => set({ appMode: mode, dockMoreOpen: false }),
   setActivePanel: (panel) =>
     set({
       activePanel: panel,
       planetDrawerOpen: false,
       starDrawerOpen: false,
       eventDrawerOpen: false,
+      dockMoreOpen: false,
       sunChatOpen: panel === 'none' ? get().sunChatOpen : false,
     }),
   togglePanel: (panel) => {
@@ -67,13 +71,14 @@ export const useUiStore = create<UiState>((set, get) => ({
       planetDrawerOpen: false,
       starDrawerOpen: false,
       eventDrawerOpen: false,
+      dockMoreOpen: false,
       sunChatOpen: next === 'none' ? get().sunChatOpen : false,
     })
   },
   setWebglSupported: (supported) => set({ webglSupported: supported }),
   setUse2dFallback: (use2d) => set({ use2dFallback: use2d }),
   startDemo: () =>
-    set({ demoActive: true, demoStep: 0, introVisible: false, activePanel: 'none', appMode: 'explore', sunChatOpen: false, planetDrawerOpen: false, starDrawerOpen: false, eventDrawerOpen: false }),
+    set({ demoActive: true, demoStep: 0, introVisible: false, activePanel: 'none', appMode: 'explore', sunChatOpen: false, planetDrawerOpen: false, starDrawerOpen: false, eventDrawerOpen: false, dockMoreOpen: false }),
   nextDemoStep: () => set({ demoStep: get().demoStep + 1 }),
   stopDemo: () => set({ demoActive: false, demoStep: 0 }),
   setLeftOpen: (open) => set({ leftOpen: open }),
@@ -82,6 +87,7 @@ export const useUiStore = create<UiState>((set, get) => ({
       planetDrawerOpen: open,
       starDrawerOpen: open ? false : get().starDrawerOpen,
       eventDrawerOpen: open ? false : get().eventDrawerOpen,
+      dockMoreOpen: open ? false : get().dockMoreOpen,
       activePanel: open ? 'none' : get().activePanel,
       sunChatOpen: open ? false : get().sunChatOpen,
     }),
@@ -90,6 +96,7 @@ export const useUiStore = create<UiState>((set, get) => ({
       starDrawerOpen: open,
       planetDrawerOpen: open ? false : get().planetDrawerOpen,
       eventDrawerOpen: open ? false : get().eventDrawerOpen,
+      dockMoreOpen: open ? false : get().dockMoreOpen,
       activePanel: open ? 'none' : get().activePanel,
       sunChatOpen: open ? false : get().sunChatOpen,
     }),
@@ -98,11 +105,21 @@ export const useUiStore = create<UiState>((set, get) => ({
       eventDrawerOpen: open,
       planetDrawerOpen: open ? false : get().planetDrawerOpen,
       starDrawerOpen: open ? false : get().starDrawerOpen,
+      dockMoreOpen: open ? false : get().dockMoreOpen,
+      activePanel: open ? 'none' : get().activePanel,
+      sunChatOpen: open ? false : get().sunChatOpen,
+    }),
+  setDockMoreOpen: (open) =>
+    set({
+      dockMoreOpen: open,
+      planetDrawerOpen: open ? false : get().planetDrawerOpen,
+      starDrawerOpen: open ? false : get().starDrawerOpen,
+      eventDrawerOpen: open ? false : get().eventDrawerOpen,
       activePanel: open ? 'none' : get().activePanel,
       sunChatOpen: open ? false : get().sunChatOpen,
     }),
   openSunChat: () =>
-    set({ sunChatOpen: true, planetDrawerOpen: false, starDrawerOpen: false, eventDrawerOpen: false, activePanel: 'none' }),
+    set({ sunChatOpen: true, planetDrawerOpen: false, starDrawerOpen: false, eventDrawerOpen: false, dockMoreOpen: false, activePanel: 'none' }),
   closeSunChat: () => set({ sunChatOpen: false }),
   setLargeText: (on) => set({ largeText: on }),
 }))

@@ -142,6 +142,19 @@ const ICONS: Record<string, ReactNode> = {
       <circle cx="18" cy="12" r="1.7" fill="currentColor" stroke="none" />
     </>
   ),
+  speaker: (
+    <>
+      <path d="M4 9h3.2L12 5.5v13L7.2 15H4z" />
+      <path className="speaker-wave speaker-wave-1" d="M15.2 9.2a3.2 3.2 0 0 1 0 5.6" />
+      <path className="speaker-wave speaker-wave-2" d="M17.4 7a6 6 0 0 1 0 10" />
+    </>
+  ),
+  speakerOff: (
+    <>
+      <path d="M4 9h3.2L12 5.5v13L7.2 15H4z" />
+      <path d="M16 9l5 6M21 9l-5 6" />
+    </>
+  ),
   play: <path d="M8 6.5v11L18 12z" />,
   pause: (
     <>

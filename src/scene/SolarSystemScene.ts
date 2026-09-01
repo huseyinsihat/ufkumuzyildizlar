@@ -31,7 +31,6 @@ import { useEducationStore } from '../store/educationStore'
 import { useLabStore } from '../store/labStore'
 import { useSimulationStore } from '../store/simulationStore'
 import { useUiStore } from '../store/uiStore'
-import { onSunSelected } from '../features/planetExplorer/focus'
 import { findEarthCraft } from '../content/earthCrafts'
 import { focusEvent } from '../features/astroEvents/focusEvent'
 import { capPixelRatio, starCountForDevice } from '../utils/performance'
@@ -1069,7 +1068,6 @@ export class SolarSystemScene {
     useSimulationStore.getState().selectBody(bodyId)
     useEducationStore.getState().notifySelection(bodyId)
     this.focusBody(bodyId)
-    if (bodyId === 'sun') onSunSelected()
   }
 
   /** Planets win over orbits so a globe click is never stolen by a fat ring. */
