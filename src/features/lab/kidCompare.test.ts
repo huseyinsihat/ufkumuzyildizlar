@@ -25,21 +25,21 @@ describe('FACTS', () => {
 describe('kidCompare', () => {
   it('shows long years in years, not huge day counts', () => {
     const rows = kidCompare('uranus', 'mercury')
-    const year = rows.find((row) => row.label === 'Bir yıl')
+    const year = rows.find((row) => row.id === 'year')
     expect(year?.aText).toContain('yıl')
     expect(year?.bText).toContain('gün')
   })
 
   it('uses kelvin for temperature bar length so warmer planets look longer', () => {
     const rows = kidCompare('uranus', 'mars')
-    const temp = rows.find((row) => row.label === 'Sıcaklık')
+    const temp = rows.find((row) => row.id === 'heat')
     expect(temp?.bValue).toBeGreaterThan(temp?.aValue ?? 0)
     expect(temp?.aText).toContain('°C')
   })
 
   it('shows gravity as Earth multiples, not m/s²', () => {
     const rows = kidCompare('moon', 'earth')
-    const gravity = rows.find((row) => row.label === 'Yerçekimi')
+    const gravity = rows.find((row) => row.id === 'gravity')
     expect(gravity?.aText).toContain('× Dünya')
     expect(gravity?.bText).toBe('1 × Dünya')
     expect(gravity?.aText).not.toContain('m/s')
