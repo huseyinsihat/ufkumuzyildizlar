@@ -1,5 +1,7 @@
 import type { BodyId } from '../types/planet'
 import type { ScaleMode, Vec3 } from '../types/simulation'
+import { tx, type AppLang } from '../i18n/types'
+import { UI } from '../i18n/ui'
 import { getBody } from './planetData'
 
 /**
@@ -106,9 +108,7 @@ export function auToScene(au: Vec3, mode: ScaleMode): Vec3 {
   }
 }
 
-export function scaleExplanation(mode: ScaleMode): string {
-  if (isTrueScale(mode)) {
-    return 'Gezegenler gerçek boyutta. Uzay çok boş kalır.'
-  }
-  return 'Gezegenler görünür büyüklükte. Sıra doğru; çaplar eğitim için büyütülmüştür.'
+export function scaleExplanation(mode: ScaleMode, lang: AppLang = 'tr'): string {
+  if (isTrueScale(mode)) return tx(lang, UI.trueScaleNote)
+  return tx(lang, UI.eduScaleNote)
 }

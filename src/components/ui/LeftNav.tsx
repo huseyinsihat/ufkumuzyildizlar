@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getBody } from '../../astronomy/planetData'
+import { displayName, getBody } from '../../astronomy/planetData'
 import { CRAFT_KIND_LABEL, findEarthCraft } from '../../content/earthCrafts'
 import {
   findConstellation,
@@ -10,20 +10,17 @@ import { findWonder, starDisplayName, wonderKindLabel } from '../../content/skyW
 import { wonderDetailStats, wonderFactList, wonderHasDetail, wonderPreviewStats } from '../../content/wonderScience'
 import { displayEventStatus, EVENT_STATUS_LABEL, eventHasMore, getSelectableEvent } from '../../content/astroEvents'
 import { earthRelativeWeight } from '../../features/lab/gravityMath'
+import { bodyKindLabel } from '../../i18n/bodyKind'
+import { bodyAtmosphere, bodyDescription, bodyFacts } from '../../i18n/bodies'
+import { constellationDisplayName } from '../../i18n/constellations'
+import { loc, tx, type AppLang } from '../../i18n/types'
+import { UI } from '../../i18n/ui'
+import { useLang, useT } from '../../i18n/useT'
 import { formatAu, formatDays, formatHours, formatKm, formatNumberTr } from '../../utils/formatting'
 import { useEventStore } from '../../store/eventStore'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
-import type { BodyCategory, PlanetDefinition } from '../../types/planet'
-
-const KIND: Record<BodyCategory, string> = {
-  star: 'Yıldız',
-  terrestrial: 'Kaya gezegen',
-  gasGiant: 'Gaz devi',
-  iceGiant: 'Buz devi',
-  dwarf: 'Cüce gezegen',
-  moon: 'Uydu',
-}
+import type { PlanetDefinition } from '../../types/planet'
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
@@ -34,7 +31,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   )
 }
 
-function ConstellationSilhouette({ constellation }: { constellation: Constellation }) {
+function ConstellationSilhouette({ constellation, name }: { constellation: Constellation; name: string }) {
   const figure = projectConstellationFigure(constellation)
   const byId = new Map(figure.points.map((point) => [point.id, point]))
   return (
@@ -42,21 +39,13 @@ function ConstellationSilhouette({ constellation }: { constellation: Constellati
       className="constellation-figure"
       viewBox={`0 0 ${figure.width} ${figure.height}`}
       role="img"
-      aria-label={`${constellation.name} şekli: ${constellation.shape}`}
+      aria-label={`${name}: ${constellation.shape}`}
     >
       {figure.lines.map(([fromId, toId]) => {
         const from = byId.get(fromId)
         const to = byId.get(toId)
         if (!from || !to) return null
-        return (
-          <line
-            key={`${fromId}-${toId}`}
-            x1={from.x}
-            y1={from.y}
-            x2={to.x}
-            y2={to.y}
-          />
-        )
+        return <line key={`${fromId}-${toId}`} x1={from.x} y1={from.y} x2={to.x} y2={to.y} />
       })}
       {figure.points.map((point) => (
         <circle key={point.id} cx={point.x} cy={point.y} r={2.1} />
@@ -70,57 +59,62 @@ function firstSentence(text: string): string {
   return (match ? match[0] : text).trim()
 }
 
-export function atmosphereChip(body: PlanetDefinition): string {
-  if (body.category === 'star') return 'Plazma'
-  const text = body.atmosphere.toLocaleLowerCase('tr-TR')
-  if (text.includes('plazma')) return 'Plazma'
-  if (text.includes('neredeyse yok')) return 'Yok'
-  if (text.includes('çok kalın') || text.includes('kalın')) return 'Kalın'
-  if (text.includes('ince')) return 'İnce'
-  if (body.category === 'gasGiant' || body.category === 'iceGiant') return 'Kalın'
-  return 'Var'
+export function atmosphereChip(body: PlanetDefinition, lang: AppLang = 'tr'): string {
+  if (body.category === 'star') return lang === 'en' ? 'Plasma' : 'Plazma'
+  const text = bodyAtmosphere(body.id, 'tr').toLocaleLowerCase('tr-TR')
+  if (text.includes('plazma')) return lang === 'en' ? 'Plasma' : 'Plazma'
+  if (text.includes('neredeyse yok')) return lang === 'en' ? 'None' : 'Yok'
+  if (text.includes('çok kalın') || text.includes('kalın')) return lang === 'en' ? 'Thick' : 'Kalın'
+  if (text.includes('ince')) return lang === 'en' ? 'Thin' : 'İnce'
+  if (body.category === 'gasGiant' || body.category === 'iceGiant') return lang === 'en' ? 'Thick' : 'Kalın'
+  return lang === 'en' ? 'Yes' : 'Var'
 }
 
-function vsEarthText(body: PlanetDefinition): string {
+function vsEarthText(body: PlanetDefinition, lang: AppLang): string {
   const vsEarth = earthRelativeWeight(1, body.id).vsEarth
-  return body.id === 'earth' ? '1 × Dünya' : `${formatNumberTr(vsEarth, 2)} × Dünya`
+  return body.id === 'earth' ? `1 ${tx(lang, UI.earthTimes)}` : `${formatNumberTr(vsEarth, 2, lang)} ${tx(lang, UI.earthTimes)}`
 }
 
-function coreRows(body: PlanetDefinition): { label: string; value: string }[] {
-  const rows: { label: string; value: string }[] = [{ label: 'Gün', value: formatHours(body.rotationPeriodHours) }]
+function coreRows(body: PlanetDefinition, lang: AppLang): { label: string; value: string }[] {
+  const rows: { label: string; value: string }[] = [{ label: tx(lang, UI.day), value: formatHours(body.rotationPeriodHours, lang) }]
   if (body.orbitalPeriodDays > 0) {
-    rows.push({ label: 'Yıl', value: formatDays(body.orbitalPeriodDays) })
+    rows.push({ label: tx(lang, UI.year), value: formatDays(body.orbitalPeriodDays, lang) })
   }
-  rows.push({ label: 'Çap', value: formatKm(body.radiusKm * 2) })
-  rows.push({ label: 'Yerçekimi', value: vsEarthText(body) })
-  rows.push({ label: 'Sıcaklık', value: `${formatNumberTr(body.meanTempC, 0)} °C` })
+  rows.push({ label: tx(lang, UI.diameter), value: formatKm(body.radiusKm * 2, lang) })
+  rows.push({ label: tx(lang, UI.gravity), value: vsEarthText(body, lang) })
+  rows.push({ label: tx(lang, UI.temperature), value: `${formatNumberTr(body.meanTempC, 0, lang)} °C` })
   return rows
 }
 
-function extraRows(body: PlanetDefinition): { label: string; value: string }[] {
+function extraRows(body: PlanetDefinition, lang: AppLang): { label: string; value: string }[] {
   const rows: { label: string; value: string }[] = []
   if (body.category !== 'star' && body.category !== 'moon') {
-    rows.push({ label: 'Uydu', value: formatNumberTr(body.moons) })
+    rows.push({ label: tx(lang, UI.moons), value: formatNumberTr(body.moons, 0, lang) })
   }
   if (body.orbitalRadiusAu > 0 && body.category !== 'moon') {
-    rows.push({ label: 'Güneş’e uzaklık', value: formatAu(body.orbitalRadiusAu) })
+    rows.push({ label: tx(lang, UI.distance), value: formatAu(body.orbitalRadiusAu, lang) })
   }
   if (body.category === 'moon') {
-    const parentName = body.parentId ? getBody(body.parentId).name : 'Dünya'
-    rows.push({ label: `${parentName}’e uzaklık`, value: formatAu(body.orbitalRadiusAu) })
+    const parentName = body.parentId ? displayName(getBody(body.parentId), lang) : displayName('earth', lang)
+    rows.push({ label: parentName, value: formatAu(body.orbitalRadiusAu, lang) })
   }
   rows.push({
-    label: 'Eksen eğikliği',
-    value: `${formatNumberTr(body.axialTiltDeg, body.axialTiltDeg < 1 ? 2 : 1)}°`,
+    label: lang === 'en' ? 'Axial tilt' : 'Eksen eğikliği',
+    value: `${formatNumberTr(body.axialTiltDeg, body.axialTiltDeg < 1 ? 2 : 1, lang)}°`,
   })
   if (body.orbitalPeriodDays > 0) {
-    rows.push({ label: 'Yörünge eğikliği', value: `${formatNumberTr(body.inclinationDeg, 2)}°` })
+    rows.push({
+      label: lang === 'en' ? 'Orbit tilt' : 'Yörünge eğikliği',
+      value: `${formatNumberTr(body.inclinationDeg, 2, lang)}°`,
+    })
   }
-  if (body.hasRings) rows.push({ label: 'Halka', value: 'Var' })
+  if (body.hasRings) rows.push({ label: lang === 'en' ? 'Rings' : 'Halka', value: lang === 'en' ? 'Yes' : 'Var' })
   return rows
 }
 
 export function InspectRail() {
+  const t = useT()
+  const lang = useLang()
   const leftOpen = useUiStore((s) => s.leftOpen)
   const listOpen = useUiStore((s) => s.planetDrawerOpen || s.starDrawerOpen || s.eventDrawerOpen)
   const moreOpen = useUiStore((s) => s.dockMoreOpen)
@@ -147,78 +141,81 @@ export function InspectRail() {
   const event = getSelectableEvent(eventId)
   if (!body && !wonder && !craft && !event && !constellation) return null
   const eventStatus = event ? displayEventStatus(event.targetMs, simMs, Date.now()) : 'now'
-  const jumped =
-    event?.targetMs != null && event.targetMs > Date.now() && simMs >= event.targetMs
+  const jumped = event?.targetMs != null && event.targetMs > Date.now() && simMs >= event.targetMs
+  const bodyName = body ? displayName(body, lang) : ''
+  const description = body ? bodyDescription(body.id, lang) : ''
+  const facts = body ? bodyFacts(body.id, lang) : []
+  const constellationName = constellation ? constellationDisplayName(constellation.id, lang, constellation.name) : ''
 
   return (
-    <aside className={`inspect-rail${event ? ' has-event' : ''}`} aria-label="Seçim bilgisi">
+    <aside className={`inspect-rail${event ? ' has-event' : ''}`} aria-label={t('moreInfo')}>
       {event ? (
         <div className="inspect-card inspect-event">
           <header className="panel-head">
             <div>
               <p className="eyebrow">
-                Gösteri · {EVENT_STATUS_LABEL[eventStatus]}
-                {event.shortName !== event.title ? ` · ${event.shortName}` : ''}
+                {t('show')} · {tx(lang, EVENT_STATUS_LABEL[eventStatus])}
+                {loc(lang, event.shortName) !== loc(lang, event.title) ? ` · ${loc(lang, event.shortName)}` : ''}
               </p>
-              <h2>{event.title}</h2>
+              <h2>{loc(lang, event.title)}</h2>
             </div>
-            <button type="button" className="icon-btn" onClick={() => useEventStore.getState().selectEvent(null)} aria-label="Kapat">
+            <button type="button" className="icon-btn" onClick={() => useEventStore.getState().selectEvent(null)} aria-label={t('close')}>
               ×
             </button>
           </header>
           {event.dateLabel ? (
             <p className="inspect-soon">
               {eventStatus === 'happened'
-                ? `${event.dateLabel} tarihinde oldu`
+                ? loc(lang, event.dateLabel)
                 : jumped
-                  ? `Zaman ${event.dateLabel} tarihine alındı`
-                  : event.dateLabel}
-              {event.where ? ` — ${event.where}` : ''}
+                  ? loc(lang, event.dateLabel)
+                  : loc(lang, event.dateLabel)}
+              {event.where ? ` — ${loc(lang, event.where)}` : ''}
             </p>
           ) : null}
-          <p className="inspect-lead">{event.lead}</p>
+          <p className="inspect-lead">{loc(lang, event.lead)}</p>
           <p className="inspect-see">
-            <span>Görüntüde</span>
-            {event.see}
+            <span>{t('show')}</span>
+            {loc(lang, event.see)}
           </p>
           {!moreEvent ? (
             <ul className="inspect-facts">
               {event.facts.slice(0, 2).map((fact) => (
-                <li key={fact}>{fact}</li>
+                <li key={loc(lang, fact)}>{loc(lang, fact)}</li>
               ))}
             </ul>
           ) : (
             <>
               {event.why ? (
                 <p className="inspect-why">
-                  <span>Neden</span>
-                  {event.why}
+                  <span>{t('why')}</span>
+                  {loc(lang, event.why)}
                 </p>
               ) : null}
               <ul className="inspect-facts">
                 {event.facts.map((fact) => (
-                  <li key={fact}>{fact}</li>
+                  <li key={loc(lang, fact)}>{loc(lang, fact)}</li>
                 ))}
               </ul>
               {event.wrong ? (
                 <p className="inspect-wrong">
-                  <span>Yanlış kanı</span>
-                  {event.wrong}
+                  <span>{lang === 'en' ? 'Wrong idea' : 'Yanlış kanı'}</span>
+                  {loc(lang, event.wrong)}
                 </p>
               ) : null}
               {event.relatedBodyIds.length > 0 ? (
                 <p className="inspect-related">
-                  <span>İlgili cisimler</span>
-                  {event.relatedBodyIds.map((id) => getBody(id).name).join(' · ')}
+                  <span>{lang === 'en' ? 'Related bodies' : 'İlgili cisimler'}</span>
+                  {event.relatedBodyIds.map((id) => displayName(id, lang)).join(' · ')}
                 </p>
               ) : null}
               {event.upcoming && !event.targetMs ? (
                 <>
-                  <p className="inspect-soon">Yakında: 1 Haziran 2030, Türkiye halkalı tutulması</p>
+                  <p className="inspect-soon">{tx(lang, EVENT_STATUS_LABEL.upcoming)}</p>
                   <ul className="inspect-facts inspect-upcoming">
                     {event.upcoming.map((row) => (
-                      <li key={row.date}>
-                        <strong>{row.date}</strong> {row.text}
+                      <li key={loc(lang, row.date)}>
+                        <strong>{loc(lang, row.date)}</strong> {loc(lang, row.text)}
                       </li>
                     ))}
                   </ul>
@@ -228,7 +225,7 @@ export function InspectRail() {
           )}
           {eventHasMore(event) ? (
             <button type="button" className="text-link inspect-more" onClick={() => setMoreEvent((open) => !open)}>
-              {moreEvent ? 'Daha az' : 'Daha fazla'}
+              {moreEvent ? t('lessInfo') : t('moreInfo')}
             </button>
           ) : null}
         </div>
@@ -239,40 +236,38 @@ export function InspectRail() {
             <div>
               <p className="eyebrow">
                 <i className="body-swatch" style={{ background: body.color }} aria-hidden="true" />
-                {KIND[body.category]}
+                {bodyKindLabel(body.category, lang)}
               </p>
-              <h2>{body.name}</h2>
+              <h2>{bodyName}</h2>
             </div>
-            <button type="button" className="icon-btn" onClick={() => useSimulationStore.getState().selectBody(null)} aria-label="Kapat">
+            <button type="button" className="icon-btn" onClick={() => useSimulationStore.getState().selectBody(null)} aria-label={t('close')}>
               ×
             </button>
           </header>
-          <p className="inspect-lead">{more ? body.description : firstSentence(body.description)}</p>
+          <p className="inspect-lead">{more ? description : firstSentence(description)}</p>
           <p className="inspect-atmo-chip">
-            <span>Atmosfer</span>
-            <strong>{atmosphereChip(body)}</strong>
+            <span>{lang === 'en' ? 'Atmosphere' : 'Atmosfer'}</span>
+            <strong>{atmosphereChip(body, lang)}</strong>
           </p>
           <div className="inspect-stats">
-            {coreRows(body).map((row) => (
+            {coreRows(body, lang).map((row) => (
               <Stat key={row.label} label={row.label} value={row.value} />
             ))}
-            {more
-              ? extraRows(body).map((row) => <Stat key={row.label} label={row.label} value={row.value} />)
-              : null}
+            {more ? extraRows(body, lang).map((row) => <Stat key={row.label} label={row.label} value={row.value} />) : null}
           </div>
           {more ? (
             <p className="inspect-atmo">
-              <span>Atmosfer</span>
-              {body.atmosphere}
+              <span>{lang === 'en' ? 'Atmosphere' : 'Atmosfer'}</span>
+              {bodyAtmosphere(body.id, lang)}
             </p>
           ) : null}
           <ul className="inspect-facts">
-            {(more ? body.facts : body.facts.slice(0, 1)).map((fact) => (
+            {(more ? facts : facts.slice(0, 1)).map((fact) => (
               <li key={fact}>{fact}</li>
             ))}
           </ul>
           <button type="button" className="text-link inspect-more" onClick={() => setMore((open) => !open)}>
-            {more ? 'Daha az' : 'Daha fazla'}
+            {more ? t('lessInfo') : t('moreInfo')}
           </button>
         </div>
       ) : null}
@@ -282,28 +277,28 @@ export function InspectRail() {
             <div>
               <p className="eyebrow">
                 <i className="body-swatch" style={{ background: craft.color }} aria-hidden="true" />
-                {CRAFT_KIND_LABEL[craft.kind]}
+                {tx(lang, CRAFT_KIND_LABEL[craft.kind])}
               </p>
               <h2>{craft.name}</h2>
             </div>
-            <button type="button" className="icon-btn" onClick={() => useSimulationStore.getState().selectWonder(null)} aria-label="Kapat">
+            <button type="button" className="icon-btn" onClick={() => useSimulationStore.getState().selectWonder(null)} aria-label={t('close')}>
               ×
             </button>
           </header>
-          <p className="inspect-lead">{more ? craft.description : craft.fact}</p>
+          <p className="inspect-lead">{more ? loc(lang, craft.description) : loc(lang, craft.fact)}</p>
           <div className="inspect-stats">
-            <Stat label="Tür" value={CRAFT_KIND_LABEL[craft.kind]} />
-            <Stat label="Özellik" value={craft.tag} />
+            <Stat label={t('kind')} value={tx(lang, CRAFT_KIND_LABEL[craft.kind])} />
+            <Stat label={t('trait')} value={loc(lang, craft.tag)} />
           </div>
           {more ? (
             <ul className="inspect-facts">
               {craft.facts.map((fact) => (
-                <li key={fact}>{fact}</li>
+                <li key={loc(lang, fact)}>{loc(lang, fact)}</li>
               ))}
             </ul>
           ) : null}
           <button type="button" className="text-link inspect-more" onClick={() => setMore((open) => !open)}>
-            {more ? 'Daha az' : 'Daha fazla'}
+            {more ? t('lessInfo') : t('moreInfo')}
           </button>
         </div>
       ) : null}
@@ -311,26 +306,28 @@ export function InspectRail() {
         <div className="inspect-card">
           <header className="panel-head">
             <div>
-              <p className="eyebrow">Takımyıldız · {constellation.season}</p>
-              <h2>{constellation.name}</h2>
+              <p className="eyebrow">
+                {t('constellations')} · {constellation.season}
+              </p>
+              <h2>{constellationName}</h2>
             </div>
-            <button type="button" className="icon-btn" onClick={() => useSimulationStore.getState().selectWonder(null)} aria-label="Kapat">
+            <button type="button" className="icon-btn" onClick={() => useSimulationStore.getState().selectWonder(null)} aria-label={t('close')}>
               ×
             </button>
           </header>
           <p className="inspect-atmo-chip">
-            <span>Şekil</span>
+            <span>{lang === 'en' ? 'Shape' : 'Şekil'}</span>
             <strong>{constellation.shape}</strong>
           </p>
           <p className="inspect-lead">{constellation.description}</p>
-          <ConstellationSilhouette constellation={constellation} />
+          <ConstellationSilhouette constellation={constellation} name={constellationName} />
           <div className="inspect-stats">
-            <Stat label="En parlak" value={constellation.brightest} />
-            <Stat label="Mevsim" value={constellation.season} />
-            <Stat label="Yıldız" value={String(constellation.stars.length)} />
+            <Stat label={lang === 'en' ? 'Brightest' : 'En parlak'} value={constellation.brightest} />
+            <Stat label={lang === 'en' ? 'Season' : 'Mevsim'} value={constellation.season} />
+            <Stat label={t('kindStar')} value={String(constellation.stars.length)} />
           </div>
           <p className="inspect-see">
-            <span>Sahnede</span>
+            <span>{t('show')}</span>
             {constellation.see}
           </p>
           {more ? (
@@ -338,7 +335,10 @@ export function InspectRail() {
               {constellation.facts.map((fact) => (
                 <li key={fact}>{fact}</li>
               ))}
-              <li>Parlak yıldızlar: {constellation.stars.map((star) => star.name).join(' · ')}</li>
+              <li>
+                {lang === 'en' ? 'Bright stars: ' : 'Parlak yıldızlar: '}
+                {constellation.stars.map((star) => star.name).join(' · ')}
+              </li>
             </ul>
           ) : (
             <ul className="inspect-facts">
@@ -348,7 +348,7 @@ export function InspectRail() {
             </ul>
           )}
           <button type="button" className="text-link inspect-more" onClick={() => setMore((open) => !open)}>
-            {more ? 'Daha az' : 'Daha fazla'}
+            {more ? t('lessInfo') : t('moreInfo')}
           </button>
         </div>
       ) : null}
@@ -356,34 +356,30 @@ export function InspectRail() {
         <div className="inspect-card">
           <header className="panel-head">
             <div>
-              <p className="eyebrow">{wonderKindLabel(wonder.kind)}</p>
-              <h2>{starDisplayName(wonder)}</h2>
+              <p className="eyebrow">{wonderKindLabel(wonder.kind, lang)}</p>
+              <h2>{starDisplayName(wonder, lang)}</h2>
             </div>
-            <button type="button" className="icon-btn" onClick={() => useSimulationStore.getState().selectWonder(null)} aria-label="Kapat">
+            <button type="button" className="icon-btn" onClick={() => useSimulationStore.getState().selectWonder(null)} aria-label={t('close')}>
               ×
             </button>
           </header>
-          <p className="inspect-lead">{wonder.fact}</p>
+          <p className="inspect-lead">{loc(lang, wonder.fact)}</p>
           <div className="inspect-stats">
-            {wonderPreviewStats(wonder).map((row) => (
+            {wonderPreviewStats(wonder, lang).map((row) => (
               <Stat key={row.label} label={row.label} value={row.value} />
             ))}
-            {more
-              ? wonderDetailStats(wonder).map((row) => (
-                  <Stat key={row.label} label={row.label} value={row.value} />
-                ))
-              : null}
+            {more ? wonderDetailStats(wonder, lang).map((row) => <Stat key={row.label} label={row.label} value={row.value} />) : null}
           </div>
-          {more && wonderFactList(wonder, true).length > 0 ? (
+          {more && wonderFactList(wonder, true, lang).length > 0 ? (
             <ul className="inspect-facts">
-              {wonderFactList(wonder, true).map((fact) => (
+              {wonderFactList(wonder, true, lang).map((fact) => (
                 <li key={fact}>{fact}</li>
               ))}
             </ul>
           ) : null}
           {wonderHasDetail(wonder) ? (
             <button type="button" className="text-link inspect-more" onClick={() => setMore((open) => !open)}>
-              {more ? 'Daha az' : 'Daha fazla'}
+              {more ? t('lessInfo') : t('moreInfo')}
             </button>
           ) : null}
         </div>

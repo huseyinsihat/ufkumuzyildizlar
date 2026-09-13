@@ -16,11 +16,11 @@ describe('astroEvents', () => {
     expect(ASTRO_EVENTS).toHaveLength(20)
     expect(new Set(astroEventIds()).size).toBe(20)
     for (const event of ASTRO_EVENTS) {
-      expect(event.lead.length).toBeGreaterThan(24)
-      expect(event.why.length).toBeGreaterThan(20)
-      expect(event.shortName.length).toBeGreaterThan(2)
-      expect(event.shortName.length).toBeLessThan(14)
-      expect(event.see.length).toBeGreaterThan(20)
+      expect(event.lead.tr.length).toBeGreaterThan(24)
+      expect(event.why.tr.length).toBeGreaterThan(20)
+      expect(event.shortName.tr.length).toBeGreaterThan(2)
+      expect(event.shortName.tr.length).toBeLessThan(14)
+      expect(event.see.tr.length).toBeGreaterThan(20)
       expect(event.facts.length).toBeGreaterThanOrEqual(5)
       expect(event.durationMs).toBeGreaterThanOrEqual(10_000)
       expect(event.durationMs).toBeLessThanOrEqual(20_000)
@@ -32,7 +32,7 @@ describe('astroEvents', () => {
 
   it('lists dated future eclipses without driving the clock', () => {
     const eclipse = getAstroEvent('solar-eclipse')
-    expect(eclipse?.upcoming?.some((row) => row.date.includes('2030') && row.text.includes('Türkiye'))).toBe(true)
+    expect(eclipse?.upcoming?.some((row) => row.date.tr.includes('2030') && row.text.tr.includes('Türkiye'))).toBe(true)
     expect(eclipse?.upcoming).toHaveLength(10)
   })
 
@@ -50,7 +50,7 @@ describe('astroEvents', () => {
     expect(drawer.happened.map((item) => item.id)).toContain('eclipse-2026-aug-12')
     expect(drawer.upcoming[0]?.id).toBe('eclipse-2030-jun-01')
     expect(drawer.upcoming).toHaveLength(10)
-    expect(getSelectableEvent('eclipse-2030-jun-01')?.dateLabel).toContain('2030')
+    expect(getSelectableEvent('eclipse-2030-jun-01')?.dateLabel?.tr).toContain('2030')
   })
 
   it('hides Daha fazla when there is nothing extra to show', () => {

@@ -13,6 +13,7 @@
  *
  * Do not duplicate these numbers elsewhere — import from this module.
  */
+import type { AppLang } from '../i18n/types'
 import type { BodyId, PlanetDefinition } from '../types/planet'
 
 export const BODIES: readonly PlanetDefinition[] = [
@@ -566,6 +567,12 @@ export function bodiesInFamilyOrder(): PlanetDefinition[] {
   return ordered
 }
 
-export function compareOptionLabel(body: PlanetDefinition): string {
-  return body.category === 'moon' ? `- ${body.name}` : body.name
+export function displayName(body: PlanetDefinition | BodyId, lang: AppLang = 'tr'): string {
+  const item = typeof body === 'string' ? getBody(body) : body
+  return lang === 'en' ? item.englishName : item.name
+}
+
+export function compareOptionLabel(body: PlanetDefinition, lang: AppLang = 'tr'): string {
+  const name = displayName(body, lang)
+  return body.category === 'moon' ? `- ${name}` : name
 }

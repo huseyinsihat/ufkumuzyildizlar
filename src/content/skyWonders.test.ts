@@ -3,15 +3,15 @@ import { findWonder, starDisplayName, starsAlphabetical } from './skyWonders'
 
 describe('skyWonders', () => {
   it('finds notable stars and named rocks', () => {
-    expect(findWonder('vega')?.tag).toBe('Yaz üçgeni')
+    expect(findWonder('vega')?.tag.tr).toBe('Yaz üçgeni')
     expect(findWonder('altair')?.kind).toBe('star')
-    expect(findWonder('proxima')?.tag).toBe('En yakın')
+    expect(findWonder('proxima')?.tag.tr).toBe('En yakın')
     expect(findWonder('ceres')?.kind).toBe('rock')
     expect(findWonder('missing')).toBeUndefined()
     expect(findWonder('capella')?.kind).toBe('star')
     expect(findWonder('pleiades')?.kind).toBe('cluster')
     expect(findWonder('m42')?.kind).toBe('nebula')
-    expect(findWonder('alphacen')?.tag).toBe('Komşu güneş')
+    expect(findWonder('alphacen')?.tag.tr).toBe('Komşu güneş')
     expect(findWonder('sirius')).toMatchObject({ tempK: 9940 })
     expect(findWonder('betelgeuse')).toMatchObject({ tempK: 3600 })
   })

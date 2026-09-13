@@ -1,7 +1,8 @@
 import { PerspectiveCamera, type Object3D, Vector3 } from 'three'
 import { CSS2DObject, CSS2DRenderer } from 'three/addons/renderers/CSS2DRenderer.js'
 import type { BodyId } from '../types/planet'
-import { getBody } from '../astronomy/planetData'
+import { displayName, getBody } from '../astronomy/planetData'
+import type { AppLang } from '../i18n/types'
 import type { PlanetDefinition } from '../types/planet'
 import { isAnchorLabel, labelPriority, overlappingLabelIds, shouldOccludeBodyLabel } from './proximityVisibility'
 
@@ -28,6 +29,7 @@ export class LabelLayer {
   private toSphere = new Vector3()
   private closest = new Vector3()
   private show = true
+  private lang: AppLang = 'tr'
 
   constructor(host: HTMLElement) {
     this.renderer = new CSS2DRenderer()
@@ -39,7 +41,7 @@ export class LabelLayer {
   attach(body: PlanetDefinition, parent: Object3D, offsetY = 2.4): void {
     const element = document.createElement('div')
     element.className = 'planet-label'
-    element.textContent = body.name
+    element.textContent = displayName(body, this.lang)
     element.dataset.bodyId = body.id
     const label = new CSS2DObject(element)
     label.position.set(0, offsetY, 0)
@@ -48,6 +50,13 @@ export class LabelLayer {
     this.shown.set(body.id, false)
     this.streak.set(body.id, 0)
     this.applyHidden(label, true)
+  }
+
+  setLang(lang: AppLang): void {
+    this.lang = lang
+    for (const [id, label] of this.labels) {
+      label.element.textContent = displayName(id as BodyId, lang)
+    }
   }
 
   setOffset(bodyId: string, offsetY: number): void {

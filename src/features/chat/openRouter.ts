@@ -1,3 +1,6 @@
+import { L, tx, type AppLang } from '../i18n/types'
+import { UI } from '../i18n/ui'
+
 export const OPENROUTER_MODEL = 'deepseek/deepseek-v4-flash-0731'
 const OPENROUTER_HOST = 'https://openrouter.ai/api/v1/chat/completions'
 const PROXY_PATH = '/api/openrouter'
@@ -26,8 +29,8 @@ function readApiKey(): string {
   return (import.meta.env.VITE_OPENROUTER_API_KEY ?? '').trim()
 }
 
-export function missingKeyMessage(): string {
-  return 'Sohbet şimdilik kapalı.'
+export function missingKeyMessage(lang: AppLang = 'tr'): string {
+  return tx(lang, UI.chatClosed)
 }
 
 export function cleanAssistantReply(raw: string): string {
@@ -70,29 +73,25 @@ function isAbort(error: unknown, signal?: AbortSignal): boolean {
   return Boolean(signal?.aborted) || (error instanceof DOMException && error.name === 'AbortError')
 }
 
-export function friendlyChatError(error: unknown): string {
-  if (isAbort(error)) {
-    return 'Soru durdu. İstersen yeniden yaz.'
-  }
-  if (error instanceof TypeError) {
-    return 'Ağa ulaşılamadı. Bir kez daha dene.'
-  }
-  if (error instanceof Error && error.message === 'missing-key') {
-    return missingKeyMessage()
-  }
-  if (error instanceof Error && error.message === 'empty-reply') {
-    return 'Cevap gelmedi. Soruyu bir kez daha yaz.'
-  }
+const CHAT_ERR = {
+  empty: L('Cevap gelmedi. Soruyu bir kez daha yaz.', 'No answer came. Write the question once more.'),
+  unauthorized: L('Sohbet anahtarı geçersiz. Biraz sonra yine dene.', 'The chat key is not valid. Try again later.'),
+  credit: L('Sohbet kredisi bitmiş. Sonra yine sor.', 'Chat credit is gone. Ask again later.'),
+  rate: L('Biraz bekleyelim. Sonra yine sor.', 'Let’s wait a bit. Then ask again.'),
+  generic: L('Cevabı alamadım. Bir kez daha dene.', 'I could not get the answer. Try once more.'),
+}
+
+export function friendlyChatError(error: unknown, lang: AppLang = 'tr'): string {
+  if (isAbort(error)) return tx(lang, UI.chatStopped)
+  if (error instanceof TypeError) return tx(lang, UI.chatOffline)
+  if (error instanceof Error && error.message === 'missing-key') return missingKeyMessage(lang)
+  if (error instanceof Error && error.message === 'empty-reply') return tx(lang, CHAT_ERR.empty)
   if (error instanceof Error && /401|unauthorized|invalid.*key|user not found/i.test(error.message)) {
-    return 'Sohbet anahtarı geçersiz. Biraz sonra yine dene.'
+    return tx(lang, CHAT_ERR.unauthorized)
   }
-  if (error instanceof Error && /402|credit|payment/i.test(error.message)) {
-    return 'Sohbet kredisi bitmiş. Sonra yine sor.'
-  }
-  if (error instanceof Error && /429|rate|too many|limit/i.test(error.message)) {
-    return 'Biraz bekleyelim. Sonra yine sor.'
-  }
-  return 'Cevabı alamadım. Bir kez daha dene.'
+  if (error instanceof Error && /402|credit|payment/i.test(error.message)) return tx(lang, CHAT_ERR.credit)
+  if (error instanceof Error && /429|rate|too many|limit/i.test(error.message)) return tx(lang, CHAT_ERR.rate)
+  return tx(lang, CHAT_ERR.generic)
 }
 
 interface OpenRouterResponse {

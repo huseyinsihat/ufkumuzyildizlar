@@ -14,6 +14,7 @@ import {
 import { CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js'
 import { starHex } from '../astronomy/starSpectrum'
 import { NOTABLE_STARS, starDisplayName, type NotableStar } from '../content/skyWonders'
+import type { AppLang } from '../i18n/types'
 import { eduSkyDirection, SKY_SPHERE_RADIUS } from '../astronomy/skyCoordinates'
 import type { ScaleMode } from '../types/simulation'
 import {
@@ -62,6 +63,7 @@ export class NotableStars {
   private pulse = 0
   private selectedId: string | null = null
   private scaleMode: ScaleMode = 'educational'
+  private lang: AppLang = 'tr'
   private readonly world = new Vector3()
   private readonly ndc = new Vector3()
   private readonly view = new Vector3()
@@ -225,7 +227,7 @@ export class NotableStars {
 
       const label = document.createElement('div')
       label.className = 'planet-label sky-label'
-      label.textContent = starDisplayName(star)
+      label.textContent = starDisplayName(star, this.lang)
       const css = new CSS2DObject(label)
       css.position.set(0, STAR_LABEL_LOCAL_Y, 0)
       mesh.add(css)
@@ -277,6 +279,13 @@ export class NotableStars {
     if (this.scaleMode === mode) return
     this.scaleMode = mode
     this.applyScales()
+  }
+
+  setLang(lang: AppLang): void {
+    this.lang = lang
+    for (const visual of this.visuals) {
+      visual.label.element.textContent = starDisplayName(visual.star, lang)
+    }
   }
 
   coreRadius(id: string): number | undefined {

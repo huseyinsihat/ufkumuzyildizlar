@@ -10,6 +10,8 @@ import {
 } from '../../content/labActivities'
 import { BADGES } from '../../content/missions'
 import { TEAM } from '../../content/team'
+import { loc } from '../../i18n/types'
+import { useLang, useT } from '../../i18n/useT'
 import { useEducationStore } from '../../store/educationStore'
 import { useLabStore } from '../../store/labStore'
 import { useUiStore } from '../../store/uiStore'
@@ -27,6 +29,8 @@ const ROOM_ICON: Record<LabRoomId, IconName> = {
 }
 
 export function LabHome() {
+  const t = useT()
+  const lang = useLang()
   const room = useLabStore((s) => s.room)
   const setRoom = useLabStore((s) => s.setRoom)
   const start = useLabStore((s) => s.startActivity)
@@ -36,33 +40,34 @@ export function LabHome() {
   const setMode = useUiStore((s) => s.setAppMode)
   const list = room ? activitiesInRoom(room) : null
   const currentRoom = LAB_ROOMS.find((item) => item.id === room)
+  const homeLabel = loc(lang, TEAM.home)
 
   return (
-    <section className="lab-home lab-catalog" aria-label={TEAM.home}>
+    <section className="lab-home lab-catalog" aria-label={homeLabel}>
       <header className="panel-head catalog-head">
         <div>
           <p className="eyebrow">
             <span className="icon-well">
               <Icon name="flask" />
             </span>
-            {TEAM.home}
+            {homeLabel}
             <button
               type="button"
               className="icon-btn catalog-reset"
               onClick={() => useLabStore.getState().resetProgress()}
-              aria-label="Sıfırla"
-              title="Sıfırla"
+              aria-label={t('reset')}
+              title={t('reset')}
             >
               <Icon name="reset" />
             </button>
           </p>
-          <h2>{currentRoom ? currentRoom.title : TEAM.home}</h2>
-          <p className="muted">{currentRoom ? currentRoom.blurb : 'Önce düşün. Sonra bak.'}</p>
+          <h2>{currentRoom ? loc(lang, currentRoom.title) : homeLabel}</h2>
+          <p className="muted">{currentRoom ? loc(lang, currentRoom.blurb) : t('thinkThenLook')}</p>
         </div>
         <div className="row-actions">
           {room ? (
             <button type="button" className="btn" onClick={() => setRoom(null)}>
-              Tümüne dön
+              {t('allRooms')}
             </button>
           ) : null}
           <button
@@ -74,7 +79,7 @@ export function LabHome() {
               setMode('explore')
             }}
           >
-            Keşfe dön
+            {t('backExplore')}
           </button>
         </div>
       </header>
@@ -82,7 +87,7 @@ export function LabHome() {
         <p className="badge-row">
           {BADGES.filter((item) => badges.includes(item.id)).map((item) => (
             <span key={item.id} className="badge-chip">
-              {item.name}
+              {loc(lang, item.name)}
             </span>
           ))}
         </p>
@@ -90,7 +95,7 @@ export function LabHome() {
 
       {!room ? (
         <>
-          <p className="challenge-kicker section-kicker">Temel Etkinlikler</p>
+          <p className="challenge-kicker section-kicker">{t('challenges')}</p>
           <div className="catalog-challenges">
             {CHALLENGE_ACTIVITIES.map((activity, index) => {
               const id = activity.id as ChallengeId
@@ -109,16 +114,16 @@ export function LabHome() {
                     </span>
                     <em>
                       {seen ? <i className="done-dot" aria-hidden="true" /> : null}
-                      {seen ? 'Gördün' : verb}
+                      {seen ? t('seen') : loc(lang, verb)}
                     </em>
                   </span>
-                  <strong>{activity.title}</strong>
-                  <span>{CHALLENGE_BLURB[id]}</span>
+                  <strong>{loc(lang, activity.title)}</strong>
+                  <span>{loc(lang, CHALLENGE_BLURB[id])}</span>
                 </button>
               )
             })}
           </div>
-          <p className="challenge-kicker section-kicker">Uzay Vatanı Keşfet</p>
+          <p className="challenge-kicker section-kicker">{t('rooms')}</p>
           <div className="catalog-rooms">
             {LAB_ROOMS.map((item, index) => (
               <button
@@ -134,8 +139,8 @@ export function LabHome() {
                     <Icon name={ROOM_ICON[item.id]} />
                   </span>
                 </span>
-                <strong>{item.title}</strong>
-                <span>{item.blurb}</span>
+                <strong>{loc(lang, item.title)}</strong>
+                <span>{loc(lang, item.blurb)}</span>
               </button>
             ))}
           </div>
@@ -158,11 +163,11 @@ export function LabHome() {
                   </span>
                   <em>
                     {seen ? <i className="done-dot" aria-hidden="true" /> : null}
-                    {seen ? 'Gördün' : 'İzle'}
+                    {seen ? t('seen') : t('watch')}
                   </em>
                 </span>
-                <strong>{activity.title}</strong>
-                <span>{activity.question}</span>
+                <strong>{loc(lang, activity.title)}</strong>
+                <span>{loc(lang, activity.question)}</span>
               </button>
             )
           })}

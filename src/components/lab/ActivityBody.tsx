@@ -1,18 +1,54 @@
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { labWatchScale } from '../../astronomy/timeEngine'
-import { getBody } from '../../astronomy/planetData'
+import { displayName, getBody } from '../../astronomy/planetData'
+import { getActivity } from '../../content/labActivities'
 import { earthRelativeWeight } from '../../features/lab/gravityMath'
 import { earthYearTours, isFullMoon, kidTourLabel, moonPhaseName } from '../../features/lab/orbitMath'
 import { LIGHT_SCENE_SEC, lightTravelLabel } from '../../features/lab/wowMath'
+import { L, loc, type AppLang } from '../../i18n/types'
+import { useLang, useT } from '../../i18n/useT'
 import { getScene } from '../../scene/sceneApi'
 import { useLabStore } from '../../store/labStore'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
+import type { LabActivityId } from '../../types/lab'
 import type { BodyId } from '../../types/planet'
 import { NOTABLE_STARS, starDisplayName } from '../../content/skyWonders'
 import { PhysicsCanvas } from './PhysicsCanvas'
 
+function useActivityI18n(id: LabActivityId) {
+  return { activity: getActivity(id), lang: useLang(), t: useT() }
+}
+
+function text(lang: AppLang, tr: string, en: string): string {
+  return loc(lang, L(tr, en))
+}
+
+function localizedTourLabel(tours: number, lang: AppLang): string {
+  if (lang === 'tr') return kidTourLabel(tours)
+  if (tours >= 1.5) return `${Math.round(tours)} trips`
+  if (tours >= 0.85) return '1 trip'
+  return 'cannot finish'
+}
+
+function localizedMoonPhase(angleDeg: number, lang: AppLang): string {
+  const phase = moonPhaseName(angleDeg)
+  if (lang === 'tr') return phase
+  return { Yeniay: 'New Moon', Dolunay: 'Full Moon', Hilal: 'Crescent', Yarım: 'Half Moon' }[phase] ?? phase
+}
+
+function ResultCopy({ id, correct }: { id: LabActivityId; correct: boolean }) {
+  const { activity, lang, t } = useActivityI18n(id)
+  return (
+    <p>
+      <strong className={correct ? 'success' : undefined}>{correct ? t('correct') : t('lookAgain')}</strong>{' '}
+      {loc(lang, activity.resultTitle)}
+    </p>
+  )
+}
+
 export function EarthYearLab() {
+  const { activity, lang } = useActivityI18n('earth-year')
   const tours = useLabStore((s) => s.yearTours)
   const step = useLabStore((s) => s.step)
   const prediction = useLabStore((s) => s.prediction)
@@ -34,19 +70,17 @@ export function EarthYearLab() {
             getScene()?.startEarthYearWatch()
           }}
         >
-          1 yılı başlat
+          {loc(lang, activity.simulateLabel)}
         </button>
       ) : null}
       {step === 'result' ? (
         <div>
-          <p>
-            {correct ? <strong className="success">Doğru.</strong> : <strong>Tekrar bak.</strong>} Merkür birkaç tur, Dünya 1 tur, Jüpiter turunu bitiremez.
-          </p>
+          <ResultCopy id="earth-year" correct={correct} />
           <ul className="tour-list">
             {rows.map((row) => (
               <li key={row.id}>
-                <span>{row.name}</span>
-                <strong>{kidTourLabel(row.tours)}</strong>
+                <span>{displayName(getBody(row.id as BodyId), lang)}</span>
+                <strong>{localizedTourLabel(row.tours, lang)}</strong>
                 <i style={{ width: `${Math.min((row.tours / maxTours) * 100, 100)}%` }} />
               </li>
             ))}
@@ -57,17 +91,12 @@ export function EarthYearLab() {
   )
 }
 
-const RACE_GUESSES = [
-  { id: 'mercury', label: 'Merkür' },
-  { id: 'earth', label: 'Dünya' },
-  { id: 'same', label: 'Aynı anda' },
-] as const
-
 export function WhoFasterLab() {
+  const { activity, lang, t } = useActivityI18n('who-faster')
   const step = useLabStore((s) => s.step)
   const prediction = useLabStore((s) => s.prediction)
   const winnerId = useLabStore((s) => s.raceWinner) ?? 'mercury'
-  const winner = getBody(winnerId as BodyId)?.name ?? 'Merkür'
+  const winner = displayName(getBody(winnerId as BodyId), lang)
   const correct = prediction === 'mercury'
 
   return (
@@ -85,14 +114,16 @@ export function WhoFasterLab() {
               getScene()?.startOrbitRace('mercury', 'earth')
             }}
           >
-            Yarışı başlat
+            {loc(lang, activity.simulateLabel)}
           </button>
         </div>
       ) : null}
       {step === 'result' ? (
         <p>
-          {correct ? <strong className="success">Doğru.</strong> : <strong>Tekrar bak.</strong>} Kazanan {winner}.
-          {prediction ? ` Tahminin: ${RACE_GUESSES.find((item) => item.id === prediction)?.label}.` : ''} Merkür daha kısa yolda tur atar.
+          <strong className={correct ? 'success' : undefined}>{correct ? t('correct') : t('lookAgain')}</strong>{' '}
+          {t('winner')}: {winner}.{' '}
+          {prediction ? `${t('guessOf')} ${loc(lang, activity.choices?.find((item) => item.id === prediction)?.label ?? '')}. ` : ''}
+          {loc(lang, activity.resultTitle)}
         </p>
       ) : null}
     </div>
@@ -100,6 +131,7 @@ export function WhoFasterLab() {
 }
 
 export function SpinOrbitLab() {
+  const { activity, lang, t } = useActivityI18n('spin-vs-orbit')
   const freezeR = useSimulationStore((s) => s.freezeRotation)
   const freezeO = useSimulationStore((s) => s.freezeRevolution)
   const setR = useSimulationStore((s) => s.setFreezeRotation)
@@ -125,7 +157,7 @@ export function SpinOrbitLab() {
                 setTriedSpin(true)
               }}
             >
-              {freezeR ? 'Dönme durdu' : 'Dönmeyi durdur'}
+              {freezeR ? t('spinStopped') : t('stopSpin')}
             </button>
             <button
               type="button"
@@ -135,7 +167,7 @@ export function SpinOrbitLab() {
                 setTriedOrbit(true)
               }}
             >
-              {freezeO ? 'Tur durdu' : 'Turu durdur'}
+              {freezeO ? t('orbitStopped') : t('stopOrbit')}
             </button>
           </div>
           <button
@@ -148,20 +180,19 @@ export function SpinOrbitLab() {
               setStep('result')
             }}
           >
-            {ready ? 'Gördüm' : 'İkisini de dene'}
+            {ready ? loc(lang, activity.simulateLabel) : t('tryBoth')}
           </button>
         </div>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <strong>Tekrar bak.</strong>} Gece ve gündüz, Dünya’nın dönmesiyle olur. Güneş etrafındaki tur yılı yapar.
-        </p>
+        <ResultCopy id="spin-vs-orbit" correct={correct} />
       ) : null}
     </div>
   )
 }
 
 export function DayNightLab() {
+  const { activity, lang, t } = useActivityI18n('day-night')
   const setStep = useLabStore((s) => s.setStep)
   const prediction = useLabStore((s) => s.prediction)
   const correct = prediction === 'same'
@@ -178,19 +209,18 @@ export function DayNightLab() {
     <div>
       {step === 'simulate' ? (
         <button type="button" className="btn primary" disabled={!watched} onClick={() => setStep('result')}>
-          {watched ? 'Gördüm' : 'Gece-gündüzü izle'}
+          {watched ? loc(lang, activity.simulateLabel) : t('watchDayNight')}
         </button>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <strong>Tekrar bak.</strong>} Aynı ülkede batı ve doğu neredeyse birlikte geceye girer.
-        </p>
+        <ResultCopy id="day-night" correct={correct} />
       ) : null}
     </div>
   )
 }
 
 export function MassWeightLab() {
+  const { activity, lang } = useActivityI18n('mass-weight')
   const kg = useLabStore((s) => s.kidMassKg)
   const setKg = useLabStore((s) => s.setKidMassKg)
   const setStep = useLabStore((s) => s.setStep)
@@ -207,40 +237,39 @@ export function MassWeightLab() {
       {step === 'simulate' ? (
         <div>
           <label>
-            Kilon kaç?
+            {text(lang, 'Kilon kaç?', 'How much do you weigh?')}
             <input type="range" min={15} max={55} value={kg} onChange={(e) => setKg(Number(e.target.value))} />
             <strong>{kg} kg</strong>
           </label>
           {fallback2d ? <PhysicsCanvas mode="weight" running bodyId="earth" massKg={kg} /> : null}
           <ul className="stats">
             <li>
-              <span>Dünya’da his</span>
-              <strong>{earth.kgf.toFixed(0)} kilo gibi</strong>
+              <span>{text(lang, 'Dünya’da his', 'Feels like on Earth')}</span>
+              <strong>{earth.kgf.toFixed(0)} {text(lang, 'kilo gibi', 'kg')}</strong>
             </li>
             <li>
-              <span>Ay’da his</span>
-              <strong>{moon.kgf.toFixed(0)} kilo gibi</strong>
+              <span>{text(lang, 'Ay’da his', 'Feels like on the Moon')}</span>
+              <strong>{moon.kgf.toFixed(0)} {text(lang, 'kilo gibi', 'kg')}</strong>
             </li>
             <li>
-              <span>Jüpiter’de his</span>
-              <strong>{jupiter.kgf.toFixed(0)} kilo gibi</strong>
+              <span>{text(lang, 'Jüpiter’de his', 'Feels like on Jupiter')}</span>
+              <strong>{jupiter.kgf.toFixed(0)} {text(lang, 'kilo gibi', 'kg')}</strong>
             </li>
           </ul>
           <button type="button" className="btn primary" onClick={() => setStep('result')}>
-            Bunu gördüm
+            {loc(lang, activity.simulateLabel)}
           </button>
         </div>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <span>Tekrar bak:</span>} Sen aynı çocuksun; Ay’da daha hafif hissedersin.
-        </p>
+        <ResultCopy id="mass-weight" correct={correct} />
       ) : null}
     </div>
   )
 }
 
 export function DropBallLab() {
+  const { activity, lang, t } = useActivityI18n('drop-ball')
   const setStep = useLabStore((s) => s.setStep)
   const prediction = useLabStore((s) => s.prediction)
   const step = useLabStore((s) => s.step)
@@ -271,25 +300,24 @@ export function DropBallLab() {
                 getScene()?.playSurfaceLab()
               }}
             >
-              Topları bırak
+              {loc(lang, activity.simulateLabel)}
             </button>
             <button type="button" className="btn" disabled={!landed} onClick={() => setStep('result')}>
-              {landed ? 'Sonucu gör' : 'Önce bırak'}
+              {landed ? t('seeResult') : t('dropFirst')}
             </button>
           </div>
           {fallback2d ? <PhysicsCanvas mode="drop" running={landed} /> : null}
         </div>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <span>Tekrar bak:</span>} Jüpiter’de çekim en büyük; top önce orada düşer.
-        </p>
+        <ResultCopy id="drop-ball" correct={correct} />
       ) : null}
     </div>
   )
 }
 
 export function JumpLab() {
+  const { activity, lang, t } = useActivityI18n('jump')
   const [body, setBody] = useState<BodyId>('earth')
   const [jumped, setJumped] = useState(false)
   const setStep = useLabStore((s) => s.setStep)
@@ -313,11 +341,11 @@ export function JumpLab() {
                   getScene()?.setSurfaceJumpBody(id)
                 }}
               >
-                {getBody(id).name}
+                {displayName(getBody(id), lang)}
               </button>
             ))}
           </div>
-          <p className="muted">Ay’da yüksek, Jüpiter’de alçak. Mavi çizgi tepeyi gösterir.</p>
+          <p className="muted">{loc(lang, activity.watchHint)}</p>
           <div className="row-actions">
             <button
               type="button"
@@ -327,25 +355,24 @@ export function JumpLab() {
                 getScene()?.playSurfaceLab()
               }}
             >
-              Zıplat
+              {loc(lang, activity.simulateLabel)}
             </button>
             <button type="button" className="btn" disabled={!jumped} onClick={() => setStep('result')}>
-              {jumped ? 'Sonucu gör' : 'Önce zıplat'}
+              {jumped ? t('seeResult') : t('jumpFirst')}
             </button>
           </div>
           {fallback2d ? <PhysicsCanvas mode="jump" running={jumped} bodyId={body} /> : null}
         </div>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <span>Tekrar bak:</span>} Ay’da çekim zayıf olduğu için aynı zıplama daha yükseğe çıkar.
-        </p>
+        <ResultCopy id="jump" correct={correct} />
       ) : null}
     </div>
   )
 }
 
 export function RealScaleLab() {
+  const { activity, lang } = useActivityI18n('real-scale')
   const setStep = useLabStore((s) => s.setStep)
   const mode = useSimulationStore((s) => s.scaleMode)
   const prediction = useLabStore((s) => s.prediction)
@@ -365,7 +392,7 @@ export function RealScaleLab() {
                 getScene()?.focusOverview()
               }}
             >
-              Büyütülmüş model
+              {text(lang, 'Büyütülmüş model', 'Enlarged model')}
             </button>
             <button
               type="button"
@@ -375,27 +402,23 @@ export function RealScaleLab() {
                 getScene()?.focusOverview()
               }}
             >
-              Gerçek boşluk
+              {text(lang, 'Gerçek boşluk', 'True empty space')}
             </button>
           </div>
-          <p className="muted">Uzay çok boş. Küçük noktaları görelim diye büyütürüz.</p>
+          <p className="muted">{loc(lang, activity.resultTitle)}</p>
           <button type="button" className="btn primary" onClick={() => setStep('result')}>
-            Bunu gördüm
+            {loc(lang, activity.simulateLabel)}
           </button>
         </div>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <strong>Tekrar bak.</strong>} Gerçekte gezegenler nokta kadar kalır; bu bir modeldir.
-        </p>
+        <ResultCopy id="real-scale" correct={correct} />
       ) : null}
     </div>
   )
 }
 
 const ORDER: BodyId[] = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune']
-const ORDER_LABEL = ORDER.map((id) => getBody(id).name).join(' → ')
-
 function shuffleIds(): BodyId[] {
   return [...ORDER].sort(() => Math.random() - 0.5)
 }
@@ -403,6 +426,8 @@ function shuffleIds(): BodyId[] {
 const ARRANGE_LIVES = 7
 
 export function ArrangeOrbitsLab() {
+  const { activity, lang } = useActivityI18n('arrange-orbits')
+  const orderLabel = ORDER.map((id) => displayName(getBody(id), lang)).join(' → ')
   const [slots, setSlots] = useState<(BodyId | null)[]>(() => Array(8).fill(null))
   const [pool, setPool] = useState<BodyId[]>(shuffleIds)
   const [pick, setPick] = useState<BodyId | null>(null)
@@ -450,20 +475,20 @@ export function ArrangeOrbitsLab() {
     <div className="orbit-lab">
       <p className="lives-row">
         <strong>{placed}/8</strong>
-        <span>{dead ? 'Can bitti' : `${lives} can`}</span>
+        <span>{dead ? text(lang, 'Can bitti', 'No lives left') : `${lives} ${text(lang, 'can', 'lives')}`}</span>
       </p>
       <p className="muted">
         {dead
-          ? 'Yanlış halka can götürür. Yeniden dene.'
+          ? text(lang, 'Yanlış halka can götürür. Yeniden dene.', 'A wrong ring costs a life. Try again.')
           : ready
-            ? ORDER_LABEL
+            ? orderLabel
             : pick
-              ? `${getBody(pick).name}: doğru halkaya dokun.`
-              : 'Önce adı seç. Sonra doğru halkaya dokun.'}
+              ? `${displayName(getBody(pick), lang)}: ${lang === 'en' ? 'tap the correct ring.' : 'doğru halkaya dokun.'}`
+              : loc(lang, activity.watchHint)}
       </p>
       {ready && elapsed !== null ? (
         <p className="success">
-          Tamam · {elapsed.toLocaleString('tr-TR', { maximumFractionDigits: 1 })} sn
+          {text(lang, 'Tamam', 'Done')} · {elapsed.toLocaleString(lang === 'en' ? 'en-US' : 'tr-TR', { maximumFractionDigits: 1 })} {text(lang, 'sn', 'sec')}
         </p>
       ) : null}
       <div className="choice-row planet-pills">
@@ -478,14 +503,14 @@ export function ArrangeOrbitsLab() {
               disabled={dead}
               onClick={() => setPick(id)}
             >
-              {body.name}
+              {displayName(body, lang)}
             </button>
           )
         })}
       </div>
       {dead ? (
         <button type="button" className="btn primary" onClick={restart}>
-          Yeniden dene
+          {text(lang, 'Yeniden dene', 'Try again')}
         </button>
       ) : ready ? (
         <button
@@ -497,7 +522,7 @@ export function ArrangeOrbitsLab() {
             setStep('result')
           }}
         >
-          Sırayı gördüm
+          {loc(lang, activity.simulateLabel)}
         </button>
       ) : null}
     </div>
@@ -505,6 +530,7 @@ export function ArrangeOrbitsLab() {
 }
 
 export function MoonPhasesLab() {
+  const { activity, lang } = useActivityI18n('moon-phases')
   const deg = useLabStore((s) => s.moonPhaseDeg)
   const setStep = useLabStore((s) => s.setStep)
   const prediction = useLabStore((s) => s.prediction)
@@ -517,24 +543,23 @@ export function MoonPhasesLab() {
       {step === 'simulate' ? (
         <div className="lab-controls">
           <p>
-            Evre: <strong>{moonPhaseName(deg)}</strong>
+            {text(lang, 'Evre:', 'Phase:')} <strong>{localizedMoonPhase(deg, lang)}</strong>
           </p>
-          {full ? <p className="success">Dolunay oldu.</p> : null}
+          {full ? <p className="success">{text(lang, 'Dolunay oldu.', 'It is a full Moon.')}</p> : null}
           <button type="button" className="btn primary" disabled={!full} onClick={() => setStep('result')}>
-            {full ? 'Devam et' : 'Önce dolunayı yakala'}
+            {full ? loc(lang, activity.simulateLabel) : (lang === 'en' ? 'Catch the full Moon first' : 'Önce dolunayı yakala')}
           </button>
         </div>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <strong>Tekrar bak.</strong>} Dolunayda Ay, Dünya’nın gece tarafındadır.
-        </p>
+        <ResultCopy id="moon-phases" correct={correct} />
       ) : null}
     </div>
   )
 }
 
 export function StarsOrEarthLab() {
+  const { activity, lang } = useActivityI18n('stars-or-earth')
   const setStep = useLabStore((s) => s.setStep)
   const prediction = useLabStore((s) => s.prediction)
   const step = useLabStore((s) => s.step)
@@ -559,7 +584,7 @@ export function StarsOrEarthLab() {
                 setSawSky(true)
               }}
             >
-              Gökyüzü kayıyor gibi
+              {text(lang, 'Gökyüzü kayıyor gibi', 'The sky seems to drift')}
             </button>
             <button
               type="button"
@@ -574,25 +599,24 @@ export function StarsOrEarthLab() {
                 setSawEarth(true)
               }}
             >
-              Dünya dönüyor
+              {text(lang, 'Dünya dönüyor', 'Earth is spinning')}
             </button>
           </div>
-          <p className="muted">Gösteri gökyüzü, dürbün haritası değil. Yıldızlar yerinde; Dünya döndüğü için gökyüzü kayıyor gibi durur.</p>
+          <p className="muted">{loc(lang, activity.watchHint)}</p>
           <button type="button" className="btn primary" disabled={!ready} onClick={() => setStep('result')}>
-            {ready ? 'Gördüm' : 'Önce gökyüzü, sonra Dünya'}
+            {ready ? loc(lang, activity.simulateLabel) : (lang === 'en' ? 'Sky first, then Earth' : 'Önce gökyüzü, sonra Dünya')}
           </button>
         </div>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <strong>Tekrar bak.</strong>} Dünya döndüğü için gökyüzü kayıyor gibi görünür.
-        </p>
+        <ResultCopy id="stars-or-earth" correct={correct} />
       ) : null}
     </div>
   )
 }
 
 export function StarNamesLab() {
+  const { activity, lang } = useActivityI18n('star-names')
   const [quiz] = useState(() => [...NOTABLE_STARS].sort(() => Math.random() - 0.5).slice(0, 3))
   const [index, setIndex] = useState(0)
   const [score, setScore] = useState(0)
@@ -629,12 +653,12 @@ export function StarNamesLab() {
       {step === 'simulate' ? (
         <div>
           <p className="muted">
-            {index + 1}/{quiz.length} · {current.tag}. Rengine bak, adını seç.
+            {index + 1}/{quiz.length} · {loc(lang, current.tag)}. {text(lang, 'Rengine bak, adını seç.', 'Look at its color and choose its name.')}
           </p>
           <div className="choice-row">
             {options.map((star) => (
               <button key={star.id} type="button" className="chip" onClick={() => choose(star.id)}>
-                {starDisplayName(star)}
+                {starDisplayName(star, lang)}
               </button>
             ))}
           </div>
@@ -642,7 +666,8 @@ export function StarNamesLab() {
       ) : null}
       {step === 'result' ? (
         <p>
-          <strong className="success">{prediction ?? score}/3 doğru.</strong> Her yıldızın adı ve rengi ayrıdır.
+          <strong className="success">{prediction ?? score}/3 {text(lang, 'doğru.', 'correct.')}</strong>{' '}
+          {loc(lang, activity.resultTitle)}
         </p>
       ) : null}
     </div>
@@ -650,15 +675,16 @@ export function StarNamesLab() {
 }
 
 export function SpaceMissionLab() {
+  const { activity, lang } = useActivityI18n('space-mission')
   const index = useLabStore((s) => s.missionIndex)
   const setIndex = useLabStore((s) => s.setMissionIndex)
   const setStep = useLabStore((s) => s.setStep)
   const step = useLabStore((s) => s.step)
   const moonDeg = useLabStore((s) => s.moonPhaseDeg)
   const steps = [
-    { title: 'Mars’a bak', body: 'Mars’ın yılı daha uzun sürer.' },
-    { title: 'Dolunayı hizala', body: 'Ay’ı Dünya’nın gece tarafına sürükle.' },
-    { title: 'Ay’da zıpla', body: 'Ay’da zıplama daha yüksektir.' },
+    { title: text(lang, 'Mars’a bak', 'Look at Mars'), body: text(lang, 'Mars’ın yılı daha uzun sürer.', 'A Mars year takes longer.') },
+    { title: text(lang, 'Dolunayı hizala', 'Line up the full Moon'), body: text(lang, 'Ay’ı Dünya’nın gece tarafına sürükle.', 'Drag the Moon to Earth’s night side.') },
+    { title: text(lang, 'Ay’da zıpla', 'Jump on the Moon'), body: text(lang, 'Ay’da zıplama daha yüksektir.', 'A jump is higher on the Moon.') },
   ]
   const current = steps[index] ?? steps[0]
   const ready = index !== 1 || isFullMoon(moonDeg)
@@ -676,32 +702,30 @@ export function SpaceMissionLab() {
     }
   }, [index])
 
-  if (step === 'result') {
-    return <p>Mars’ın yılı uzun. Dolunay bir çizgidir. Ay’da zıplama yüksektir.</p>
-  }
+  if (step === 'result') return <p>{loc(lang, activity.resultTitle)}</p>
 
   return (
     <div>
       <p>
-        Bakış {index + 1} / {steps.length}
+        {text(lang, 'Bakış', 'View')} {index + 1} / {steps.length}
       </p>
       <p>
         <strong>{current.title}</strong> {current.body}
       </p>
-      {index === 1 && isFullMoon(moonDeg) ? <p className="success">Dolunay oldu.</p> : null}
+      {index === 1 && isFullMoon(moonDeg) ? <p className="success">{text(lang, 'Dolunay oldu.', 'It is a full Moon.')}</p> : null}
       <div className="row-actions">
         {index === 2 ? (
           <button type="button" className="btn" onClick={() => getScene()?.playSurfaceLab()}>
-            Zıplat
+            {text(lang, 'Zıplat', 'Jump')}
           </button>
         ) : null}
         {index < 2 ? (
           <button type="button" className="btn primary" disabled={!ready} onClick={() => setIndex(index + 1)}>
-            {ready ? 'Gördüm' : 'Önce dolunayı yakala'}
+            {ready ? loc(lang, activity.simulateLabel) : (lang === 'en' ? 'Catch the full Moon first' : 'Önce dolunayı yakala')}
           </button>
         ) : (
           <button type="button" className="btn primary" onClick={() => setStep('result')}>
-            Gördüm
+            {loc(lang, activity.simulateLabel)}
           </button>
         )}
       </div>
@@ -710,6 +734,7 @@ export function SpaceMissionLab() {
 }
 
 export function LightTravelLab() {
+  const { activity, lang } = useActivityI18n('light-travel')
   const seconds = useLabStore((s) => s.lightSeconds)
   const arrived = useLabStore((s) => s.lightArrived)
   const setStep = useLabStore((s) => s.setStep)
@@ -731,17 +756,20 @@ export function LightTravelLab() {
       {step === 'simulate' ? (
         <div className="lab-controls">
           <p className="muted">
-            Görüntüde {LIGHT_SCENE_SEC[seconds > 800 ? 'jupiter' : 'earth']} sn
-            {arrived ? ' · Işık ulaştı.' : ''}
+            {text(lang, 'Görüntüde', 'In the view')} {LIGHT_SCENE_SEC[seconds > 800 ? 'jupiter' : 'earth']} {text(lang, 'sn', 'sec')}
+            {arrived ? ` · ${text(lang, 'Işık ulaştı.', 'The light arrived.')}` : ''}
           </p>
-          <p className="muted">Gerçekte {lightTravelLabel(seconds > 800 ? 'jupiter' : 'earth')} (Dünya ≈ 8 dk 20 sn · Jüpiter ≈ 43 dk)</p>
+          <p className="muted">
+            {text(lang, 'Gerçekte', 'In reality')} {lightTravelLabel(seconds > 800 ? 'jupiter' : 'earth')}
+            {' '}({displayName(getBody('earth'), lang)} ≈ 8 {text(lang, 'dk', 'min')} 20 {text(lang, 'sn', 'sec')} · {displayName(getBody('jupiter'), lang)} ≈ 43 {text(lang, 'dk', 'min')})
+          </p>
           <div className="choice-row">
             <button
               type="button"
               className={`chip ${sawEarth ? 'is-active' : ''}`}
               onClick={() => getScene()?.startLightPulse('earth')}
             >
-              Dünya’ya gönder
+              {text(lang, 'Dünya’ya gönder', 'Send to Earth')}
             </button>
             <button
               type="button"
@@ -749,24 +777,23 @@ export function LightTravelLab() {
               disabled={!sawEarth}
               onClick={() => getScene()?.startLightPulse('jupiter')}
             >
-              Jüpiter’e gönder
+              {text(lang, 'Jüpiter’e gönder', 'Send to Jupiter')}
             </button>
           </div>
           <button type="button" className="btn primary" disabled={!ready} onClick={() => setStep('result')}>
-            {ready ? 'Gördüm' : 'Önce Dünya, sonra Jüpiter'}
+            {ready ? loc(lang, activity.simulateLabel) : (lang === 'en' ? 'Earth first, then Jupiter' : 'Önce Dünya, sonra Jüpiter')}
           </button>
         </div>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <strong>Tekrar bak.</strong>} Işık Dünya’ya yaklaşık 8 dakika 20 saniyede gelir.
-        </p>
+        <ResultCopy id="light-travel" correct={correct} />
       ) : null}
     </div>
   )
 }
 
 export function SeasonsTiltLab() {
+  const { activity, lang } = useActivityI18n('seasons-tilt')
   const setStep = useLabStore((s) => s.setStep)
   const prediction = useLabStore((s) => s.prediction)
   const step = useLabStore((s) => s.step)
@@ -786,30 +813,28 @@ export function SeasonsTiltLab() {
         <div className="lab-controls season-panel">
           <div className="choice-row">
             <button type="button" className={`chip ${tiltOn ? 'is-active' : ''}`} onClick={() => apply(true, month)}>
-              Dünya biraz yan dursun
+              {text(lang, 'Dünya biraz yan dursun', 'Tilt Earth a little')}
             </button>
             <button type="button" className={`chip ${!tiltOn ? 'is-active' : ''}`} onClick={() => apply(false, month)}>
-              Dünya dik dursun
+              {text(lang, 'Dünya dik dursun', 'Keep Earth upright')}
             </button>
           </div>
           <div className="choice-row">
             <button type="button" className={`chip ${month === 'jan' ? 'is-active' : ''}`} onClick={() => apply(tiltOn, 'jan')}>
-              Ocak
+              {text(lang, 'Ocak', 'January')}
             </button>
             <button type="button" className={`chip ${month === 'jul' ? 'is-active' : ''}`} onClick={() => apply(tiltOn, 'jul')}>
-              Temmuz
+              {text(lang, 'Temmuz', 'July')}
             </button>
           </div>
-          <p className="muted">Ocak’ta Güneş’e biraz daha yakınız ama Türkiye’de kış.</p>
+          <p className="muted">{loc(lang, activity.explain)}</p>
           <button type="button" className="btn primary" onClick={() => setStep('result')}>
-            Bunu gördüm
+            {loc(lang, activity.simulateLabel)}
           </button>
         </div>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <strong>Tekrar bak.</strong>} Yaz, Dünya’nın biraz yan durmasından olur.
-        </p>
+        <ResultCopy id="seasons-tilt" correct={correct} />
       ) : null}
     </div>
   )
@@ -822,6 +847,7 @@ const HEAT_TEMP = {
 } as const
 
 export function ClosestHottestLab() {
+  const { activity, lang } = useActivityI18n('closest-hottest')
   const setStep = useLabStore((s) => s.setStep)
   const prediction = useLabStore((s) => s.prediction)
   const step = useLabStore((s) => s.step)
@@ -841,8 +867,8 @@ export function ClosestHottestLab() {
         <div className="lab-controls">
           <p className="muted">
             {tried
-              ? `Venüs ≈ ${HEAT_TEMP.venus}°C · Merkür ≈ ${HEAT_TEMP.mercury}°C · Dünya ≈ ${HEAT_TEMP.earth}°C`
-              : 'Hava yokken Merkür önde gibi durur. Hava gelince Venüs daha sıcak.'}
+              ? `${displayName(getBody('venus'), lang)} ≈ ${HEAT_TEMP.venus}°C · ${displayName(getBody('mercury'), lang)} ≈ ${HEAT_TEMP.mercury}°C · ${displayName(getBody('earth'), lang)} ≈ ${HEAT_TEMP.earth}°C`
+              : loc(lang, activity.watchHint)}
           </p>
           <div className="choice-row">
             <button
@@ -854,7 +880,7 @@ export function ClosestHottestLab() {
                 getScene()?.setVenusBlanket(false)
               }}
             >
-              Venüs’ün kalın havasını kaldır
+              {text(lang, 'Venüs’ün kalın havasını kaldır', 'Remove Venus’s thick air')}
             </button>
             <button
               type="button"
@@ -865,24 +891,23 @@ export function ClosestHottestLab() {
                 getScene()?.setVenusBlanket(true)
               }}
             >
-              Kalın havayı geri koy
+              {text(lang, 'Kalın havayı geri koy', 'Put the thick air back')}
             </button>
           </div>
           <button type="button" className="btn primary" disabled={!tried} onClick={() => setStep('result')}>
-            {tried ? 'Sonucu gör' : 'Önce havayı dene'}
+            {tried ? loc(lang, activity.simulateLabel) : (lang === 'en' ? 'Try the air first' : 'Önce havayı dene')}
           </button>
         </div>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <strong>Tekrar bak.</strong>} En yakın, en sıcak demek değildir. En sıcak yüzey Venüs’tür.
-        </p>
+        <ResultCopy id="closest-hottest" correct={correct} />
       ) : null}
     </div>
   )
 }
 
 export function CometTailLab() {
+  const { activity, lang } = useActivityI18n('comet-tail')
   const setStep = useLabStore((s) => s.setStep)
   const prediction = useLabStore((s) => s.prediction)
   const step = useLabStore((s) => s.step)
@@ -893,30 +918,29 @@ export function CometTailLab() {
     <div>
       {step === 'simulate' ? (
         <div className="lab-controls">
-          <p className="muted">Bu bir model kuyrukluyıldız. Sürükle: kuyruk Güneş’ten uzağa bakar.</p>
+          <p className="muted">{loc(lang, activity.watchHint)}</p>
           <div className="choice-row">
             <button type="button" className="chip" onClick={() => getScene()?.nudgeComet(true)}>
-              Güneş’e yaklaştır
+              {text(lang, 'Güneş’e yaklaştır', 'Move closer to the Sun')}
             </button>
             <button type="button" className="chip" onClick={() => getScene()?.nudgeComet(false)}>
-              Güneş’ten uzaklaştır
+              {text(lang, 'Güneş’ten uzaklaştır', 'Move away from the Sun')}
             </button>
           </div>
           <button type="button" className="btn primary" disabled={!moved} onClick={() => setStep('result')}>
-            {moved ? 'Gördüm' : 'Önce kuyrukluyu oynat'}
+            {moved ? loc(lang, activity.simulateLabel) : (lang === 'en' ? 'Move the comet first' : 'Önce kuyrukluyu oynat')}
           </button>
         </div>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <strong>Tekrar bak.</strong>} Kuyruk gidişin arkasında durmaz. Güneş onu kendinden uzağa iter.
-        </p>
+        <ResultCopy id="comet-tail" correct={correct} />
       ) : null}
     </div>
   )
 }
 
 export function MercuryLongDayLab() {
+  const { activity, lang } = useActivityI18n('mercury-long-day')
   const year = useLabStore((s) => s.mercuryYear)
   const day = useLabStore((s) => s.mercuryDay)
   const prediction = useLabStore((s) => s.prediction)
@@ -927,20 +951,20 @@ export function MercuryLongDayLab() {
       {step === 'simulate' ? (
         <div className="lab-controls">
           <p>
-            Tur <strong>{Math.round(year * 100)}%</strong> · Gün <strong>{Math.round(day * 100)}%</strong>
+            {text(lang, 'Tur', 'Trip')} <strong>{Math.round(year * 100)}%</strong> · {text(lang, 'Gün', 'Day')} <strong>{Math.round(day * 100)}%</strong>
           </p>
           <div className="bar-pair">
             <div className="bar-line">
               <div className="bar-track">
                 <i style={{ width: `${Math.max(4, year * 100)}%` }} />
               </div>
-              <em>Güneş etrafında tur (yıl)</em>
+              <em>{text(lang, 'Güneş etrafında tur (yıl)', 'Trip around the Sun (year)')}</em>
             </div>
             <div className="bar-line">
               <div className="bar-track">
                 <i className="b" style={{ width: `${Math.max(4, day * 100)}%` }} />
               </div>
-              <em>Güneş’in bir kez doğup batması (gün)</em>
+              <em>{text(lang, 'Güneş’in bir kez doğup batması (gün)', 'One sunrise and sunset (day)')}</em>
             </div>
           </div>
           <div className="choice-row">
@@ -953,7 +977,7 @@ export function MercuryLongDayLab() {
                 getScene()?.startMercuryWatch('mercury-year')
               }}
             >
-              1 yılı izle
+              {loc(lang, activity.simulateLabel)}
             </button>
             <button
               type="button"
@@ -964,7 +988,7 @@ export function MercuryLongDayLab() {
                 getScene()?.startMercuryWatch('mercury-day')
               }}
             >
-              Bir günü izle
+              {text(lang, 'Bir günü izle', 'Watch one day')}
             </button>
           </div>
           <button
@@ -973,20 +997,19 @@ export function MercuryLongDayLab() {
             disabled={year < 0.9 && day < 0.45}
             onClick={() => useLabStore.getState().setStep('result')}
           >
-            {year >= 0.9 || day >= 0.45 ? 'Gördüm' : 'Önce yılı veya günü izle'}
+            {year >= 0.9 || day >= 0.45 ? loc(lang, activity.simulateLabel) : (lang === 'en' ? 'Watch the year or day first' : 'Önce yılı veya günü izle')}
           </button>
         </div>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <strong>Tekrar bak.</strong>} Yıl biter, gün bitmez.
-        </p>
+        <ResultCopy id="mercury-long-day" correct={correct} />
       ) : null}
     </div>
   )
 }
 
 export function KeplerPizzaLab() {
+  const { activity, lang } = useActivityI18n('kepler-pizza')
   const step = useLabStore((s) => s.step)
   const prediction = useLabStore((s) => s.prediction)
   const setStep = useLabStore((s) => s.setStep)
@@ -1009,22 +1032,21 @@ export function KeplerPizzaLab() {
     <div>
       {step === 'simulate' ? (
         <div className="lab-controls">
-          <p className="muted">Elips ders için şişirildi; gerçek Merkür bu kadar yassı değil. Güneş’e yaklaşınca sarı dilimde hızlanır.</p>
+          <p className="muted">{loc(lang, activity.watchHint)}</p>
           <button type="button" className="btn primary" disabled={!ready} onClick={() => setStep('result')}>
-            {ready ? 'Gördüm' : 'Yakın ve uzak dilimi bekle'}
+            {ready ? loc(lang, activity.simulateLabel) : (lang === 'en' ? 'Wait for the near and far slices' : 'Yakın ve uzak dilimi bekle')}
           </button>
         </div>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <span>Tekrar bak:</span>} Merkür Güneş’e yaklaşınca hızlanır.
-        </p>
+        <ResultCopy id="kepler-pizza" correct={correct} />
       ) : null}
     </div>
   )
 }
 
 export function EclipseAlignLab() {
+  const { activity, lang } = useActivityI18n('eclipse-align')
   const kind = useLabStore((s) => s.eclipseKind)
   const deg = useLabStore((s) => s.moonPhaseDeg)
   const prediction = useLabStore((s) => s.prediction)
@@ -1036,36 +1058,39 @@ export function EclipseAlignLab() {
       {step === 'simulate' ? (
         <div className="lab-controls">
           <p>
-            Evre: <strong>{moonPhaseName(deg)}</strong>
-            {kind === 'lunar' ? ' · Ay tutulması' : kind === 'solar' ? ' · Güneş tutulması' : ''}
+            {text(lang, 'Evre:', 'Phase:')} <strong>{localizedMoonPhase(deg, lang)}</strong>
+            {kind === 'lunar'
+              ? ` · ${text(lang, 'Ay tutulması', 'Lunar eclipse')}`
+              : kind === 'solar'
+                ? ` · ${text(lang, 'Güneş tutulması', 'Solar eclipse')}`
+                : ''}
           </p>
-          <p className="muted">Koyu koni Dünya’nın gölgesi. Ay o gölgeye girsin.</p>
+          <p className="muted">{loc(lang, activity.watchHint)}</p>
           <button type="button" className="btn primary" disabled={kind === 'none'} onClick={() => setStep('result')}>
-            {kind === 'none' ? 'Önce gölgeye gir' : 'Hizayı gördüm'}
+            {kind === 'none' ? (lang === 'en' ? 'Enter the shadow first' : 'Önce gölgeye gir') : loc(lang, activity.simulateLabel)}
           </button>
         </div>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <span>Tekrar bak:</span>} Dolunay yetmez; gölgeye girmek gerekir.
-        </p>
+        <ResultCopy id="eclipse-align" correct={correct} />
       ) : null}
     </div>
   )
 }
 
 const URSA = ['dubhe', 'merak', 'phecda', 'megrez', 'alioth', 'mizar', 'alcaid'] as const
-const URSA_NAME: Record<(typeof URSA)[number], string> = {
-  dubhe: 'Kepçe ucu',
-  merak: 'Kepçe kenarı',
-  phecda: 'Kepçe dibi',
-  megrez: 'Sap başı',
-  alioth: 'Sap ortası',
-  mizar: 'Sap çifti',
-  alcaid: 'Sap ucu',
+const URSA_NAME = {
+  dubhe: L('Kepçe ucu', 'Bowl tip'),
+  merak: L('Kepçe kenarı', 'Bowl edge'),
+  phecda: L('Kepçe dibi', 'Bowl base'),
+  megrez: L('Sap başı', 'Handle start'),
+  alioth: L('Sap ortası', 'Handle middle'),
+  mizar: L('Sap çifti', 'Handle pair'),
+  alcaid: L('Sap ucu', 'Handle tip'),
 }
 
 export function UrsaHuntLab() {
+  const { activity, lang } = useActivityI18n('ursa-hunt')
   const found = useLabStore((s) => s.huntStars)
   const setStep = useLabStore((s) => s.setStep)
   const step = useLabStore((s) => s.step)
@@ -1074,29 +1099,30 @@ export function UrsaHuntLab() {
     <div>
       {step === 'simulate' ? (
         <div className="lab-controls">
-          <p className="muted">Gösteri gökyüzü, dürbün haritası değil.</p>
+          <p className="muted">{loc(lang, activity.watchHint)}</p>
           <p>
             <strong>{found.length}/7</strong>
           </p>
           <ul className="stats">
             {URSA.map((id) => (
               <li key={id}>
-                <span>{URSA_NAME[id]}</span>
-                <strong>{found.includes(id) ? 'Bulundu' : '…'}</strong>
+                <span>{loc(lang, URSA_NAME[id])}</span>
+                <strong>{found.includes(id) ? text(lang, 'Bulundu', 'Found') : '…'}</strong>
               </li>
             ))}
           </ul>
           <button type="button" className="btn primary" disabled={!done} onClick={() => setStep('result')}>
-            {done ? 'Takımyıldızı tamam' : 'Yıldızlara dokun'}
+            {done ? text(lang, 'Takımyıldızı tamam', 'Constellation complete') : loc(lang, activity.simulateLabel)}
           </button>
         </div>
       ) : null}
-      {step === 'result' ? <p className="success">Büyükayı bir gezegen değil. Yedi parlak yıldızın çizdiği kepçedir.</p> : null}
+      {step === 'result' ? <p className="success">{loc(lang, activity.resultTitle)}</p> : null}
     </div>
   )
 }
 
 export function LightDiaryLab() {
+  const { activity, lang } = useActivityI18n('light-diary')
   const setStep = useLabStore((s) => s.setStep)
   const prediction = useLabStore((s) => s.prediction)
   const step = useLabStore((s) => s.step)
@@ -1111,7 +1137,7 @@ export function LightDiaryLab() {
         <div className="lab-controls">
           <div className="choice-row">
             <button type="button" className={`chip ${arrived ? 'is-active' : ''}`} onClick={() => getScene()?.startLightPulse('earth')}>
-              Dünya’ya gönder
+              {text(lang, 'Dünya’ya gönder', 'Send to Earth')}
             </button>
             <button
               type="button"
@@ -1122,21 +1148,19 @@ export function LightDiaryLab() {
                 setStarRun(true)
               }}
             >
-              Proxima yolunu izle
+              {text(lang, 'Proxima yolunu izle', 'Watch the path to Proxima')}
             </button>
           </div>
           {starRun ? (
-            <p className="muted">Proxima ~4,24 ışık yılı — ışık yaklaşık 4 yıl 3 ay. Görüntüde foton gitmez; bu gerçek süredir.</p>
+            <p className="muted">{text(lang, 'Proxima ~4,24 ışık yılı — ışık yaklaşık 4 yıl 3 ay. Görüntüde foton gitmez; bu gerçek süredir.', 'Proxima is ~4.24 light-years away—the light takes about 4 years 3 months. No photon moves in the view; this is the real duration.')}</p>
           ) : null}
           <button type="button" className="btn" disabled={!ready} onClick={() => setStep('result')}>
-            {ready ? 'Karşılaştırdım' : 'Önce Dünya, sonra Proxima'}
+            {ready ? loc(lang, activity.simulateLabel) : (lang === 'en' ? 'Earth first, then Proxima' : 'Önce Dünya, sonra Proxima')}
           </button>
         </div>
       ) : null}
       {step === 'result' ? (
-        <p>
-          {correct ? <strong className="success">Doğru.</strong> : <span>Tekrar bak:</span>} Işık Dünya’ya dakikalar, Proxima’ya yıllar sürer.
-        </p>
+        <ResultCopy id="light-diary" correct={correct} />
       ) : null}
     </div>
   )

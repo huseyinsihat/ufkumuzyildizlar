@@ -1,9 +1,13 @@
 import { TIME_PRESETS } from '../../astronomy/timeEngine'
+import { tx } from '../../i18n/types'
+import { useLang, useT } from '../../i18n/useT'
 import { formatSimulationDate } from '../../utils/formatting'
 import { useEducationStore } from '../../store/educationStore'
 import { useSimulationStore } from '../../store/simulationStore'
 
 export function TimeControls() {
+  const t = useT()
+  const lang = useLang()
   const playing = useSimulationStore((s) => s.playing)
   const toggle = useSimulationStore((s) => s.togglePlaying)
   const scale = useSimulationStore((s) => s.timeScale)
@@ -25,19 +29,19 @@ export function TimeControls() {
   }
 
   return (
-    <footer className="time-bar" aria-label="Zaman makinesi">
+    <footer className="time-bar" aria-label={t('time')}>
       <div className="time-main">
-        <button type="button" className="btn" onClick={() => setDirection(-1)} aria-label="Geri sar" aria-pressed={direction < 0}>
-          ◀ Geri
+        <button type="button" className="btn" onClick={() => setDirection(-1)} aria-label={t('rewind')} aria-pressed={direction < 0}>
+          ◀ {t('back')}
         </button>
-        <button type="button" className="btn primary" onClick={toggle} aria-label={playing ? 'Duraklat' : 'Oynat'}>
-          {playing ? 'Duraklat' : 'Oynat'}
+        <button type="button" className="btn primary" onClick={toggle} aria-label={playing ? t('pause') : t('play')}>
+          {playing ? t('pause') : t('play')}
         </button>
-        <button type="button" className="btn" onClick={() => setDirection(1)} aria-label="İleri sar" aria-pressed={direction > 0}>
-          İleri ▶
+        <button type="button" className="btn" onClick={() => setDirection(1)} aria-label={t('fastForward')} aria-pressed={direction > 0}>
+          {t('next')} ▶
         </button>
         <p className="time-readout" aria-live="polite">
-          {formatSimulationDate(displayed)}
+          {formatSimulationDate(displayed, lang)}
         </p>
       </div>
       <div className="time-speeds" role="group" aria-label="Zaman hızı">
@@ -48,7 +52,7 @@ export function TimeControls() {
             className={scale === preset.scale ? 'chip is-active' : 'chip'}
             onClick={() => setScale(preset.scale)}
           >
-            {preset.label}
+            {tx(lang, preset.label)}
           </button>
         ))}
         <label className="custom-speed">
@@ -67,10 +71,10 @@ export function TimeControls() {
       </div>
       <div className="time-jumps">
         <button type="button" className="chip" onClick={setNow}>
-          Şu an / Bugün
+          {t('now')}
         </button>
         <button type="button" className="chip" onClick={() => jumpYears(1)}>
-          1 yıl sonra
+          {t('skipYear')}
         </button>
         <button type="button" className="chip" onClick={() => jumpYears(10)}>
           10 yıl sonra

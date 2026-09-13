@@ -22,6 +22,8 @@ import {
   constellationCentroidDir,
   type Constellation,
 } from '../content/constellations'
+import { constellationDisplayName } from '../i18n/constellations'
+import type { AppLang } from '../i18n/types'
 import { SKY_SPHERE_RADIUS } from '../astronomy/skyCoordinates'
 import { worldRadiusToPixels, type ScreenPickTarget } from './skyPick'
 import { createStarPointTexture } from './proceduralTextures'
@@ -63,6 +65,7 @@ export class ConstellationLayer {
   private readonly view = new Vector3()
   private readonly resolution = new Vector2(1, 1)
   private labelsOn = true
+  private lang: AppLang = 'tr'
 
   constructor() {
     this.group = new Group()
@@ -70,6 +73,14 @@ export class ConstellationLayer {
     this.group.visible = false
     for (const constellation of CONSTELLATIONS) {
       this.figures.set(constellation.id, this.build(constellation))
+    }
+  }
+
+  setLang(lang: AppLang): void {
+    this.lang = lang
+    for (const [id, label] of this.labels) {
+      const item = CONSTELLATIONS.find((c) => c.id === id)
+      label.element.textContent = constellationDisplayName(id, lang, item?.name ?? id)
     }
   }
 
@@ -157,7 +168,7 @@ export class ConstellationLayer {
 
     const label = document.createElement('div')
     label.className = 'planet-label sky-label constellation-label'
-    label.textContent = constellation.name
+    label.textContent = constellationDisplayName(constellation.id, this.lang, constellation.name)
     const css = new CSS2DObject(label)
     css.position.copy(centroid)
     root.add(css)

@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { SfxId, VoiceClipId, VoiceLang } from '../features/voice/clips'
 import { playVoiceFile, setVoiceActivityHandler, setVoiceFollowUpHandler, stopVoice } from '../features/voice/player'
 import { playSfxFile, setSfxActivityHandler, stopSfx } from '../features/voice/sfx'
+import { applyLang } from '../i18n/applyLang'
 import { useUiStore } from './uiStore'
 
 interface VoiceState {
@@ -61,7 +62,10 @@ export const useVoiceStore = create<VoiceState>((set, get) => {
       }
       set({ enabled, playing: enabled ? voiceBusy || sfxBusy : false, pending: enabled ? get().pending : null })
     },
-    setLang: (lang) => set({ lang }),
+    setLang: (lang) => {
+      set({ lang })
+      applyLang(lang)
+    },
     unlock: (playPending = true) => {
       if (get().unlocked) return
       const pending = get().pending

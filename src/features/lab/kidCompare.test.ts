@@ -18,7 +18,7 @@ describe('FACTS', () => {
     expect(FACTS.length).toBeGreaterThanOrEqual(30)
     expect(FACT_STAGES.map((item) => item.id).sort().join()).toBe('earth,general,planets,stars')
     expect(FACTS.every((item) => item.bodyId || item.wonderId)).toBe(true)
-    expect(FACTS.every((item) => item.title && item.text)).toBe(true)
+    expect(FACTS.every((item) => item.title.tr && item.text.tr)).toBe(true)
   })
 })
 

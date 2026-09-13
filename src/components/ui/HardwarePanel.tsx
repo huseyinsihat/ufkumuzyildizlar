@@ -7,6 +7,8 @@ import {
 } from '../../hardware/bindings'
 import { applyHardwareCommand, parseHardwareLine } from '../../hardware/commands'
 import { useHardwareStore } from '../../hardware/hardwareStore'
+import { loc } from '../../i18n/types'
+import { useLang, useT } from '../../i18n/useT'
 import { useUiStore } from '../../store/uiStore'
 
 function firePad(pad: BoardPad): void {
@@ -23,14 +25,16 @@ function firePad(pad: BoardPad): void {
 }
 
 function Pad({ pad, live }: { pad: BoardPad; live: boolean }) {
+  const lang = useLang()
   const clickable = Boolean(pad.line) && pad.kind !== 'motion'
   const className = `board-pad is-${pad.kind}${live ? ' is-live' : ''}`
+  const label = loc(lang, pad.label)
 
   if (!clickable) {
     return (
       <div className={className}>
         <b>{pad.pin}</b>
-        <span>{pad.label}</span>
+        <span>{label}</span>
       </div>
     )
   }
@@ -38,19 +42,20 @@ function Pad({ pad, live }: { pad: BoardPad; live: boolean }) {
   return (
     <button type="button" className={className} onClick={() => firePad(pad)}>
       <b>{pad.pin}</b>
-      <span>{pad.label}</span>
+      <span>{label}</span>
     </button>
   )
 }
 
-function statusText(status: string, message: string): string {
-  if (status === 'connected') return 'Kart bağlı. Pinler fare ve klavye yerine uygulamayı gezdirir.'
-  if (status === 'unsupported') return 'USB için Chrome veya Edge gerekir.'
-  if (status === 'error') return message || 'Kart koptu.'
-  return 'USB tak, Bağlan’a bas. Pinlere dokunarak da deneyebilirsin.'
+function statusCopy(status: string, message: string, t: (key: 'hwConnected' | 'hwUnsupported' | 'hwError' | 'hwIdle') => string): string {
+  if (status === 'connected') return t('hwConnected')
+  if (status === 'unsupported') return t('hwUnsupported')
+  if (status === 'error') return message || t('hwError')
+  return t('hwIdle')
 }
 
 export function HardwarePanel() {
+  const t = useT()
   const status = useHardwareStore((s) => s.status)
   const message = useHardwareStore((s) => s.message)
   const lastLine = useHardwareStore((s) => s.lastLine)
@@ -59,13 +64,13 @@ export function HardwarePanel() {
   const close = () => useUiStore.getState().setActivePanel('none')
 
   return (
-    <aside className="hud-sheet hardware-sheet" aria-label="Deneyap Kart">
+    <aside className="hud-sheet hardware-sheet" aria-label={t('hardware')}>
       <header className="panel-head">
         <div>
-          <h2>Deneyap Kart</h2>
-          <p className="muted">{statusText(status, message)}</p>
+          <h2>{t('hardware')}</h2>
+          <p className="muted">{statusCopy(status, message, t)}</p>
         </div>
-        <button type="button" className="icon-btn" onClick={close} aria-label="Kapat">
+        <button type="button" className="icon-btn" onClick={close} aria-label={t('close')}>
           ×
         </button>
       </header>
@@ -73,7 +78,7 @@ export function HardwarePanel() {
       <div className="hardware-toolbar">
         {status === 'connected' ? (
           <button type="button" className="chip" onClick={() => void disconnect()}>
-            Kopar
+            {t('disconnect')}
           </button>
         ) : (
           <button
@@ -82,14 +87,18 @@ export function HardwarePanel() {
             onClick={() => void connect({ request: true })}
             disabled={status === 'unsupported'}
           >
-            Bağlan
+            {t('connect')}
           </button>
         )}
-        {lastLine ? <span className="hardware-last">Son: {lastLine}</span> : null}
+        {lastLine ? (
+          <span className="hardware-last">
+            {t('lastLine')}: {lastLine}
+          </span>
+        ) : null}
       </div>
 
-      <div className="board" aria-label="Pin ızgarası">
-        <div className="board-col" aria-label="Sol pinler">
+      <div className="board" aria-label={t('pinGrid')}>
+        <div className="board-col" aria-label={t('leftPins')}>
           {BOARD_LEFT.map((pad) => (
             <Pad key={`L-${pad.pin}`} pad={pad} live={hardwareLineMatches(lastLine, pad.line)} />
           ))}
@@ -97,15 +106,15 @@ export function HardwarePanel() {
         <div className="board-core">
           <span className="board-usb">USB</span>
           <strong>Deneyap Kart 1A</strong>
-          <span>Sol gezegen, sağ süreç; D15 geri.</span>
+          <span>{t('boardHint')}</span>
         </div>
-        <div className="board-col" aria-label="Sağ pinler">
+        <div className="board-col" aria-label={t('rightPins')}>
           {BOARD_RIGHT.map((pad) => (
             <Pad key={`R-${pad.pin}`} pad={pad} live={hardwareLineMatches(lastLine, pad.line)} />
           ))}
         </div>
         <div className="board-bottom">
-          <p className="board-bottom-label">En alttaki ek pinler</p>
+          <p className="board-bottom-label">{t('extraPins')}</p>
           <div className="board-bottom-pads">
             {BOARD_BOTTOM.map((pad) => (
               <Pad key={`B-${pad.pin}`} pad={pad} live={hardwareLineMatches(lastLine, pad.line)} />

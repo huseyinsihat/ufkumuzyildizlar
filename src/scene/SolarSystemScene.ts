@@ -17,6 +17,9 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js'
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { BODIES, getBody } from '../astronomy/planetData'
+import type { AppLang } from '../i18n/types'
+import { useVoiceStore } from '../store/voiceStore'
+
 import { TimeEngine } from '../astronomy/timeEngine'
 import { getHeliocentricEclipticAu, getSatelliteRelativeEclipticAu } from '../astronomy/coordinateSystems'
 import { placeBesideParent } from '../astronomy/satellitePlacement'
@@ -261,6 +264,7 @@ export class SolarSystemScene {
     this.constellations.setVisible(initial.showConstellations)
     this.labels.setVisible(initial.showLabels)
     this.cityPins.setVisible(initial.cityPinsVisible)
+    this.setLabelLang(useVoiceStore.getState().lang)
 
     this.earthCrafts.setEarthRadius(visualRadius('earth', this.scaleMode))
     this.earthCrafts.setVisible(this.scaleMode === 'educational')
@@ -316,6 +320,13 @@ export class SolarSystemScene {
     this.applyViewClip(false)
     this.camera.stopFollow()
     this.camera.focusOverview(this.scaleMode === 'trueScale')
+  }
+
+  setLabelLang(lang: AppLang): void {
+    this.labels.setLang(lang)
+    this.constellations.setLang(lang)
+    this.notableStars.setLang(lang)
+    this.surface.setLang(lang)
   }
 
   focusGalaxy(): void {

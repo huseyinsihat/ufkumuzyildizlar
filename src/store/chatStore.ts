@@ -3,7 +3,11 @@ import { matchCanned, pickCannedAnswer, pickChipQuestions, type CannedPrompt } f
 import { requestMessages, type StoredChatMessage } from '../features/chat/messages'
 import { completeChat, friendlyChatError, hasOpenRouterKey } from '../features/chat/openRouter'
 import { buildSceneSummary, systemPrompt, WELCOME_TEXT } from '../features/chat/prompt'
+import { tx } from '../i18n/types'
+import type { AppLang } from '../i18n/types'
+import { UI } from '../i18n/ui'
 import { useSimulationStore } from './simulationStore'
+import { useVoiceStore } from './voiceStore'
 
 interface ChatState {
   messages: StoredChatMessage[]
@@ -11,6 +15,7 @@ interface ChatState {
   busy: boolean
   error: string | null
   refreshChips: () => void
+  retranslate: () => void
   askChip: (question: string) => void
   send: (text: string) => Promise<void>
   reset: () => void
@@ -19,8 +24,12 @@ interface ChatState {
 let nextId = 1
 let inflight: AbortController | null = null
 
-function welcomeMessage(): StoredChatMessage {
-  return { id: 'welcome', role: 'assistant', content: WELCOME_TEXT, local: true }
+function currentLang(): AppLang {
+  return useVoiceStore.getState().lang
+}
+
+function welcomeMessage(lang: AppLang = useVoiceStore.getState().lang): StoredChatMessage {
+  return { id: 'welcome', role: 'assistant', content: tx(lang, WELCOME_TEXT), local: true }
 }
 
 function uid(): string {
@@ -40,6 +49,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
   refreshChips: () => {
     set({ chips: pickChipQuestions(askedQuestions(get().messages)) })
   },
+  retranslate: () => {
+    const lang = currentLang()
+    set((s) => ({
+      messages: s.messages.map((item) => (item.id === 'welcome' ? { ...item, content: tx(lang, WELCOME_TEXT) } : item)),
+      chips: pickChipQuestions(askedQuestions(s.messages)),
+    }))
+  },
   reset: () => {
     inflight?.abort()
     inflight = null
@@ -48,7 +64,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   askChip: (question) => {
     const content = question.trim()
     if (!content || get().busy) return
-    const answer = pickCannedAnswer(content)
+    const lang = useVoiceStore.getState().lang
+    const answer = pickCannedAnswer(content, Math.random, lang)
     if (!answer) return
     const userMessage: StoredChatMessage = { id: uid(), role: 'user', content }
     const assistant: StoredChatMessage = { id: uid(), role: 'assistant', content: answer }
@@ -67,7 +84,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return
     }
     if (!hasOpenRouterKey()) {
-      set({ error: 'Sohbet şimdilik kapalı.' })
+      const lang = useVoiceStore.getState().lang
+      set({ error: tx(lang, UI.chatClosed) })
       return
     }
 
@@ -85,12 +103,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
     })
 
     const sim = useSimulationStore.getState()
+    const lang = useVoiceStore.getState().lang
     const payload = requestMessages(
-      systemPrompt(),
+      systemPrompt(lang),
       buildSceneSummary({
         bodyId: sim.selectedBodyId,
         wonderId: sim.selectedWonderId,
         scaleMode: sim.scaleMode,
+        lang,
       }),
       get().messages,
     )
@@ -119,3 +139,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 }))
+
+useVoiceStore.subscribe((state, previous) => {
+  if (state.lang === previous.lang) return
+  useChatStore.setState((chat) => ({
+    messages: chat.messages.map((message) => (message.id === 'welcome' ? welcomeMessage(state.lang) : message)),
+    chips: pickChipQuestions(askedQuestions(chat.messages)),
+  }))
+})

@@ -1,33 +1,42 @@
 import { openCompare } from '../../features/planetExplorer/focus'
+import { L, tx } from '../../i18n/types'
+import { useLang, useT } from '../../i18n/useT'
 import { useUiStore } from '../../store/uiStore'
 
+const HUB = L('Eğitim', 'Learn')
+const COMPARE_PLANETS = L('Gezegen karşılaştır', 'Compare planets')
+const SCALE_LAB = L('Ölçek deneyi', 'Scale experiment')
+const RANDOM = L('Rastgele keşif', 'Random discovery')
+
 export function EducationHub() {
+  const t = useT()
+  const lang = useLang()
   const setPanel = useUiStore((s) => s.setActivePanel)
   const close = () => setPanel('none')
 
   return (
-    <aside className="side-panel" aria-label="Eğitim">
+    <aside className="side-panel" aria-label={tx(lang, HUB)}>
       <header className="panel-head">
-        <h2>Eğitim</h2>
-        <button type="button" className="icon-btn" onClick={close} aria-label="Kapat">
+        <h2>{tx(lang, HUB)}</h2>
+        <button type="button" className="icon-btn" onClick={close} aria-label={t('close')}>
           ×
         </button>
       </header>
-      <p>Görevlerle keşfet, karşılaştır ve ölçeği dene. Her adım bir gökyüzü fikrini gösterir.</p>
+      <p>{t('missionsLead')}</p>
       <button type="button" className="nav-btn" onClick={() => setPanel('missions')}>
-        Görevler ve rozetler
+        {t('missions')}
       </button>
       <button type="button" className="nav-btn" onClick={() => openCompare()}>
-        Gezegen karşılaştır
+        {tx(lang, COMPARE_PLANETS)}
       </button>
       <button type="button" className="nav-btn" onClick={() => setPanel('scale')}>
-        Ölçek deneyi
+        {tx(lang, SCALE_LAB)}
       </button>
       <button type="button" className="nav-btn" onClick={() => setPanel('quiz')}>
-        Kısa sınav
+        {t('quiz')}
       </button>
       <button type="button" className="nav-btn" onClick={() => setPanel('explore')}>
-        Rastgele keşif
+        {tx(lang, RANDOM)}
       </button>
     </aside>
   )

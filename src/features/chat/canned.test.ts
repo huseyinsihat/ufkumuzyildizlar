@@ -10,28 +10,32 @@ import {
 describe('canned sun questions', () => {
   it('keeps a kid question pool with three answers each', () => {
     expect(CANNED_PROMPTS).toHaveLength(45)
-    const questions = new Set(CANNED_PROMPTS.map((item) => item.question))
+    const questions = new Set(CANNED_PROMPTS.map((item) => item.question.tr))
     expect(questions.size).toBe(45)
     for (const item of CANNED_PROMPTS) {
       expect(item.answers).toHaveLength(3)
-      expect(item.question.endsWith('?')).toBe(true)
+      expect(item.question.tr.endsWith('?')).toBe(true)
+      expect(item.question.en.endsWith('?')).toBe(true)
+      expect(item.answers[0]!.tr.length).toBeGreaterThan(20)
       for (const answer of item.answers) {
-        expect(answer.length).toBeGreaterThan(20)
-        expect(answer).not.toMatch(/[\u{1F300}-\u{1FAFF}]/u)
+        expect(answer.tr.length).toBeGreaterThan(20)
+        expect(answer.en.length).toBeGreaterThan(20)
+        expect(answer.tr).not.toMatch(/[\u{1F300}-\u{1FAFF}]/u)
+        expect(answer.en).not.toMatch(/[\u{1F300}-\u{1FAFF}]/u)
       }
     }
   })
 
   it('always offers at least two unused chips', () => {
     expect(pickChipCount()).toBe(2)
-    const asked = new Set([CANNED_PROMPTS[0]!.question])
+    const asked = new Set([CANNED_PROMPTS[0]!.question.tr])
     const chips = pickChipQuestions(asked, () => 0.2)
     expect(chips).toHaveLength(2)
     expect(chips.some((item) => item.id === 'sun-yellow')).toBe(false)
   })
 
   it('keeps two chips cycling after the pool is exhausted', () => {
-    const asked = new Set(CANNED_PROMPTS.map((item) => item.question))
+    const asked = new Set(CANNED_PROMPTS.map((item) => item.question.tr))
     const chips = pickChipQuestions(asked, () => 0.35)
     expect(chips).toHaveLength(2)
     expect(new Set(chips.map((item) => item.id)).size).toBe(2)
@@ -53,6 +57,11 @@ describe('canned sun questions', () => {
     expect(matchCanned('Sirius nedir?')?.id).toBe('brightest-night-star')
   })
 
+  it('matches English canned questions', () => {
+    expect(matchCanned('How many planets are there?')?.id).toBe('how-many-planets')
+    expect(pickCannedAnswer('How many planets are there?', () => 0, 'en')).toMatch(/8/)
+  })
+
   it('picks different chip pairs for different random seeds', () => {
     const empty = new Set<string>()
     const first = pickChipQuestions(empty, () => 0.12)
@@ -70,8 +79,8 @@ describe('canned sun questions', () => {
     const first = pickCannedAnswer('Mars neden kırmızı?', () => 0)
     const last = pickCannedAnswer('Mars neden kırmızı?', () => 0.99)
     const mars = CANNED_PROMPTS.find((item) => item.id === 'mars-red')
-    expect(mars?.answers).toContain(first)
-    expect(mars?.answers).toContain(last)
+    expect(mars?.answers.map((answer) => answer.tr)).toContain(first)
+    expect(mars?.answers.map((answer) => answer.tr)).toContain(last)
     expect(first).not.toBe(last)
     expect(pickCannedAnswer('Bilinmeyen soru?')).toBeNull()
   })

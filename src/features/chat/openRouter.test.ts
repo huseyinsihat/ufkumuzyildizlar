@@ -24,17 +24,18 @@ describe('sun chat prompt', () => {
 
   it('rotates plain waiting lines while the sun thinks', () => {
     expect(WAITING_LINES.length).toBeGreaterThanOrEqual(6)
-    expect(WAITING_LINES.join(' ')).not.toMatch(/[\u{1F300}-\u{1FAFF}]/u)
+    const waitingTr = WAITING_LINES.map((line) => line.tr)
+    expect(waitingTr.join(' ')).not.toMatch(/[\u{1F300}-\u{1FAFF}]/u)
     const first = nextWaitingLine(undefined, () => 0)
     const next = nextWaitingLine(first, () => 0)
-    expect(WAITING_LINES).toContain(first)
+    expect(waitingTr).toContain(first)
     expect(next).not.toBe(first)
   })
 
   it('keeps the welcome in plain Turkish without emoji', () => {
-    expect(WELCOME_TEXT).toContain('Minik Dahiler')
-    expect(WELCOME_TEXT).toContain('TEKNOFEST 2026')
-    expect(WELCOME_TEXT).not.toMatch(/[\u{1F300}-\u{1FAFF}]/u)
+    expect(WELCOME_TEXT.tr).toContain('Minik Dahiler')
+    expect(WELCOME_TEXT.tr).toContain('TEKNOFEST 2026')
+    expect(WELCOME_TEXT.tr).not.toMatch(/[\u{1F300}-\u{1FAFF}]/u)
   })
 
   it('summarizes the selected body with NASA facts from planet data', () => {
@@ -91,7 +92,7 @@ describe('sun chat history', () => {
 
   it('drops the local welcome from the API payload', () => {
     const api = toApiMessages([
-      msg('assistant', WELCOME_TEXT, { local: true }),
+      msg('assistant', WELCOME_TEXT.tr, { local: true }),
       msg('user', 'Neden sarı görünüyorsun?'),
     ])
     expect(api).toEqual([{ role: 'user', content: 'Neden sarı görünüyorsun?' }])

@@ -23,7 +23,9 @@ import { getAstroEvent, getSelectableEvent, type AstroEventId } from '../../cont
 import { visualMoonOrbitRadius, visualRadius } from '../../astronomy/visualScale'
 import { stageLunarMoon, stageSolarMoon } from '../../features/astroEvents/eclipseStage'
 import { focusEvent } from '../../features/astroEvents/focusEvent'
+import { tx } from '../../i18n/types'
 import { useEventStore } from '../../store/eventStore'
+import { useVoiceStore } from '../../store/voiceStore'
 import type { PlanetMesh } from '../PlanetMesh'
 import type { SunMesh } from '../SunMesh'
 import type { BodyId } from '../../types/planet'
@@ -264,8 +266,11 @@ export class AstroEventLayer {
     this.placeMarker(event.id, hosts, fade, inspecting)
     this.pick.userData.eventId = event.id
     const name = this.marker.element.querySelector('.event-marker-name')
-    if (name) name.textContent = event.shortName
-    this.marker.element.setAttribute('aria-label', `${event.shortName}: ${event.title}`)
+    const lang = useVoiceStore.getState().lang
+    const shortName = tx(lang, event.shortName)
+    const title = tx(lang, event.title)
+    if (name) name.textContent = shortName
+    this.marker.element.setAttribute('aria-label', `${shortName}: ${title}`)
     this.marker.element.classList.toggle(
       'is-selected',
       getSelectableEvent(useEventStore.getState().selectedEventId)?.visualId === event.id,

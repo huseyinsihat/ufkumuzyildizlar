@@ -1,5 +1,5 @@
 import { useEffect, useRef, type PointerEvent } from 'react'
-import { BODIES } from '../../astronomy/planetData'
+import { BODIES, displayName } from '../../astronomy/planetData'
 import { focusBody, lookAtGalaxy, lookAtSolarSystem } from '../../features/planetExplorer/focus'
 import {
   openLabHome,
@@ -15,6 +15,8 @@ import { starsAlphabetical, starDisplayName } from '../../content/skyWonders'
 import { EVENT_STATUS_LABEL, eventsForDrawer, getAstroEvent } from '../../content/astroEvents'
 import { eventIconName } from '../../features/astroEvents/eventIcons'
 import { focusEvent } from '../../features/astroEvents/focusEvent'
+import { loc, tx } from '../../i18n/types'
+import { useLang, useT } from '../../i18n/useT'
 import { useEventStore } from '../../store/eventStore'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
@@ -42,11 +44,13 @@ function HoldZoomButton({
   label,
   icon,
   text,
+  holdHint,
 }: {
   factor: number
   label: string
   icon: IconName
   text: string
+  holdHint: string
 }) {
   const hold = useRef(0)
 
@@ -76,7 +80,7 @@ function HoldZoomButton({
       type="button"
       className="btn icon-only"
       aria-label={label}
-      title={`${label} — basılı tut`}
+      title={`${label} — ${holdHint}`}
       onPointerDown={start}
       onPointerUp={stop}
       onPointerCancel={stop}
@@ -90,11 +94,12 @@ function HoldZoomButton({
 }
 
 export function ViewTools() {
+  const t = useT()
   return (
-    <div className="dock-look" aria-label="Bakış">
-      <div className="dock-zoom" role="group" aria-label="Yakınlaştır">
-        <HoldZoomButton factor={ZOOM_IN} label="Yakınlaştır" icon="plus" text="Yakın" />
-        <HoldZoomButton factor={ZOOM_OUT} label="Uzaklaştır" icon="minus" text="Uzak" />
+    <div className="dock-look" aria-label={t('cameraView')}>
+      <div className="dock-zoom" role="group" aria-label={t('zoomIn')}>
+        <HoldZoomButton factor={ZOOM_IN} label={t('zoomIn')} icon="plus" text={t('zoomInShort')} holdHint={t('holdZoom')} />
+        <HoldZoomButton factor={ZOOM_OUT} label={t('zoomOut')} icon="minus" text={t('zoomOutShort')} holdHint={t('holdZoom')} />
       </div>
       <ViewCube />
     </div>
@@ -102,6 +107,8 @@ export function ViewTools() {
 }
 
 export function ExploreListStrip() {
+  const t = useT()
+  const lang = useLang()
   const planetOpen = useUiStore((s) => s.planetDrawerOpen)
   const starOpen = useUiStore((s) => s.starDrawerOpen)
   const eventOpen = useUiStore((s) => s.eventDrawerOpen)
@@ -117,7 +124,7 @@ export function ExploreListStrip() {
   return (
     <div className="explore-strip">
       {planetOpen ? (
-        <ul className="planet-drawer" aria-label="Gezegenler">
+        <ul className="planet-drawer" aria-label={t('planets')}>
           {BODIES.filter((body) => body.category !== 'moon').map((body) => (
             <li key={body.id}>
               <button
@@ -129,15 +136,15 @@ export function ExploreListStrip() {
                 }}
               >
                 <i className="body-swatch" style={{ background: body.color }} aria-hidden="true" />
-                {body.name}
+                {displayName(body, lang)}
               </button>
             </li>
           ))}
         </ul>
       ) : null}
       {starOpen ? (
-        <ul className="planet-drawer star-drawer" aria-label="Yıldızlar">
-          {starsAlphabetical().map((star) => (
+        <ul className="planet-drawer star-drawer" aria-label={t('stars')}>
+          {starsAlphabetical(lang).map((star) => (
             <li key={star.id}>
               <button
                 type="button"
@@ -152,16 +159,16 @@ export function ExploreListStrip() {
                   style={{ background: star.color, color: star.color }}
                   aria-hidden="true"
                 />
-                {starDisplayName(star)}
+                {starDisplayName(star, lang)}
               </button>
             </li>
           ))}
         </ul>
       ) : null}
       {eventOpen ? (
-        <div className="planet-drawer event-drawer" aria-label="Olaylar">
+        <div className="planet-drawer event-drawer" aria-label={t('events')}>
           <section>
-            <h3>{EVENT_STATUS_LABEL.now}</h3>
+            <h3>{tx(lang, EVENT_STATUS_LABEL.now)}</h3>
             <ul>
               {lists.now.map((event) => (
                 <li key={event.id}>
@@ -172,8 +179,8 @@ export function ExploreListStrip() {
                   >
                     <Icon name={eventIconName(event.id)} />
                     <span>
-                      {event.shortName}
-                      <small>{event.title}</small>
+                      {loc(lang, event.shortName)}
+                      <small>{loc(lang, event.title)}</small>
                     </span>
                   </button>
                 </li>
@@ -182,7 +189,7 @@ export function ExploreListStrip() {
           </section>
           {lists.upcoming.length ? (
             <section>
-              <h3>{EVENT_STATUS_LABEL.upcoming}</h3>
+              <h3>{tx(lang, EVENT_STATUS_LABEL.upcoming)}</h3>
               <ul>
                 {lists.upcoming.map((event) => (
                   <li key={event.id}>
@@ -193,8 +200,8 @@ export function ExploreListStrip() {
                     >
                       <Icon name={eventIconName(event.id)} />
                       <span>
-                        {event.dateLabel}
-                        <small>{event.text}</small>
+                        {loc(lang, event.dateLabel)}
+                        <small>{loc(lang, event.text)}</small>
                       </span>
                     </button>
                   </li>
@@ -204,7 +211,7 @@ export function ExploreListStrip() {
           ) : null}
           {lists.happened.length ? (
             <section>
-              <h3>{EVENT_STATUS_LABEL.happened}</h3>
+              <h3>{tx(lang, EVENT_STATUS_LABEL.happened)}</h3>
               <ul>
                 {lists.happened.map((event) => (
                   <li key={event.id}>
@@ -215,8 +222,8 @@ export function ExploreListStrip() {
                     >
                       <Icon name={eventIconName(event.id)} />
                       <span>
-                        {event.dateLabel}
-                        <small>{event.text}</small>
+                        {loc(lang, event.dateLabel)}
+                        <small>{loc(lang, event.text)}</small>
                       </span>
                     </button>
                   </li>
@@ -231,15 +238,18 @@ export function ExploreListStrip() {
 }
 
 function PhoneZoomFloat() {
+  const t = useT()
   return (
-    <div className="dock-zoom-float" aria-label="Yakınlaştır">
-      <HoldZoomButton factor={ZOOM_IN} label="Yakınlaştır" icon="plus" text="Yakın" />
-      <HoldZoomButton factor={ZOOM_OUT} label="Uzaklaştır" icon="minus" text="Uzak" />
+    <div className="dock-zoom-float" aria-label={t('zoomIn')}>
+      <HoldZoomButton factor={ZOOM_IN} label={t('zoomIn')} icon="plus" text={t('zoomInShort')} holdHint={t('holdZoom')} />
+      <HoldZoomButton factor={ZOOM_OUT} label={t('zoomOut')} icon="minus" text={t('zoomOutShort')} holdHint={t('holdZoom')} />
     </div>
   )
 }
 
 export function ExploreDock() {
+  const t = useT()
+  const lang = useLang()
   const planetOpen = useUiStore((s) => s.planetDrawerOpen)
   const starOpen = useUiStore((s) => s.starDrawerOpen)
   const eventOpen = useUiStore((s) => s.eventDrawerOpen)
@@ -248,6 +258,10 @@ export function ExploreDock() {
   const panel = useUiStore((s) => s.activePanel)
   const liveEvent = getAstroEvent(useEventStore((s) => s.activeEventId))
   const galaxyView = useSimulationStore((s) => s.galaxyView)
+  const liveTitle = liveEvent ? loc(lang, liveEvent.title) : t('noEvent')
+  const liveShort = liveEvent ? loc(lang, liveEvent.shortName) : t('noEvent')
+  const labHome = loc(lang, TEAM.home)
+  const overviewLines = t('overview').split(' ')
 
   function goLiveEvent() {
     if (!liveEvent) return
@@ -268,14 +282,14 @@ export function ExploreDock() {
   return (
     <div className={`explore-dock${moreOpen ? ' is-more-open' : ''}`}>
       {moreOpen ? (
-        <button type="button" className="dock-more-backdrop" aria-label="Menüyü kapat" onClick={() => setMoreOpen(false)} />
+        <button type="button" className="dock-more-backdrop" aria-label={t('closeMenu')} onClick={() => setMoreOpen(false)} />
       ) : null}
       {moreOpen ? (
-        <div className="dock-more-sheet" id="dock-more-sheet" role="menu" aria-label="Daha fazla">
+        <div className="dock-more-sheet" id="dock-more-sheet" role="menu" aria-label={t('moreMenu')}>
           <ViewTools />
           <button type="button" className={`btn${galaxyView ? ' is-on' : ''}`} onClick={goGalaxy} aria-pressed={galaxyView}>
             <Icon name="camera" />
-            <span className="dock-label">Ufkumuz</span>
+            <span className="dock-label">{t('galaxy')}</span>
           </button>
           <button
             type="button"
@@ -284,36 +298,36 @@ export function ExploreDock() {
             aria-pressed={panel === 'compare'}
           >
             <Icon name="compare" />
-            <span className="dock-label">Karşılaştır</span>
+            <span className="dock-label">{t('compare')}</span>
           </button>
           {liveEvent ? (
-            <button type="button" className="btn is-live-event" onClick={goLiveEvent} title={liveEvent.title}>
+            <button type="button" className="btn is-live-event" onClick={goLiveEvent} title={liveTitle}>
               <Icon name={eventIconName(liveEvent.id)} />
-              <span className="dock-label">{liveEvent.shortName}</span>
+              <span className="dock-label">{liveShort}</span>
             </button>
           ) : null}
           <button type="button" className={`btn${panel === 'facts' ? ' is-on' : ''}`} onClick={() => toggleFacts()}>
             <Icon name="book" />
-            <span className="dock-label">Bilgiler</span>
+            <span className="dock-label">{t('facts')}</span>
           </button>
           <button type="button" className={`btn${panel === 'team' ? ' is-on' : ''}`} onClick={() => toggleTeam()}>
             <Icon name="people" />
-            <span className="dock-label">Takım</span>
+            <span className="dock-label">{t('team')}</span>
           </button>
           <button type="button" className={`btn${panel === 'settings' ? ' is-on' : ''}`} onClick={() => toggleSettings()}>
             <Icon name="gear" />
-            <span className="dock-label">Ayarlar</span>
+            <span className="dock-label">{t('settings')}</span>
           </button>
-          <button type="button" className="btn primary" onClick={() => openLabHome()} aria-label={TEAM.home}>
+          <button type="button" className="btn primary" onClick={() => openLabHome()} aria-label={labHome}>
             <Icon name="flask" />
-            <span className="dock-label">Proje Etkinlikleri</span>
+            <span className="dock-label">{t('lab')}</span>
           </button>
         </div>
       ) : null}
       <PhoneZoomFloat />
-      <nav className="dock-buttons" aria-label="Keşif">
+      <nav className="dock-buttons" aria-label={t('exploreNav')}>
         <ViewTools />
-        <div className="dock-views" role="group" aria-label="Kamera bakışı">
+        <div className="dock-views" role="group" aria-label={t('cameraView')}>
           <button
             type="button"
             className={`btn dock-phone-hide${galaxyView ? ' is-on' : ''}`}
@@ -321,8 +335,8 @@ export function ExploreDock() {
             aria-pressed={galaxyView}
           >
             <Icon name="camera" />
-            <span className="dock-label">Ufkumuz</span>
-            <span className="dock-label-short">Ufku</span>
+            <span className="dock-label">{t('galaxy')}</span>
+            <span className="dock-label-short">{t('galaxyShort')}</span>
           </button>
           <button
             type="button"
@@ -331,8 +345,8 @@ export function ExploreDock() {
             aria-pressed={!galaxyView}
           >
             <Icon name="camera" />
-            <DockLabel lines={['Güneş', 'Sistemi']} />
-            <span className="dock-label-short">Güneş</span>
+            <DockLabel lines={overviewLines.length > 1 ? overviewLines : [t('overview')]} />
+            <span className="dock-label-short">{t('solarShort')}</span>
           </button>
         </div>
         <div className="dock-divider" aria-hidden="true" />
@@ -344,7 +358,7 @@ export function ExploreDock() {
             aria-expanded={starOpen}
           >
             <Icon name="spark" />
-            <span className="dock-label">Yıldızlar</span>
+            <span className="dock-label">{t('stars')}</span>
           </button>
           <div className="dock-planets">
             <button
@@ -354,7 +368,7 @@ export function ExploreDock() {
               aria-expanded={planetOpen}
             >
               <Icon name="planet" />
-              <span className="dock-label">Gezegenler</span>
+              <span className="dock-label">{t('planets')}</span>
             </button>
             <button
               type="button"
@@ -363,7 +377,7 @@ export function ExploreDock() {
               aria-pressed={panel === 'compare'}
             >
               <Icon name="compare" />
-              <span>Karşılaştır</span>
+              <span>{t('compare')}</span>
             </button>
           </div>
           <div className="dock-events">
@@ -374,20 +388,20 @@ export function ExploreDock() {
               aria-expanded={eventOpen}
             >
               <Icon name="orbit" />
-              <span className="dock-label">Olaylar</span>
+              <span className="dock-label">{t('events')}</span>
             </button>
             <button
               type="button"
               className={`dock-tool${liveEvent ? ' is-live-event' : ' is-idle-event'}`}
               onClick={goLiveEvent}
               disabled={!liveEvent}
-              title={liveEvent?.title ?? 'Aktif olay yok'}
-              aria-label={liveEvent ? liveEvent.shortName : 'Aktif olay yok'}
+              title={liveTitle}
+              aria-label={liveShort}
             >
               {liveEvent ? (
                 <>
                   <Icon name={eventIconName(liveEvent.id)} />
-                  <span className="dock-tool-label">{liveEvent.shortName}</span>
+                  <span className="dock-tool-label">{liveShort}</span>
                 </>
               ) : (
                 <span className="dock-tool-label is-empty" aria-hidden="true">
@@ -398,25 +412,25 @@ export function ExploreDock() {
           </div>
           <button type="button" className={`btn dock-facts${panel === 'facts' ? ' is-on' : ''}`} onClick={() => toggleFacts()}>
             <Icon name="book" />
-            <span className="dock-label">Bilgiler</span>
-            <span className="dock-label-short">Bilgi</span>
+            <span className="dock-label">{t('facts')}</span>
+            <span className="dock-label-short">{t('factsShort')}</span>
           </button>
         </div>
         <div className="dock-meta">
           <button type="button" className={`btn${panel === 'team' ? ' is-on' : ''}`} onClick={() => toggleTeam()}>
             <Icon name="people" />
-            <span className="dock-label">Takım</span>
+            <span className="dock-label">{t('team')}</span>
           </button>
           <button type="button" className={`btn${panel === 'settings' ? ' is-on' : ''}`} onClick={() => toggleSettings()}>
             <Icon name="gear" />
-            <span className="dock-label">Ayarlar</span>
+            <span className="dock-label">{t('settings')}</span>
           </button>
         </div>
         <div className="dock-cta">
-          <button type="button" className="btn primary" onClick={() => openLabHome()} aria-label={TEAM.home}>
+          <button type="button" className="btn primary" onClick={() => openLabHome()} aria-label={labHome}>
             <Icon name="flask" />
-            <DockLabel lines={['Proje', 'Etkinlikleri']} />
-            <span className="dock-label-short">Proje</span>
+            <DockLabel lines={t('lab').split(' ')} />
+            <span className="dock-label-short">{t('labShort')}</span>
           </button>
         </div>
         <button
@@ -427,7 +441,7 @@ export function ExploreDock() {
           aria-controls="dock-more-sheet"
         >
           <Icon name="more" />
-          <span className="dock-label">Daha</span>
+          <span className="dock-label">{t('more')}</span>
         </button>
       </nav>
     </div>

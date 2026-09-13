@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
 import { getHeliocentricEclipticAu } from '../../astronomy/coordinateSystems'
-import { getPlanets, getBody } from '../../astronomy/planetData'
+import { getPlanets, getBody, displayName } from '../../astronomy/planetData'
 import { auToScene } from '../../astronomy/visualScale'
+import { useLang } from '../../i18n/useT'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useEducationStore } from '../../store/educationStore'
 import { useLabStore } from '../../store/labStore'
@@ -14,6 +15,7 @@ const CY = SIZE / 2
 const SCALE = 2.6
 
 export function SolarSystem2D() {
+  const lang = useLang()
   const time = useSimulationStore((s) => s.displayedTimeMs)
   const selected = useSimulationStore((s) => s.selectedBodyId)
   const selectBody = useSimulationStore((s) => s.selectBody)
@@ -43,7 +45,7 @@ export function SolarSystem2D() {
           strokeWidth={2}
           role="button"
           tabIndex={0}
-          aria-label="Güneş"
+          aria-label={displayName('sun', lang)}
           onClick={() => focusBody('sun')}
           onKeyDown={(event) => {
             if (event.key === 'Enter' || event.key === ' ') {
@@ -54,7 +56,7 @@ export function SolarSystem2D() {
         />
         {hideNames ? null : (
           <text x={CX} y={CY - 20} textAnchor="middle" fill="#fff" fontSize="11">
-            Güneş
+            {displayName('sun', lang)}
           </text>
         )}
         {planets.map((planet) => {
@@ -77,7 +79,7 @@ export function SolarSystem2D() {
                     pointerEvents="stroke"
                     role="button"
                     tabIndex={0}
-                    aria-label={`${planet.name} yörüngesi`}
+                    aria-label={`${displayName(planet, lang)}`}
                     style={{ cursor: 'pointer' }}
                     onClick={() => focusBody(planet.id)}
                     onKeyDown={(event) => {
@@ -107,7 +109,7 @@ export function SolarSystem2D() {
                 strokeWidth={2}
                 role="button"
                 tabIndex={0}
-                aria-label={planet.name}
+                aria-label={displayName(planet, lang)}
                 onClick={() => {
                   selectBody(planet.id)
                   notify(planet.id)
@@ -116,7 +118,7 @@ export function SolarSystem2D() {
               />
               {hideNames ? null : (
                 <text x={x + 10} y={y - 8} fill="#e8eef8" fontSize="10">
-                  {planet.name}
+                  {displayName(planet, lang)}
                 </text>
               )}
             </g>

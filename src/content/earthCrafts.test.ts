@@ -14,12 +14,12 @@ describe('earth crafts', () => {
     expect(new Set(ids).size).toBe(4)
     expect(ids).toEqual(expect.arrayContaining(['iss', 'crew-dragon', 'turksat-6a', 'turksat-5b']))
     for (const craft of EARTH_CRAFTS) {
-      expect(craft.fact.length).toBeGreaterThan(24)
+      expect(craft.fact.tr.length).toBeGreaterThan(24)
       expect(craft.facts).toHaveLength(3)
-      expect(CRAFT_KIND_LABEL[craft.kind]).toBeTruthy()
+      expect(CRAFT_KIND_LABEL[craft.kind].tr).toBeTruthy()
     }
     expect(findEarthCraft('crew-dragon')?.name).toBe('Crew Dragon')
-    expect(findEarthCraft('turksat-6a')?.tag).toContain('Türkiye')
+    expect(findEarthCraft('turksat-6a')?.tag.tr).toContain('Türkiye')
   })
 
   it('places ISS and Türksat on the drawn classroom rings', () => {

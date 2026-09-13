@@ -1,36 +1,36 @@
 import { useState } from 'react'
-import { getBody, getMoonsOf } from '../../astronomy/planetData'
+import { displayName, getBody } from '../../astronomy/planetData'
+import { bodyAtmosphere, bodyDescription, bodyFacts } from '../../i18n/bodies'
+import { useLang, useT } from '../../i18n/useT'
 import { formatAu, formatDays, formatHours, formatKm, formatNumberTr } from '../../utils/formatting'
 import { AU_KM } from '../../astronomy/astronomyConstants'
-import { useEducationStore } from '../../store/educationStore'
 import { useSimulationStore } from '../../store/simulationStore'
-import { focusBody, openCompare } from '../../features/planetExplorer/focus'
-
-const TABS = ['Bilgi', 'Keşfet', 'Karşılaştır', 'Yörünge', 'Dönme', 'Uydular'] as const
+import { openCompare } from '../../features/planetExplorer/focus'
 
 export function PlanetInfoCard() {
+  const t = useT()
+  const lang = useLang()
   const id = useSimulationStore((s) => s.selectedBodyId)
-  const showAxes = useSimulationStore((s) => s.showAxes)
-  const setShowAxes = useSimulationStore((s) => s.setShowAxes)
-  const notifyAxes = useEducationStore((s) => s.notifyAxesVisible)
-  const [tab, setTab] = useState<(typeof TABS)[number]>('Bilgi')
+  const tabs = ['facts', 'discovery', 'compare'] as const
+  const [tab, setTab] = useState<(typeof tabs)[number]>('facts')
 
   if (!id) return null
   const body = getBody(id)
+  const name = displayName(body, lang)
 
   return (
-    <aside className="info-card" aria-label={`${body.name} bilgisi`}>
+    <aside className="info-card" aria-label={name}>
       <header className="panel-head">
         <div>
           <p className="eyebrow">{body.englishName}</p>
-          <h2>{body.name}</h2>
+          <h2>{name}</h2>
         </div>
-        <button type="button" className="icon-btn" onClick={() => useSimulationStore.getState().selectBody(null)} aria-label="Kapat">
+        <button type="button" className="icon-btn" onClick={() => useSimulationStore.getState().selectBody(null)} aria-label={t('close')}>
           ×
         </button>
       </header>
       <div className="tabs" role="tablist">
-        {TABS.map((item) => (
+        {tabs.map((item) => (
           <button
             key={item}
             type="button"
@@ -39,163 +39,63 @@ export function PlanetInfoCard() {
             className={tab === item ? 'is-active' : ''}
             onClick={() => setTab(item)}
           >
-            {item}
+            {t(item)}
           </button>
         ))}
       </div>
-      {tab === 'Bilgi' ? (
+      {tab === 'facts' ? (
         <div>
-          <p>{body.description}</p>
+          <p>{bodyDescription(body.id, lang)}</p>
           <ul className="stats">
             <li>
-              <span>{body.category === 'moon' && body.parentId ? `${getBody(body.parentId).name}’e uzaklığı` : 'Güneş’e uzaklığı'}</span>
-              <strong>{body.orbitalRadiusAu > 0 ? `${formatAu(body.orbitalRadiusAu)} (${formatKm(body.orbitalRadiusAu * AU_KM)})` : 'Merkez'}</strong>
+              <span>{t('distance')}</span>
+              <strong>
+                {body.orbitalRadiusAu > 0
+                  ? `${formatAu(body.orbitalRadiusAu, lang)} (${formatKm(body.orbitalRadiusAu * AU_KM, lang)})`
+                  : t('center')}
+              </strong>
             </li>
             <li>
-              <span>Çapı</span>
-              <strong>{formatKm(body.radiusKm * 2)}</strong>
+              <span>{t('diameter')}</span>
+              <strong>{formatKm(body.radiusKm * 2, lang)}</strong>
             </li>
             <li>
-              <span>Bir yılı (dolanma)</span>
-              <strong>{body.orbitalPeriodDays > 0 ? formatDays(body.orbitalPeriodDays) : '—'}</strong>
+              <span>{t('year')}</span>
+              <strong>{body.orbitalPeriodDays > 0 ? formatDays(body.orbitalPeriodDays, lang) : '—'}</strong>
             </li>
             <li>
-              <span>Bir günü (dönme)</span>
-              <strong>{formatHours(body.rotationPeriodHours)}</strong>
+              <span>{t('day')}</span>
+              <strong>{formatHours(body.rotationPeriodHours, lang)}</strong>
             </li>
             <li>
-              <span>Uydu sayısı</span>
-              <strong>{formatNumberTr(body.moons)}</strong>
+              <span>{t('moons')}</span>
+              <strong>{formatNumberTr(body.moons, 0, lang)}</strong>
             </li>
             <li>
-              <span>Eksen eğikliği</span>
-              <strong>{formatNumberTr(body.axialTiltDeg, 2)}°</strong>
+              <span>{t('temperature')}</span>
+              <strong>{formatNumberTr(body.meanTempC, 0, lang)} °C</strong>
             </li>
             <li>
-              <span>Atmosfer</span>
-              <strong>{body.atmosphere}</strong>
-            </li>
-            <li>
-              <span>Sıcaklık</span>
-              <strong>{formatNumberTr(body.meanTempC, 0)} °C</strong>
+              <span>{lang === 'en' ? 'Atmosphere' : 'Atmosfer'}</span>
+              <strong>{bodyAtmosphere(body.id, lang)}</strong>
             </li>
           </ul>
         </div>
       ) : null}
-      {tab === 'Keşfet' ? (
+      {tab === 'discovery' ? (
         <ul className="facts">
-          {body.facts.map((fact) => (
+          {bodyFacts(body.id, lang).map((fact) => (
             <li key={fact}>{fact}</li>
           ))}
         </ul>
       ) : null}
-      {tab === 'Karşılaştır' ? (
+      {tab === 'compare' ? (
         <p>
-          {body.name} ile başka bir cismi karşılaştır.
-          <button
-            type="button"
-            className="btn"
-            onClick={() => openCompare(id)}
-          >
-            Karşılaştır
+          {name}
+          <button type="button" className="btn" onClick={() => openCompare(id)}>
+            {t('compare')}
           </button>
         </p>
-      ) : null}
-      {tab === 'Yörünge' ? (
-        <div>
-          <p>
-            <strong>Dolanma</strong>, {body.name} cisminin Güneş (veya ana cisim) etrafındaki turudur.
-          </p>
-          <ul className="stats">
-            <li>
-              <span>Yörünge süresi</span>
-              <strong>{body.orbitalPeriodDays > 0 ? formatDays(body.orbitalPeriodDays) : '—'}</strong>
-            </li>
-            <li>
-              <span>Dış merkezlik</span>
-              <strong>{formatNumberTr(body.eccentricity, 3)}</strong>
-            </li>
-            <li>
-              <span>Yörünge eğimi</span>
-              <strong>{formatNumberTr(body.inclinationDeg, 2)}°</strong>
-            </li>
-          </ul>
-        </div>
-      ) : null}
-      {tab === 'Dönme' ? (
-        <div>
-          <p>
-            <strong>Dönme</strong>, cismin kendi ekseni etrafındaki dönüşüdür. <strong>Dolanma</strong> ise Güneş etrafındaki yolculuğudur.
-          </p>
-          <ul className="stats">
-            <li>
-              <span>Dönme süresi</span>
-              <strong>{formatHours(body.rotationPeriodHours)}</strong>
-            </li>
-            <li>
-              <span>Eksen eğikliği</span>
-              <strong>{formatNumberTr(body.axialTiltDeg, 2)}°</strong>
-            </li>
-          </ul>
-          <button
-            type="button"
-            className="btn"
-            aria-pressed={showAxes}
-            onClick={() => {
-              const next = !showAxes
-              setShowAxes(next)
-              notifyAxes(next, id)
-            }}
-          >
-            {showAxes ? 'Yana yatmayı gizle' : 'Yana yatmayı göster'}
-          </button>
-        </div>
-      ) : null}
-      {tab === 'Uydular' ? (
-        <div>
-          {body.category === 'moon' && body.parentId ? (
-            <>
-              <p>
-                {body.name}, {getBody(body.parentId).name}’in uydusudur.
-              </p>
-              <p className="muted">
-                Uzaklık: {formatKm(body.orbitalRadiusAu * AU_KM)} ({formatAu(body.orbitalRadiusAu)}).
-              </p>
-              <button type="button" className="btn" onClick={() => focusBody(body.parentId!)}>
-                {getBody(body.parentId).name}’e git
-              </button>
-            </>
-          ) : (
-            <>
-              <p>
-                {body.name} cisminin bilinen uydu sayısı: <strong>{formatNumberTr(body.moons)}</strong>.
-              </p>
-              {getMoonsOf(body.id).length > 0 ? (
-                <ul className="stats">
-                  {getMoonsOf(body.id).map((moon) => (
-                    <li key={moon.id}>
-                      <span>{moon.name}</span>
-                      <button type="button" className="text-link" onClick={() => focusBody(moon.id)}>
-                        Oraya bak
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="muted">Burada gösterilen büyük uydusu yok.</p>
-              )}
-              {body.id === 'earth' ? (
-                <div>
-                  <p>Ay neden hep aynı yüzünü gösteriyor?</p>
-                  <p className="muted">
-                    Ay’ın kendi ekseni etrafında dönme süresi ile Dünya etrafındaki dolanma süresi eşittir. Bu yüzden
-                    hep aynı yüzünü görürüz.
-                  </p>
-                </div>
-              ) : null}
-            </>
-          )}
-        </div>
       ) : null}
     </aside>
   )

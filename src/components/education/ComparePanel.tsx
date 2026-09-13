@@ -1,38 +1,32 @@
 import { useMemo } from 'react'
-import { bodiesInFamilyOrder, compareOptionLabel, getBody } from '../../astronomy/planetData'
+import { bodiesInFamilyOrder, compareOptionLabel, displayName, getBody } from '../../astronomy/planetData'
 import { kidCompare } from '../../features/lab/kidCompare'
 import { insightFor } from '../../content/insights'
+import { bodyKindLabel } from '../../i18n/bodyKind'
+import { loc } from '../../i18n/types'
+import { useLang, useT } from '../../i18n/useT'
 import { createBodyPortraitUrl } from '../../scene/proceduralTextures'
 import { Icon, type IconName } from '../ui/Icon'
 import { useSimulationStore } from '../../store/simulationStore'
 import { useUiStore } from '../../store/uiStore'
-import type { BodyCategory, BodyId, PlanetDefinition } from '../../types/planet'
+import type { BodyId, PlanetDefinition } from '../../types/planet'
 
-const KIND: Record<BodyCategory, string> = {
-  star: 'Yıldız',
-  terrestrial: 'Kaya gezegen',
-  gasGiant: 'Gaz devi',
-  iceGiant: 'Buz devi',
-  dwarf: 'Cüce gezegen',
-  moon: 'Uydu',
+const ROW_ICONS: Record<'size' | 'year' | 'gravity' | 'heat', IconName> = {
+  size: 'ruler',
+  year: 'orbit',
+  gravity: 'weight',
+  heat: 'thermo',
 }
 
-const ROW_ICONS: Record<string, IconName> = {
-  Çap: 'ruler',
-  'Bir yıl': 'orbit',
-  Yerçekimi: 'weight',
-  Sıcaklık: 'thermo',
-}
-
-function PlanetOrb({ body }: { body: PlanetDefinition }) {
+function PlanetOrb({ body, name }: { body: PlanetDefinition; name: string }) {
   const url = useMemo(() => createBodyPortraitUrl(body.id, body.color), [body.id, body.color])
   return (
     <span className={`compare-orb-wrap${body.hasRings ? ' has-rings' : ''}${body.id === 'sun' ? ' is-sun' : ''}`}>
       {body.hasRings ? <i className="compare-ring" aria-hidden="true" /> : null}
       {url ? (
-        <img className="compare-orb" src={url} alt={body.name} width={72} height={72} />
+        <img className="compare-orb" src={url} alt={name} width={72} height={72} />
       ) : (
-        <span className="compare-orb" role="img" aria-label={body.name} style={{ backgroundColor: body.color }} />
+        <span className="compare-orb" role="img" aria-label={name} style={{ backgroundColor: body.color }} />
       )}
     </span>
   )
@@ -51,65 +45,74 @@ function PickCard({
   tone: 'a' | 'b'
   onChange: (id: BodyId) => void
 }) {
+  const t = useT()
+  const lang = useLang()
+  const name = displayName(body, lang)
   return (
     <label className={`compare-pick-card is-${tone}`}>
-      <PlanetOrb body={body} />
-      <select value={value} onChange={(event) => onChange(event.target.value as BodyId)} aria-label={tone === 'a' ? 'Birinci gök cismi' : 'İkinci gök cismi'}>
+      <PlanetOrb body={body} name={name} />
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value as BodyId)}
+        aria-label={tone === 'a' ? t('firstBody') : t('secondBody')}
+      >
         {COMPARE_OPTIONS.map((item) => (
           <option key={item.id} value={item.id}>
-            {compareOptionLabel(item)}
+            {compareOptionLabel(item, lang)}
           </option>
         ))}
       </select>
-      <span className="compare-kind">{KIND[body.category]}</span>
+      <span className="compare-kind">{bodyKindLabel(body.category, lang)}</span>
     </label>
   )
 }
 
 export function ComparePanel() {
+  const t = useT()
+  const lang = useLang()
   const a = useSimulationStore((s) => s.compareA)
   const b = useSimulationStore((s) => s.compareB)
   const setCompare = useSimulationStore((s) => s.setCompare)
-  const rows = kidCompare(a, b)
+  const rows = kidCompare(a, b, lang)
   const close = () => useUiStore.getState().setActivePanel('none')
   const bodyA = getBody(a)
   const bodyB = getBody(b)
   const tip = insightFor([a, b])
 
   return (
-    <aside className="hud-sheet compare-sheet" aria-label="Karşılaştırma">
+    <aside className="hud-sheet compare-sheet" aria-label={t('comparison')}>
       <header className="panel-head">
-        <h2>Karşılaştır</h2>
-        <button type="button" className="icon-btn" onClick={close} aria-label="Kapat">
+        <h2>{t('compare')}</h2>
+        <button type="button" className="icon-btn" onClick={close} aria-label={t('close')}>
           ×
         </button>
       </header>
       <div className="compare-heroes">
         <PickCard body={bodyA} value={a} tone="a" onChange={(id) => setCompare(id, b)} />
         <p className="compare-vs" aria-hidden="true">
-          karşı
+          {lang === 'en' ? 'vs' : 'karşı'}
         </p>
         <PickCard body={bodyB} value={b} tone="b" onChange={(id) => setCompare(a, id)} />
       </div>
-      <div className="compare-table" role="table" aria-label="Karşılaştırma tablosu">
+      <div className="compare-table" role="table" aria-label={t('comparison')}>
         <div className="compare-tr is-head" role="row">
           <span role="columnheader" className="compare-metric">
-            Özellik
+            {t('trait')}
           </span>
           <span role="columnheader" className="is-a">
-            {bodyA.name}
+            {displayName(bodyA, lang)}
           </span>
           <span role="columnheader" className="is-b">
-            {bodyB.name}
+            {displayName(bodyB, lang)}
           </span>
         </div>
         {rows.map((row) => {
           const leadA = row.aValue > row.bValue * 1.08
           const leadB = row.bValue > row.aValue * 1.08
           return (
-            <div key={row.label} className="compare-tr" role="row">
+            <div key={row.id} className="compare-tr" role="row">
               <span role="rowheader" className="compare-metric">
-                <Icon name={ROW_ICONS[row.label] ?? 'spark'} />
+                <Icon name={ROW_ICONS[row.id] ?? 'spark'} />
                 {row.label}
               </span>
               <span role="cell" className={`is-a${leadA ? ' is-lead' : ''}`}>
@@ -124,7 +127,7 @@ export function ComparePanel() {
       </div>
       <p className="insight compact">
         <Icon name="spark" />
-        <span>{tip.text}</span>
+        <span>{loc(lang, tip.text)}</span>
       </p>
     </aside>
   )

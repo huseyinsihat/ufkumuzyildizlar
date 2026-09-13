@@ -1,20 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
+import { L, tx } from '../../i18n/types'
+import { useLang } from '../../i18n/useT'
 import { getScene } from '../../scene/sceneApi'
 import { ORBIT_MAX_POLAR, ORBIT_MIN_POLAR } from '../../scene/cameraOrbit'
 
 const DRAG_SCALE = 0.008
 const CLICK_PX = 5
 
-const FACES: { id: string; label: string; theta: number | null; phi: number }[] = [
-  { id: 'front', label: 'Ön', theta: 0, phi: Math.PI / 2 },
-  { id: 'back', label: 'Arka', theta: Math.PI, phi: Math.PI / 2 },
-  { id: 'right', label: 'Sağ', theta: Math.PI / 2, phi: Math.PI / 2 },
-  { id: 'left', label: 'Sol', theta: -Math.PI / 2, phi: Math.PI / 2 },
-  { id: 'top', label: 'Üst', theta: null, phi: ORBIT_MIN_POLAR },
-  { id: 'bottom', label: 'Alt', theta: null, phi: ORBIT_MAX_POLAR },
+const FACES: { id: string; label: ReturnType<typeof L>; theta: number | null; phi: number }[] = [
+  { id: 'front', label: L('Ön', 'Front'), theta: 0, phi: Math.PI / 2 },
+  { id: 'back', label: L('Arka', 'Back'), theta: Math.PI, phi: Math.PI / 2 },
+  { id: 'right', label: L('Sağ', 'Right'), theta: Math.PI / 2, phi: Math.PI / 2 },
+  { id: 'left', label: L('Sol', 'Left'), theta: -Math.PI / 2, phi: Math.PI / 2 },
+  { id: 'top', label: L('Üst', 'Top'), theta: null, phi: ORBIT_MIN_POLAR },
+  { id: 'bottom', label: L('Alt', 'Bottom'), theta: null, phi: ORBIT_MAX_POLAR },
 ]
 
 export function ViewCube() {
+  const lang = useLang()
   const host = useRef<HTMLDivElement>(null)
   const drag = useRef<{ x: number; y: number; moved: boolean } | null>(null)
   const [angles, setAngles] = useState({ yaw: 0, pitch: 18 })
@@ -90,9 +93,9 @@ export function ViewCube() {
               className={`view-cube-face is-${face.id}`}
               data-cube-face={face.id}
               tabIndex={-1}
-              aria-label={`${face.label} bakış`}
+              aria-label={tx(lang, face.label)}
             >
-              {face.label}
+              {tx(lang, face.label)}
             </button>
           ))}
         </div>

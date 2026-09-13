@@ -1,4 +1,6 @@
 import { TEAM } from '../../content/team'
+import { loc } from '../../i18n/types'
+import { useLang, useT } from '../../i18n/useT'
 import { useUiStore } from '../../store/uiStore'
 
 function Badge({ name, role }: { name: string; role: string }) {
@@ -18,10 +20,12 @@ function Badge({ name, role }: { name: string; role: string }) {
 }
 
 export function TeamPanel() {
+  const t = useT()
+  const lang = useLang()
   const close = () => useUiStore.getState().setActivePanel('none')
 
   return (
-    <aside className="hud-sheet team-sheet" aria-label="Takım">
+    <aside className="hud-sheet team-sheet" aria-label={t('team')}>
       <header className="panel-head">
         <div>
           <h2>{TEAM.project}</h2>
@@ -29,7 +33,7 @@ export function TeamPanel() {
             {TEAM.teamName} · {TEAM.event}
           </p>
         </div>
-        <button type="button" className="icon-btn" onClick={close} aria-label="Kapat">
+        <button type="button" className="icon-btn" onClick={close} aria-label={t('close')}>
           ×
         </button>
       </header>
@@ -39,12 +43,12 @@ export function TeamPanel() {
         </span>
         <div>
           <strong>{TEAM.advisor.name}</strong>
-          <span>{TEAM.advisor.role}</span>
+          <span>{loc(lang, TEAM.advisor.role)}</span>
         </div>
       </div>
       <ul className="team-badges">
         {TEAM.members.map((member) => (
-          <Badge key={member.name} name={member.name} role={member.role} />
+          <Badge key={member.name} name={member.name} role={loc(lang, member.role)} />
         ))}
       </ul>
     </aside>

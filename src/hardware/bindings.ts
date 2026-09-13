@@ -1,39 +1,45 @@
+import { L, type LocText } from '../i18n/types'
+
 export const HARDWARE_BUTTONS = [
-  { pin: 'D0', line: 'P:sun', label: 'Güneş' },
-  { pin: 'D1', line: 'P:mercury', label: 'Merkür' },
-  { pin: 'D2', line: 'P:venus', label: 'Venüs' },
-  { pin: 'D3', line: 'P:earth', label: 'Dünya' },
-  { pin: 'D4', line: 'P:mars', label: 'Mars' },
-  { pin: 'D5', line: 'P:jupiter', label: 'Jüpiter' },
-  { pin: 'D6', line: 'P:saturn', label: 'Satürn' },
-  { pin: 'D7', line: 'P:uranus', label: 'Uranüs' },
-  { pin: 'D8', line: 'P:neptune', label: 'Neptün' },
-  { pin: 'D9', line: 'F:play', label: 'Oynat / Duraklat' },
-  { pin: 'D10', line: 'F:lab', label: 'Proje Etkinlikleri' },
-  { pin: 'D11', line: 'F:events', label: 'Olaylar' },
-  { pin: 'D12', line: 'F:stars', label: 'Yıldızlar' },
-  { pin: 'D13', line: 'F:team', label: 'Takım' },
-  { pin: 'D14', line: 'F:settings', label: 'Ayarlar' },
+  { pin: 'D0', line: 'P:sun', label: L('Güneş', 'Sun') },
+  { pin: 'D1', line: 'P:mercury', label: L('Merkür', 'Mercury') },
+  { pin: 'D2', line: 'P:venus', label: L('Venüs', 'Venus') },
+  { pin: 'D3', line: 'P:earth', label: L('Dünya', 'Earth') },
+  { pin: 'D4', line: 'P:mars', label: L('Mars', 'Mars') },
+  { pin: 'D5', line: 'P:jupiter', label: L('Jüpiter', 'Jupiter') },
+  { pin: 'D6', line: 'P:saturn', label: L('Satürn', 'Saturn') },
+  { pin: 'D7', line: 'P:uranus', label: L('Uranüs', 'Uranus') },
+  { pin: 'D8', line: 'P:neptune', label: L('Neptün', 'Neptune') },
+  { pin: 'D9', line: 'F:play', label: L('Oynat / Duraklat', 'Play / Pause') },
+  { pin: 'D10', line: 'F:lab', label: L('Proje Etkinlikleri', 'Project Activities') },
+  { pin: 'D11', line: 'F:events', label: L('Olaylar', 'Events') },
+  { pin: 'D12', line: 'F:stars', label: L('Yıldızlar', 'Stars') },
+  { pin: 'D13', line: 'F:team', label: L('Takım', 'Team') },
+  { pin: 'D14', line: 'F:settings', label: L('Ayarlar', 'Settings') },
 ] as const
 
-export const HARDWARE_ANALOG = { pin: 'A0', line: 'T:0-1', label: 'Hız (1 sn → 1 saat → 1 gün → 1 yıl)' } as const
-export const HARDWARE_MOTION = { pin: 'IMU', line: 'G:yaw,pitch', label: 'Kartı eğin: bakış döner' } as const
+export const HARDWARE_ANALOG = {
+  pin: 'A0',
+  line: 'T:0-1',
+  label: L('Hız (1 sn → 1 saat → 1 gün → 1 yıl)', 'Speed (1 s → 1 hour → 1 day → 1 year)'),
+} as const
+export const HARDWARE_MOTION = { pin: 'IMU', line: 'G:yaw,pitch', label: L('Kartı eğin: bakış döner', 'Tilt the board: the view turns') } as const
 
 export const HARDWARE_EXTRAS = [
-  { pin: 'D15', line: 'F:back', label: 'Geri' },
-  { pin: 'A1', line: 'F:chat', label: 'Güneş’e Sor' },
-  { pin: 'A2', line: 'F:compare', label: 'Karşılaştır' },
+  { pin: 'D15', line: 'F:back', label: L('Geri', 'Back') },
+  { pin: 'A1', line: 'F:chat', label: L('Güneş’e Sor', 'Ask the Sun') },
+  { pin: 'A2', line: 'F:compare', label: L('Karşılaştır', 'Compare') },
 ] as const
 
 export const HARDWARE_SPARES = [
-  { pin: 'A3', label: 'Yedek' },
-  { pin: 'A4', label: 'Yedek' },
-  { pin: 'A5', label: 'Yedek' },
+  { pin: 'A3', label: L('Yedek', 'Spare') },
+  { pin: 'A4', label: L('Yedek', 'Spare') },
+  { pin: 'A5', label: L('Yedek', 'Spare') },
 ] as const
 
 export type BoardPad = {
   pin: string
-  label: string
+  label: LocText | string
   line?: string
   kind: 'power' | 'gnd' | 'wired' | 'extra' | 'spare' | 'motion'
 }

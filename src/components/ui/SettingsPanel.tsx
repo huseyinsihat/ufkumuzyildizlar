@@ -6,13 +6,9 @@ import { useUiStore } from '../../store/uiStore'
 import { useVoiceStore } from '../../store/voiceStore'
 import type { VoiceLang } from '../../features/voice/clips'
 import { scaleExplanation } from '../../features/scaleMode'
+import { useLang, useT } from '../../i18n/useT'
 import { Icon, type IconName } from './Icon'
 import type { ScaleMode } from '../../types/simulation'
-
-const MODES: { id: ScaleMode; label: string }[] = [
-  { id: 'educational', label: 'Eğitim ölçeği' },
-  { id: 'trueScale', label: 'Gerçek ölçek' },
-]
 
 const VOICE_LANGS: { id: VoiceLang; label: string }[] = [
   { id: 'tr', label: 'Türkçe' },
@@ -39,6 +35,8 @@ function Chip({
 }
 
 export function SettingsPanel() {
+  const t = useT()
+  const lang = useLang()
   const scaleMode = useSimulationStore((s) => s.scaleMode)
   const setScaleMode = useSimulationStore((s) => s.setScaleMode)
   const showOrbits = useSimulationStore((s) => s.showOrbits)
@@ -59,20 +57,24 @@ export function SettingsPanel() {
   const setVoiceLang = useVoiceStore((s) => s.setLang)
   const hardwareStatus = useHardwareStore((s) => s.status)
   const close = () => useUiStore.getState().setActivePanel('none')
-  const hardwareLabel = hardwareStatus === 'connected' ? 'Deneyap Kart · bağlı' : 'Deneyap Kart'
+  const hardwareLabel = hardwareStatus === 'connected' ? t('hardwareConnected') : t('hardware')
+  const modes: { id: ScaleMode; label: string }[] = [
+    { id: 'educational', label: t('eduScale') },
+    { id: 'trueScale', label: t('trueScale') },
+  ]
 
   return (
-    <aside className="hud-sheet settings-sheet" aria-label="Ayarlar">
+    <aside className="hud-sheet settings-sheet" aria-label={t('settings')}>
       <header className="panel-head">
-        <h2>Ayarlar</h2>
-        <button type="button" className="icon-btn" onClick={close} aria-label="Kapat">
+        <h2>{t('settings')}</h2>
+        <button type="button" className="icon-btn" onClick={close} aria-label={t('close')}>
           ×
         </button>
       </header>
 
-      <p className="nav-label">Ölçek</p>
-      <div className="settings-seg" role="group" aria-label="Ölçek">
-        {MODES.map((mode) => (
+      <p className="nav-label">{t('scale')}</p>
+      <div className="settings-seg" role="group" aria-label={t('scale')}>
+        {modes.map((mode) => (
           <button
             key={mode.id}
             type="button"
@@ -83,38 +85,38 @@ export function SettingsPanel() {
           </button>
         ))}
       </div>
-      <p className="settings-note">{scaleExplanation(scaleMode)}</p>
+      <p className="settings-note">{scaleExplanation(scaleMode, lang)}</p>
 
-      <p className="nav-label">Görünüm</p>
+      <p className="nav-label">{t('appearance')}</p>
       <div className="settings-toggles">
-        <Chip on={leftOpen} label="Gezegen kartı" icon="planet" onToggle={setLeftOpen} />
+        <Chip on={leftOpen} label={t('planetCard')} icon="planet" onToggle={setLeftOpen} />
         <Chip
           on={showOrbits}
-          label="Yörüngeler"
+          label={t('orbits')}
           icon="orbit"
           onToggle={(value) => {
             setShowOrbits(value)
             useEducationStore.getState().notifyOrbitsVisible(value, useSimulationStore.getState().selectedBodyId)
           }}
         />
-        <Chip on={showLabels} label="İsimler" icon="book" onToggle={setShowLabels} />
+        <Chip on={showLabels} label={t('names')} icon="book" onToggle={setShowLabels} />
         <Chip
           on={showAxes}
-          label="Eksenler"
+          label={t('axes')}
           icon="ruler"
           onToggle={(value) => {
             setShowAxes(value)
             useEducationStore.getState().notifyAxesVisible(value, useSimulationStore.getState().selectedBodyId)
           }}
         />
-        <Chip on={showConstellations} label="Takımyıldız" icon="spark" onToggle={setShowConstellations} />
-        <Chip on={largeText} label="Büyük yazı" icon="people" onToggle={setLargeText} />
+        <Chip on={showConstellations} label={t('constellations')} icon="spark" onToggle={setShowConstellations} />
+        <Chip on={largeText} label={t('largeText')} icon="people" onToggle={setLargeText} />
       </div>
 
-      <p className="nav-label">Ses</p>
+      <p className="nav-label">{t('sound')}</p>
       <div className="settings-voice">
-        <Chip on={voiceOn} label="Sesli anlatım" icon="speaker" onToggle={setVoiceOn} />
-        <div className="settings-seg is-slim" role="group" aria-label="Anlatım dili">
+        <Chip on={voiceOn} label={t('voice')} icon="speaker" onToggle={setVoiceOn} />
+        <div className="settings-seg is-slim" role="group" aria-label={t('language')}>
           {VOICE_LANGS.map((item) => (
             <button
               key={item.id}
@@ -134,17 +136,15 @@ export function SettingsPanel() {
             <Icon name="chip" />
             {hardwareLabel}
           </button>
-          <p className="settings-note">
-            {hardwareStatus === 'connected' ? 'Pinler fare ve klavye yerine gezdirir.' : 'USB tak, Bağlan. Pinlerle gez.'}
-          </p>
+          <p className="settings-note">{hardwareStatus === 'connected' ? t('hwNoteOn') : t('hwNoteOff')}</p>
         </div>
         <button type="button" className="settings-chip" onClick={() => getScene()?.focusOverview()}>
           <Icon name="reset" />
-          Genel bakışa dön
+          {t('overviewReturn')}
         </button>
         <button type="button" className="settings-chip" onClick={() => useUiStore.getState().startDemo()}>
           <Icon name="play" />
-          Kısa tur
+          {t('shortTour')}
         </button>
       </div>
     </aside>

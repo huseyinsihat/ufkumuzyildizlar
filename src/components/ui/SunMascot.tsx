@@ -1,5 +1,6 @@
 import { useId } from 'react'
 import { askTheSun } from '../../features/planetExplorer/focus'
+import { useT } from '../../i18n/useT'
 import { useUiStore } from '../../store/uiStore'
 
 export function SunMascot({ size = 'md' }: { size?: 'md' | 'lg' }) {
@@ -38,6 +39,7 @@ export function SunMascot({ size = 'md' }: { size?: 'md' | 'lg' }) {
 }
 
 export function ExploreSideTools() {
+  const t = useT()
   const chatOpen = useUiStore((s) => s.sunChatOpen)
   if (chatOpen) return null
 
@@ -45,7 +47,7 @@ export function ExploreSideTools() {
     <div className="explore-side">
       <button type="button" className="sun-ask-fab" onClick={() => askTheSun()}>
         <SunMascot size="lg" />
-        <span className="sun-ask-fab-label">Güneş’e Sor</span>
+        <span className="sun-ask-fab-label">{t('askSun')}</span>
       </button>
     </div>
   )

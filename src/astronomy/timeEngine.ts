@@ -1,3 +1,4 @@
+import { L } from '../i18n/types'
 import { DAY_MS, HOUR_S, TROPICAL_YEAR_DAYS } from './astronomyConstants'
 
 export const SECOND_SCALE = 1
@@ -7,21 +8,21 @@ export const YEAR_SCALE = DAY_SCALE * TROPICAL_YEAR_DAYS
 
 /** Kid-facing speeds: 1 real second equals 1 second, hour, day, then year. */
 export const TIME_LADDER = [
-  { id: '1', label: '1 Sn', shortLabel: '1s', fullLabel: '1 sn/sn', scale: SECOND_SCALE },
-  { id: 'hour', label: '1 Saat', shortLabel: '1sa', fullLabel: '1 saat/sn', scale: HOUR_SCALE },
-  { id: 'day', label: '1 Gün', shortLabel: '1g', fullLabel: '1 gün/sn', scale: DAY_SCALE },
-  { id: 'year', label: '1 Yıl', shortLabel: '1y', fullLabel: '1 yıl/sn', scale: YEAR_SCALE },
+  { id: '1', label: L('1 Sn', '1 Sec'), shortLabel: L('1s', '1s'), fullLabel: L('1 sn/sn', '1 s/s'), scale: SECOND_SCALE },
+  { id: 'hour', label: L('1 Saat', '1 Hour'), shortLabel: L('1sa', '1h'), fullLabel: L('1 saat/sn', '1 hour/s'), scale: HOUR_SCALE },
+  { id: 'day', label: L('1 Gün', '1 Day'), shortLabel: L('1g', '1d'), fullLabel: L('1 gün/sn', '1 day/s'), scale: DAY_SCALE },
+  { id: 'year', label: L('1 Yıl', '1 Year'), shortLabel: L('1y', '1y'), fullLabel: L('1 yıl/sn', '1 year/s'), scale: YEAR_SCALE },
 ] as const
 
 export const TIME_PRESETS = [
-  { id: '1', label: '1 sn/sn', scale: SECOND_SCALE },
-  { id: '10', label: '10×', scale: 10 },
-  { id: '100', label: '100×', scale: 100 },
-  { id: '1000', label: '1.000×', scale: 1_000 },
-  { id: 'hour', label: '1 saat/sn', scale: HOUR_SCALE },
-  { id: '10000', label: '10.000×', scale: 10_000 },
-  { id: 'day', label: '1 gün/sn', scale: DAY_SCALE },
-  { id: 'year', label: '1 yıl/sn', scale: YEAR_SCALE },
+  { id: '1', label: L('1 sn/sn', '1 s/s'), scale: SECOND_SCALE },
+  { id: '10', label: L('10×', '10×'), scale: 10 },
+  { id: '100', label: L('100×', '100×'), scale: 100 },
+  { id: '1000', label: L('1.000×', '1,000×'), scale: 1_000 },
+  { id: 'hour', label: L('1 saat/sn', '1 hour/s'), scale: HOUR_SCALE },
+  { id: '10000', label: L('10.000×', '10,000×'), scale: 10_000 },
+  { id: 'day', label: L('1 gün/sn', '1 day/s'), scale: DAY_SCALE },
+  { id: 'year', label: L('1 yıl/sn', '1 year/s'), scale: YEAR_SCALE },
 ] as const
 
 export type LabWatchKind =

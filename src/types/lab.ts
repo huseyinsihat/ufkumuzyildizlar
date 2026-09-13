@@ -1,3 +1,5 @@
+import type { LocText } from '../i18n/types'
+
 export type LabRoomId = 'motion' | 'earth' | 'gravity' | 'scale' | 'build' | 'sky'
 
 export type LabActivityId =
@@ -28,18 +30,18 @@ export type LabStep = 'predict' | 'simulate' | 'result' | 'explain'
 
 export interface LabChoice {
   id: string
-  label: string
+  label: LocText
 }
 
 export interface LabActivity {
   id: LabActivityId
   room: LabRoomId
-  title: string
-  question: string
-  watchHint: string
+  title: LocText
+  question: LocText
+  watchHint: LocText
   choices?: LabChoice[]
-  simulateLabel: string
-  resultTitle: string
-  explain: string
+  simulateLabel: LocText
+  resultTitle: LocText
+  explain: LocText
   uses3d: boolean
 }

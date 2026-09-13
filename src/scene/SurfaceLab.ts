@@ -8,8 +8,10 @@ import {
   PlaneGeometry,
   SphereGeometry,
 } from 'three'
-import { getBody } from '../astronomy/planetData'
+import { displayName, getBody } from '../astronomy/planetData'
 import { fallTimeSeconds, jumpHeightMeters, earthRelativeWeight } from '../features/lab/gravityMath'
+import { tx, type AppLang } from '../i18n/types'
+import { UI } from '../i18n/ui'
 import type { BodyId } from '../types/planet'
 
 const DROP_IDS = ['moon', 'earth', 'jupiter'] as const
@@ -53,6 +55,7 @@ export class SurfaceLab {
   private jumpBody: BodyId = 'earth'
   private running = false
   private dropSignaled = false
+  private lang: AppLang = 'tr'
   onDropDone: (() => void) | null = null
 
   constructor() {
@@ -82,8 +85,9 @@ export class SurfaceLab {
       ground.position.set((index - 1) * 5.2, cloudy ? -1.6 : -1.45, 0)
       const ball = new Mesh(new SphereGeometry(0.28, 16, 12), new MeshStandardMaterial({ color: '#f8fafc', roughness: 0.35 }))
       ball.position.set((index - 1) * 5.2, 3.4, 0)
-      const plate = namePlate(cloudy ? 'Jüpiter · katı yer yok' : body.name)
+      const plate = namePlate(this.plateText(id))
       plate.position.set((index - 1) * 5.2, -2.2, 0.8)
+      plate.userData.bodyId = id
       const kid = new Group()
       const torso = new Mesh(
         new CylinderGeometry(0.22, 0.28, 0.7, 10),
@@ -204,6 +208,39 @@ export class SurfaceLab {
     this.jumpBody = id
     if (this.mode === 'jump' && !this.running) this.jumper.position.set(0, -1.1, 0)
     if (this.mode === 'jump') this.placePeak()
+  }
+
+  setLang(lang: AppLang): void {
+    this.lang = lang
+    for (const plate of this.plates) {
+      const id = plate.userData.bodyId as BodyId | undefined
+      if (!id) continue
+      const text = this.plateText(id)
+      const material = plate.material
+      if (!(material instanceof MeshBasicMaterial) || !material.map) continue
+      const canvas = document.createElement('canvas')
+      canvas.width = 256
+      canvas.height = 64
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.fillStyle = 'rgba(4, 10, 24, 0.82)'
+        ctx.fillRect(0, 0, 256, 64)
+        ctx.fillStyle = '#f8fafc'
+        ctx.font = 'bold 28px sans-serif'
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillText(text, 128, 32)
+      }
+      material.map.dispose()
+      material.map = new CanvasTexture(canvas)
+      material.needsUpdate = true
+    }
+  }
+
+  private plateText(id: BodyId): string {
+    const name = displayName(id, this.lang)
+    if (id === 'jupiter') return `${name} · ${tx(this.lang, UI.noSolid)}`
+    return name
   }
 
   stop(): void {

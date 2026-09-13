@@ -1,4 +1,6 @@
 import { TEAM } from '../../content/team'
+import { loc } from '../../i18n/types'
+import { useLang, useT } from '../../i18n/useT'
 import { useUiStore } from '../../store/uiStore'
 import { useVoiceStore } from '../../store/voiceStore'
 import { Icon } from './Icon'
@@ -6,6 +8,8 @@ import { Icon } from './Icon'
 const logoSrc = `${import.meta.env.BASE_URL}Teknofest_logo.png`
 
 export function TopBar() {
+  const t = useT()
+  const lang = useLang()
   const setIntro = useUiStore((s) => s.setIntroVisible)
   const voiceOn = useVoiceStore((s) => s.enabled)
   const playing = useVoiceStore((s) => s.playing)
@@ -19,7 +23,7 @@ export function TopBar() {
 
   return (
     <header className="top-bar" role="banner">
-      <button type="button" className="brand-btn" onClick={() => setIntro(true)} aria-label="Ana ekran">
+      <button type="button" className="brand-btn" onClick={() => setIntro(true)} aria-label={t('home')}>
         <img className="brand-logo" src={logoSrc} alt="" />
         <span className="brand-copy">
           <strong>{TEAM.project}</strong>
@@ -28,14 +32,14 @@ export function TopBar() {
           </span>
         </span>
       </button>
-      <p className="category">{TEAM.category.replace(/, /g, ' · ')}</p>
+      <p className="category">{loc(lang, TEAM.category).replace(/, /g, ' · ')}</p>
       <div className="top-right-cluster">
         <button
           type="button"
           className={`icon-chip voice-toggle${voiceOn ? '' : ' is-muted'}${playing ? ' is-playing' : ''}`}
           data-voice-toggle=""
           aria-pressed={voiceOn}
-          aria-label={voiceOn ? 'Sesli anlatımı kapat' : 'Sesli anlatımı aç'}
+          aria-label={voiceOn ? t('voiceOn') : t('voiceOff')}
           onClick={toggleVoice}
         >
           <Icon name={voiceOn ? 'speaker' : 'speakerOff'} />
