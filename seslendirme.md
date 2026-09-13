@@ -173,32 +173,30 @@ en-activity-who-faster.mp3  Who finishes a lap first? Mercury or Earth?
 
 ## Durum
 
-Stüdyo: `seslendirme/` — yeni kayıt buraya, sonra `npm run voice:sync`.
-Çalışan kopya: `public/audio/` — uygulama buradan okur. Dosya yoksa susar.
+Stüdyo: `seslendirme/{lang}-{kod}.mp3` — güncel kayıtlar.
+Çalışan kopya: `public/audio/` — `npm run voice:sync`. Dosya yoksa uygulama susar.
+Telefon m4a: `seslendirme/yenisesler/` içine koy, `npm run voice:ingest`, sonra sync. ffmpeg gerekir.
 
-### Çalışıyor (23 TR)
+### Çalışıyor (77)
 
-intro-welcome, intro-lead, intro-lab, intro-explore, intro-team
-body-sun, body-mercury, body-venus, body-earth, body-moon, body-mars, body-jupiter, body-uranus, body-neptune
-lab-predict, lab-watch, lab-why, lab-done
-activity-arrange-orbits, activity-moon-phases, activity-closest-hottest, activity-drop-ball, activity-who-faster
+TR 38: intro 5, mode 2, ui (facts hariç) 5, cisimler 11, lab 4, oda 6, etkinlik 5
+EN 39: kataloğun tamamı
 
 ### Sistem uyuyor, kayıt yok (sessiz kalır)
 
-mode-explore, mode-lab
-ui-planets, ui-stars, ui-facts, ui-compare, ui-team, ui-overview
-body-saturn, body-pluto
-room-motion, room-earth, room-gravity, room-scale, room-build, room-sky
-tüm en-*.mp3
+tr-ui-facts
+sfx-correct, sfx-wrong
 
 ### Efekt (ayrı kanal, dil yok)
 
 sfx-correct.mp3 — doğru tahmin
 sfx-wrong.mp3 — yanlış tahmin
-Kayıt yok. `seslendirme/` altına koy, `npm run voice:sync`. Dock veya gezegen tık sesi yok.
+Kayıt yok. Dock veya gezegen tık sesi yok.
 
 ### Arşiv
 
-`seslendirme-arsiv/` — uygulama okumaz. Eski `Ufkumuz Yıldızlar_/` dışa aktarımı buraya taşınır (`eski-disa-aktarim/`). Kullanılan kayıtlar `seslendirme/` ve `public/audio/` altında.
+`seslendirme-arsiv/` — uygulama okumaz.
+- `eski-mp3/` — önceki 23 TR mp3
+- `yenisesler-m4a/` — telefon kaynakları (m4a / bozuk ad)
 
 Eklenmeyecek: eski eğitim / quiz / görev paneline özel clip yok. Yeni dock mevcut ui-* ve mode-* kodlarıyla konuşur.

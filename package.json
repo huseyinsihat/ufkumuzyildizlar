@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "voice:sync": "node scripts/sync-voice.mjs"
+    "voice:sync": "node scripts/sync-voice.mjs",
+    "voice:ingest": "node scripts/ingest-voice.mjs"
   },
   "dependencies": {
     "astronomy-engine": "^2.1.19",
