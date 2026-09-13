@@ -18,12 +18,10 @@ const DROP_IDS = ['moon', 'earth', 'jupiter'] as const
 const HEIGHT_M = 12
 const LAUNCH = 4.2
 
-function namePlate(text: string): Mesh {
-  const canvas = document.createElement('canvas')
-  canvas.width = 256
-  canvas.height = 64
+function paintPlate(canvas: HTMLCanvasElement, text: string): CanvasTexture {
   const ctx = canvas.getContext('2d')
   if (ctx) {
+    ctx.clearRect(0, 0, 256, 64)
     ctx.fillStyle = 'rgba(4, 10, 24, 0.82)'
     ctx.fillRect(0, 0, 256, 64)
     ctx.fillStyle = '#f8fafc'
@@ -32,10 +30,20 @@ function namePlate(text: string): Mesh {
     ctx.textBaseline = 'middle'
     ctx.fillText(text, 128, 32)
   }
+  const texture = new CanvasTexture(canvas)
+  texture.needsUpdate = true
+  return texture
+}
+
+function namePlate(text: string): Mesh {
+  const canvas = document.createElement('canvas')
+  canvas.width = 256
+  canvas.height = 64
   const mesh = new Mesh(
     new PlaneGeometry(2.6, 0.65),
-    new MeshBasicMaterial({ map: new CanvasTexture(canvas), transparent: true, depthWrite: false }),
+    new MeshBasicMaterial({ map: paintPlate(canvas, text), transparent: true, depthWrite: false }),
   )
+  mesh.userData.plateCanvas = canvas
   mesh.raycast = () => {}
   return mesh
 }
@@ -126,6 +134,26 @@ export class SurfaceLab {
     this.group.add(this.jumper, this.pole, this.peak)
   }
 
+  private plateText(id: (typeof DROP_IDS)[number]): string {
+    const name = displayName(id, this.lang)
+    if (id === 'jupiter') return `${name} · ${tx(this.lang, UI.noSolid)}`
+    return name
+  }
+
+  setLang(lang: AppLang): void {
+    this.lang = lang
+    DROP_IDS.forEach((id, index) => {
+      const plate = this.plates[index]
+      if (!plate) return
+      const canvas = plate.userData.plateCanvas as HTMLCanvasElement | undefined
+      if (!canvas) return
+      const material = plate.material as MeshBasicMaterial
+      material.map?.dispose()
+      material.map = paintPlate(canvas, this.plateText(id))
+      material.needsUpdate = true
+    })
+  }
+
   startDrop(): void {
     this.mode = 'drop'
     this.elapsed = 0
@@ -208,39 +236,6 @@ export class SurfaceLab {
     this.jumpBody = id
     if (this.mode === 'jump' && !this.running) this.jumper.position.set(0, -1.1, 0)
     if (this.mode === 'jump') this.placePeak()
-  }
-
-  setLang(lang: AppLang): void {
-    this.lang = lang
-    for (const plate of this.plates) {
-      const id = plate.userData.bodyId as BodyId | undefined
-      if (!id) continue
-      const text = this.plateText(id)
-      const material = plate.material
-      if (!(material instanceof MeshBasicMaterial) || !material.map) continue
-      const canvas = document.createElement('canvas')
-      canvas.width = 256
-      canvas.height = 64
-      const ctx = canvas.getContext('2d')
-      if (ctx) {
-        ctx.fillStyle = 'rgba(4, 10, 24, 0.82)'
-        ctx.fillRect(0, 0, 256, 64)
-        ctx.fillStyle = '#f8fafc'
-        ctx.font = 'bold 28px sans-serif'
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText(text, 128, 32)
-      }
-      material.map.dispose()
-      material.map = new CanvasTexture(canvas)
-      material.needsUpdate = true
-    }
-  }
-
-  private plateText(id: BodyId): string {
-    const name = displayName(id, this.lang)
-    if (id === 'jupiter') return `${name} · ${tx(this.lang, UI.noSolid)}`
-    return name
   }
 
   stop(): void {
